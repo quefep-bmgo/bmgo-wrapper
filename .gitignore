@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.eggs/
+*.so
+.DS_Store
+.sessions.json
+lookup_user.py
