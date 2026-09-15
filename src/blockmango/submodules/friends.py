@@ -42,15 +42,6 @@ class FriendsAPI:
     def delete_friend(self, friend_id: int) -> dict[str, Any]:
         return self._account.request("DELETE", "/friend/api/v1/friends", params={"friendId": friend_id})
 
-    def get_blocklist(self) -> list[UserProfile]:
-        r = self._account.request("GET", "/friend/api/v1/friends/black")
-        data = r.get("data") or {}
-        items = data.get("list") or data.get("data") or []
-        return [p for p in (UserProfile.from_dict(i) for i in items if i) if p is not None]
-
-    def block_user(self, friend_id: int) -> dict[str, Any]:
-        return self._account.request("PUT", "/friend/api/v1/friends/black", params={"friendId": friend_id})
-
     def unblock_user(self, friend_id: int) -> dict[str, Any]:
         return self._account.request("DELETE", "/friend/api/v1/friends/black", params={"friendId": friend_id})
 
@@ -161,15 +152,6 @@ class FriendsAPI:
 
     async def async_delete_friend(self, friend_id: int) -> dict[str, Any]:
         return await self._account.async_request("DELETE", "/friend/api/v1/friends", params={"friendId": friend_id})
-
-    async def async_get_blocklist(self) -> list[UserProfile]:
-        r = await self._account.async_request("GET", "/friend/api/v1/friends/black")
-        data = r.get("data") or {}
-        items = data.get("list") or data.get("data") or []
-        return [p for p in (UserProfile.from_dict(i) for i in items if i) if p is not None]
-
-    async def async_block_user(self, friend_id: int) -> dict[str, Any]:
-        return await self._account.async_request("PUT", "/friend/api/v1/friends/black", params={"friendId": friend_id})
 
     async def async_unblock_user(self, friend_id: int) -> dict[str, Any]:
         return await self._account.async_request("DELETE", "/friend/api/v1/friends/black", params={"friendId": friend_id})

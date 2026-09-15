@@ -80,14 +80,15 @@ class GroupAPI:
     def get_creation_price(self) -> dict[str, Any]:
         return self._account.request("GET", "/msg/api/v1/group/chat/price")
 
-    def get_invite_count(self) -> dict[str, Any]:
-        return self._account.request("GET", "/msg/api/v1/msg/group/chat/invite/count")
+    def get_invite_count(self, group_id: int, language: str = "en") -> dict[str, Any]:
+        return self._account.request("GET", "/msg/api/v1/msg/group/chat/invite/count",
+                                     params={"groupId": group_id}, language=language)
 
     def get_join_requests(self) -> dict[str, Any]:
         return self._account.request("GET", "/msg/api/v1/msg/group/chat/request/list")
 
-    def get_vip_group_info(self) -> dict[str, Any]:
-        return self._account.request("GET", "/msg/api/v1/vip-group/info")
+    def get_vip_group_info(self, group_id: str) -> dict[str, Any]:
+        return self._account.request("GET", "/msg/api/v1/vip-group/info", params={"groupId": group_id})
 
     def approve_all_join_requests(self) -> dict[str, Any]:
         return self._account.request("PUT", "/msg/api/v1/msg/group/chat/agreement-all")
@@ -179,14 +180,15 @@ class GroupAPI:
     async def async_get_creation_price(self) -> dict[str, Any]:
         return await self._account.async_request("GET", "/msg/api/v1/group/chat/price")
 
-    async def async_get_invite_count(self) -> dict[str, Any]:
-        return await self._account.async_request("GET", "/msg/api/v1/msg/group/chat/invite/count")
+    async def async_get_invite_count(self, group_id: int, language: str = "en") -> dict[str, Any]:
+        return await self._account.async_request("GET", "/msg/api/v1/msg/group/chat/invite/count",
+                                                  params={"groupId": group_id}, language=language)
 
     async def async_get_join_requests(self) -> dict[str, Any]:
         return await self._account.async_request("GET", "/msg/api/v1/msg/group/chat/request/list")
 
-    async def async_get_vip_group_info(self) -> dict[str, Any]:
-        return await self._account.async_request("GET", "/msg/api/v1/vip-group/info")
+    async def async_get_vip_group_info(self, group_id: str) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/msg/api/v1/vip-group/info", params={"groupId": group_id})
 
     async def async_approve_all_join_requests(self) -> dict[str, Any]:
         return await self._account.async_request("PUT", "/msg/api/v1/msg/group/chat/agreement-all")

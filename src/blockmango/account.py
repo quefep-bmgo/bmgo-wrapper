@@ -281,21 +281,22 @@ class BmgAccount:
             return False
 
     def request(self, method: str, path: str, params: dict[str, Any] | None = None,
-                body: dict[str, Any] | None = None, language: str | None = None) -> dict[str, Any]:
+                body: dict[str, Any] | None = None, language: str | None = None,
+                _extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
         body_str = _compact(body)
         flat = _flatten_params(params or {})
         sp: dict[str, list[str]] = {}
         for k, v in flat:
             sp.setdefault(k, []).append(v)
         try:
-            resp = self._signed_request(method, path, flat, sp, body_str, language)
+            resp = self._signed_request(method, path, flat, sp, body_str, language, _extra_headers)
         except Exception as e:
             return {"code": -1, "message": str(e)}
         if isinstance(resp, dict) and resp.get("code") == 100001:
             for _ in range(2):
                 self._sync_time()
                 try:
-                    resp = self._signed_request(method, path, flat, sp, body_str, language)
+                    resp = self._signed_request(method, path, flat, sp, body_str, language, _extra_headers)
                 except Exception as e:
                     return {"code": -1, "message": str(e)}
                 if not (isinstance(resp, dict) and resp.get("code") == 100001):
@@ -303,14 +304,16 @@ class BmgAccount:
         return resp
 
     def _signed_request(self, method: str, path: str, flat: list[tuple[str, str]],
-                        sp: dict[str, list[str]], body_str: str, language: str | None) -> dict[str, Any]:
-        import copy
+                        sp: dict[str, list[str]], body_str: str, language: str | None,
+                        _extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
         headers = _build_signed_headers(
             path, flat, body_str, self._ak, self._sk,
             self._device_id or "", self._device_sign or "",
             self._t_off, self._uid, self._token, language,
             dict(DEFAULT_APP_HEADERS),
         )
+        if _extra_headers:
+            headers.update(_extra_headers)
         url = self.config.api_base + path
         if flat:
             url += "?" + "&".join(f"{k}={v}" for k, v in flat)
@@ -328,21 +331,22 @@ class BmgAccount:
         return r.json() if r.text else {}
 
     async def async_request(self, method: str, path: str, params: dict[str, Any] | None = None,
-                            body: dict[str, Any] | None = None, language: str | None = None) -> dict[str, Any]:
+                            body: dict[str, Any] | None = None, language: str | None = None,
+                            _extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
         body_str = _compact(body)
         flat = _flatten_params(params or {})
         sp: dict[str, list[str]] = {}
         for k, v in flat:
             sp.setdefault(k, []).append(v)
         try:
-            resp = await self._async_signed_request(method, path, flat, sp, body_str, language)
+            resp = await self._async_signed_request(method, path, flat, sp, body_str, language, _extra_headers)
         except Exception as e:
             return {"code": -1, "message": str(e)}
         if isinstance(resp, dict) and resp.get("code") == 100001:
             for _ in range(2):
                 self._sync_time()
                 try:
-                    resp = await self._async_signed_request(method, path, flat, sp, body_str, language)
+                    resp = await self._async_signed_request(method, path, flat, sp, body_str, language, _extra_headers)
                 except Exception as e:
                     return {"code": -1, "message": str(e)}
                 if not (isinstance(resp, dict) and resp.get("code") == 100001):
@@ -350,13 +354,16 @@ class BmgAccount:
         return resp
 
     async def _async_signed_request(self, method: str, path: str, flat: list[tuple[str, str]],
-                                    sp: dict[str, list[str]], body_str: str, language: str | None) -> dict[str, Any]:
+                                    sp: dict[str, list[str]], body_str: str, language: str | None,
+                                    _extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
         headers = _build_signed_headers(
             path, flat, body_str, self._ak, self._sk,
             self._device_id or "", self._device_sign or "",
             self._t_off, self._uid, self._token, language,
             dict(DEFAULT_APP_HEADERS),
         )
+        if _extra_headers:
+            headers.update(_extra_headers)
         url = self.config.api_base + path
         if flat:
             url += "?" + "&".join(f"{k}={v}" for k, v in flat)

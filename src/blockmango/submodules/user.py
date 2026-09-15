@@ -117,8 +117,8 @@ class UserAPI:
     def get_player_info(self) -> dict[str, Any]:
         return self._account.request("GET", "/user/api/v1/user/player/info")
 
-    def get_random_nickname(self) -> dict[str, Any]:
-        return self._account.request("GET", "/user/api/v1/user/random/nickname")
+    def get_random_nickname(self, language: str = "en") -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/random/nickname", language=language)
 
     def check_nickname_exist(self, nickname: str) -> dict[str, Any]:
         return self._account.request("GET", "/api/v1/temporary/check/nickname/exist", params={"nickname": nickname})
@@ -236,8 +236,8 @@ class UserAPI:
     async def async_get_player_info(self) -> dict[str, Any]:
         return await self._account.async_request("GET", "/user/api/v1/user/player/info")
 
-    async def async_get_random_nickname(self) -> dict[str, Any]:
-        return await self._account.async_request("GET", "/user/api/v1/user/random/nickname")
+    async def async_get_random_nickname(self, language: str = "en") -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/random/nickname", language=language)
 
     async def async_check_nickname_exist(self, nickname: str) -> dict[str, Any]:
         return await self._account.async_request("GET", "/api/v1/temporary/check/nickname/exist", params={"nickname": nickname})
@@ -250,11 +250,15 @@ class UserAPI:
 
     # --- Avatar frames ---
 
-    def get_avatar_frames(self) -> dict[str, Any]:
-        return self._account.request("GET", "/user/api/v1/user/avatar/frame")
+    def get_avatar_frames(self, language: str = "en") -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/avatar/frame",
+                                     language=language,
+                                     _extra_headers={"userId": str(self._account.uid)})
 
-    def equip_avatar_frame(self, resource_id: int) -> dict[str, Any]:
-        return self._account.request("PUT", "/user/api/v1/user/avatar/frame", params={"resourceId": resource_id})
+    def equip_avatar_frame(self, resource_id: int, language: str = "en") -> dict[str, Any]:
+        return self._account.request("PUT", "/user/api/v1/user/avatar/frame",
+                                     params={"resourceId": resource_id}, language=language,
+                                     _extra_headers={"userId": str(self._account.uid)})
 
     def check_avatar_frame_resources(self, res_version: int = 0) -> dict[str, Any]:
         return self._account.request("GET", "/user/api/v1/user/avatar/frame/resource/check", params={"resVersion": res_version})
@@ -279,11 +283,11 @@ class UserAPI:
 
     # --- Sign-in v2 ---
 
-    def get_daily_sign_in_v2(self) -> dict[str, Any]:
-        return self._account.request("GET", f"/user/api/v2/users/{self._account.uid}/daily/sign/in")
+    def get_daily_sign_in_v2(self, language: str = "en") -> dict[str, Any]:
+        return self._account.request("GET", f"/user/api/v2/users/{self._account.uid}/daily/sign/in", language=language)
 
-    def daily_sign_in_v2(self) -> dict[str, Any]:
-        return self._account.request("PUT", f"/user/api/v2/users/{self._account.uid}/daily/sign/in")
+    def daily_sign_in_v2(self, language: str = "en") -> dict[str, Any]:
+        return self._account.request("PUT", f"/user/api/v2/users/{self._account.uid}/daily/sign/in", language=language)
 
     def claim_sign_in_ad_reward(self) -> dict[str, Any]:
         return self._account.request("PUT", "/user/api/v1/users/daily/sign/ads")
@@ -342,16 +346,21 @@ class UserAPI:
     def claim_sharing_reward(self, type_: int = 0) -> dict[str, Any]:
         return self._account.request("POST", "/user/api/v1/users/sharing/reward", params={"type": type_})
 
-    def get_security_email(self) -> dict[str, Any]:
-        return self._account.request("GET", "/user/api/v1/users/security/bind/email", params={"userId": self._account.uid})
+    def get_security_email(self, language: str = "en") -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/users/security/bind/email",
+                                     params={"userId": self._account.uid}, language=language)
 
     # --- Async: Avatar frames ---
 
-    async def async_get_avatar_frames(self) -> dict[str, Any]:
-        return await self._account.async_request("GET", "/user/api/v1/user/avatar/frame")
+    async def async_get_avatar_frames(self, language: str = "en") -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/avatar/frame",
+                                                  language=language,
+                                                  _extra_headers={"userId": str(self._account.uid)})
 
-    async def async_equip_avatar_frame(self, resource_id: int) -> dict[str, Any]:
-        return await self._account.async_request("PUT", "/user/api/v1/user/avatar/frame", params={"resourceId": resource_id})
+    async def async_equip_avatar_frame(self, resource_id: int, language: str = "en") -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/user/api/v1/user/avatar/frame",
+                                                  params={"resourceId": resource_id}, language=language,
+                                                  _extra_headers={"userId": str(self._account.uid)})
 
     async def async_check_avatar_frame_resources(self, res_version: int = 0) -> dict[str, Any]:
         return await self._account.async_request("GET", "/user/api/v1/user/avatar/frame/resource/check", params={"resVersion": res_version})
@@ -376,11 +385,11 @@ class UserAPI:
 
     # --- Async: Sign-in v2 ---
 
-    async def async_get_daily_sign_in_v2(self) -> dict[str, Any]:
-        return await self._account.async_request("GET", f"/user/api/v2/users/{self._account.uid}/daily/sign/in")
+    async def async_get_daily_sign_in_v2(self, language: str = "en") -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/user/api/v2/users/{self._account.uid}/daily/sign/in", language=language)
 
-    async def async_daily_sign_in_v2(self) -> dict[str, Any]:
-        return await self._account.async_request("PUT", f"/user/api/v2/users/{self._account.uid}/daily/sign/in")
+    async def async_daily_sign_in_v2(self, language: str = "en") -> dict[str, Any]:
+        return await self._account.async_request("PUT", f"/user/api/v2/users/{self._account.uid}/daily/sign/in", language=language)
 
     async def async_claim_sign_in_ad_reward(self) -> dict[str, Any]:
         return await self._account.async_request("PUT", "/user/api/v1/users/daily/sign/ads")
@@ -439,5 +448,6 @@ class UserAPI:
     async def async_claim_sharing_reward(self, type_: int = 0) -> dict[str, Any]:
         return await self._account.async_request("POST", "/user/api/v1/users/sharing/reward", params={"type": type_})
 
-    async def async_get_security_email(self) -> dict[str, Any]:
-        return await self._account.async_request("GET", "/user/api/v1/users/security/bind/email", params={"userId": self._account.uid})
+    async def async_get_security_email(self, language: str = "en") -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/users/security/bind/email",
+                                                  params={"userId": self._account.uid}, language=language)
