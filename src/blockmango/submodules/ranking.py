@@ -34,6 +34,79 @@ class RankingAPI:
     def get_game_ranking(self, game_id: str, period: str = "all", page: int = 1, size: int = 10) -> dict[str, Any]:
         return self._account.get_game_ranking(game_id, period, page, size)
 
+    def get_ranking_list(self, rank_type: str = "active", page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/ranking/list",
+                                     params={"rankType": rank_type, "pageNo": page, "pageSize": size})
+
+    def get_friend_ranking(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/ranking/friends",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_clan_ranking(self, rank_type: str = "active", page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/ranking/clan",
+                                     params={"rankType": rank_type, "pageNo": page, "pageSize": size})
+
+    def get_global_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/active/global/overall/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_region_weekly(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/active/region/weekly/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_region_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/active/region/overall/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_clan_global_weekly(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/clan/global/weekly/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_clan_global_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/clan/global/overall/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_clan_region_weekly(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/clan/region/weekly/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_clan_region_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/clan/region/overall/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_gold_diamond_global_weekly(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/gold/diamond/global/weekly/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_gold_diamond_global_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/gold/diamond/global/overall/rank",
+                                     params={"pageNo": page, "pageSize": size})
+
+    def get_gold_diamond_region_overall(self, page: int = 1, size: int = 10) -> list[RankEntry]:
+        r = self._account.request("GET", "/ranking/api/v1/gold/diamond/region/overall/rank", params={"pageNo": page, "pageSize": size})
+        data = r.get("data")
+        if isinstance(data, dict):
+            items = data.get("data") or []
+        elif isinstance(data, list):
+            items = data
+        else:
+            items = []
+        return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
+
+    def get_gold_diamond_region_weekly(self, page: int = 1, size: int = 10) -> list[RankEntry]:
+        r = self._account.request("GET", "/ranking/api/v1/gold/diamond/region/weekly/rank", params={"pageNo": page, "pageSize": size})
+        data = r.get("data")
+        if isinstance(data, dict):
+            items = data.get("data") or []
+        elif isinstance(data, list):
+            items = data
+        else:
+            items = []
+        return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
+
+    def get_region_home_page_info(self) -> dict[str, Any]:
+        return self._account.request("GET", "/ranking/api/v1/ranking/region/home/page/info")
+
     async def async_get_user_rank(self, uid: int, rank_type: str = "active", rank_kind: str = "overall", is_region: bool = False) -> dict[str, Any]:
         return await self._account.async_request("GET", "/ranking/api/v1/ranking/user/info",
                                                  params={"rankType": rank_type, "type": rank_kind, "isRegion": 1 if is_region else 0})
@@ -51,3 +124,76 @@ class RankingAPI:
 
     async def async_get_game_ranking(self, game_id: str, period: str = "all", page: int = 1, size: int = 10) -> dict[str, Any]:
         return await self._account.async_get_game_ranking(game_id, period, page, size)
+
+    async def async_get_ranking_list(self, rank_type: str = "active", page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/ranking/list",
+                                                 params={"rankType": rank_type, "pageNo": page, "pageSize": size})
+
+    async def async_get_friend_ranking(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/ranking/friends",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_clan_ranking(self, rank_type: str = "active", page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/ranking/clan",
+                                                 params={"rankType": rank_type, "pageNo": page, "pageSize": size})
+
+    async def async_get_global_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/active/global/overall/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_region_weekly(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/active/region/weekly/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_region_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/active/region/overall/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_clan_global_weekly(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/clan/global/weekly/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_clan_global_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/clan/global/overall/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_clan_region_weekly(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/clan/region/weekly/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_clan_region_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/clan/region/overall/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_gold_diamond_global_weekly(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/gold/diamond/global/weekly/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_gold_diamond_global_overall(self, page: int = 1, size: int = 10) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/gold/diamond/global/overall/rank",
+                                                 params={"pageNo": page, "pageSize": size})
+
+    async def async_get_gold_diamond_region_overall(self, page: int = 1, size: int = 10) -> list[RankEntry]:
+        r = await self._account.async_request("GET", "/ranking/api/v1/gold/diamond/region/overall/rank", params={"pageNo": page, "pageSize": size})
+        data = r.get("data")
+        if isinstance(data, dict):
+            items = data.get("data") or []
+        elif isinstance(data, list):
+            items = data
+        else:
+            items = []
+        return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
+
+    async def async_get_gold_diamond_region_weekly(self, page: int = 1, size: int = 10) -> list[RankEntry]:
+        r = await self._account.async_request("GET", "/ranking/api/v1/gold/diamond/region/weekly/rank", params={"pageNo": page, "pageSize": size})
+        data = r.get("data")
+        if isinstance(data, dict):
+            items = data.get("data") or []
+        elif isinstance(data, list):
+            items = data
+        else:
+            items = []
+        return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
+
+    async def async_get_region_home_page_info(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/ranking/api/v1/ranking/region/home/page/info")

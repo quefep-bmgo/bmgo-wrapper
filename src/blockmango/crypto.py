@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import time
 import uuid
 from typing import Any
 
@@ -60,7 +61,7 @@ def _sign(
     ak: str, sk: str, device_id: str | None, t_off: int,
 ) -> tuple[str, str, str]:
     nonce = str(uuid.uuid4())
-    ts = str(int(__import__("time").time()) + t_off)
+    ts = str(int(time.time()) + t_off)
     ps = _params_to_string(params)
     base = ak + path + nonce + ts + ps + body + sk
     if path.startswith("/user/api/v4/account/"):

@@ -77,6 +77,44 @@ class GroupAPI:
         return self._account.request("PUT", "/msg/api/v1/msg/group/chat/modify",
                                      body={"groupId": group_id, "groupName": group_name, "inviteStatus": invite_status, "inviterId": self._account.uid})
 
+    def get_creation_price(self) -> dict[str, Any]:
+        return self._account.request("GET", "/msg/api/v1/group/chat/price")
+
+    def get_invite_count(self) -> dict[str, Any]:
+        return self._account.request("GET", "/msg/api/v1/msg/group/chat/invite/count")
+
+    def get_join_requests(self) -> dict[str, Any]:
+        return self._account.request("GET", "/msg/api/v1/msg/group/chat/request/list")
+
+    def get_vip_group_info(self) -> dict[str, Any]:
+        return self._account.request("GET", "/msg/api/v1/vip-group/info")
+
+    def approve_all_join_requests(self) -> dict[str, Any]:
+        return self._account.request("PUT", "/msg/api/v1/msg/group/chat/agreement-all")
+
+    def reject_all_join_requests(self) -> dict[str, Any]:
+        return self._account.request("PUT", "/msg/api/v1/msg/group/chat/reject-all")
+
+    def recall_message(self, message_id: str) -> dict[str, Any]:
+        return self._account.request("POST", "/msg/api/v1/msg/group/chat/recall/message",
+                                     params={"messageId": message_id})
+
+    def mute_all_members(self) -> dict[str, Any]:
+        return self._account.request("PUT", "/msg/api/v1/msg/group/chat/forbidden",
+                                     params={"forbiddenStatus": 1})
+
+    def unmute_all_members(self) -> dict[str, Any]:
+        return self._account.request("PUT", "/msg/api/v1/msg/group/chat/forbidden",
+                                     params={"forbiddenStatus": 0})
+
+    def remove_member_ban(self, member_id: int) -> dict[str, Any]:
+        return self._account.request("PUT", "/msg/api/v1/msg/group/chat/remove/forbidden/member",
+                                     params={"memberId": member_id})
+
+    def add_member_by_email(self, email: str) -> dict[str, Any]:
+        return self._account.request("POST", "/msg/api/v1/msg/group/chat/mail/add",
+                                     params={"email": email})
+
     async def async_create(self, member_ids: list[int], cost: int = 0) -> dict[str, Any]:
         return await self._account.async_request("POST", "/msg/api/v2/msg/group/chat",
                                                  body={"cost": cost, "currency": 1, "memberIds": member_ids, "userId": self._account.uid})
@@ -137,3 +175,41 @@ class GroupAPI:
     async def async_allow_invite(self, group_id: int, group_name: str, invite_status: int) -> dict[str, Any]:
         return await self._account.async_request("PUT", "/msg/api/v1/msg/group/chat/modify",
                                                  body={"groupId": group_id, "groupName": group_name, "inviteStatus": invite_status, "inviterId": self._account.uid})
+
+    async def async_get_creation_price(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/msg/api/v1/group/chat/price")
+
+    async def async_get_invite_count(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/msg/api/v1/msg/group/chat/invite/count")
+
+    async def async_get_join_requests(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/msg/api/v1/msg/group/chat/request/list")
+
+    async def async_get_vip_group_info(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/msg/api/v1/vip-group/info")
+
+    async def async_approve_all_join_requests(self) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/msg/api/v1/msg/group/chat/agreement-all")
+
+    async def async_reject_all_join_requests(self) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/msg/api/v1/msg/group/chat/reject-all")
+
+    async def async_recall_message(self, message_id: str) -> dict[str, Any]:
+        return await self._account.async_request("POST", "/msg/api/v1/msg/group/chat/recall/message",
+                                                 params={"messageId": message_id})
+
+    async def async_mute_all_members(self) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/msg/api/v1/msg/group/chat/forbidden",
+                                                 params={"forbiddenStatus": 1})
+
+    async def async_unmute_all_members(self) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/msg/api/v1/msg/group/chat/forbidden",
+                                                 params={"forbiddenStatus": 0})
+
+    async def async_remove_member_ban(self, member_id: int) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/msg/api/v1/msg/group/chat/remove/forbidden/member",
+                                                 params={"memberId": member_id})
+
+    async def async_add_member_by_email(self, email: str) -> dict[str, Any]:
+        return await self._account.async_request("POST", "/msg/api/v1/msg/group/chat/mail/add",
+                                                 params={"email": email})

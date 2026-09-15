@@ -93,6 +93,42 @@ class UserAPI:
     def set_birthday(self, birthday: str) -> dict[str, Any]:
         return self._account.request("PUT", "/user/api/v1/user/info", body={"birthday": birthday})
 
+    def get_online_info(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/online/info")
+
+    def update_engine(self, engine_version: str) -> dict[str, Any]:
+        return self._account.request("PUT", "/user/api/v1/user/engine", body={"engineVersion": engine_version})
+
+    def get_friend_count(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/friend/num")
+
+    def get_report_info(self, uid: int) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/report/info", params={"userId": uid})
+
+    def report_user(self, uid: int, reason: str, content: str = "") -> dict[str, Any]:
+        return self._account.request("POST", "/user/api/v1/user/report", body={"userId": uid, "reason": reason, "content": content})
+
+    def get_simple_info(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/simple/info")
+
+    def get_vip_info(self, uid: int) -> dict[str, Any]:
+        return self._account.request("GET", f"/user/api/v1/vip/users/{uid}")
+
+    def get_player_info(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/player/info")
+
+    def get_random_nickname(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/random/nickname")
+
+    def check_nickname_exist(self, nickname: str) -> dict[str, Any]:
+        return self._account.request("GET", "/api/v1/temporary/check/nickname/exist", params={"nickname": nickname})
+
+    def get_daily_tasks(self, task_type: int = 1) -> dict[str, Any]:
+        return self._account.request("GET", f"/user/api/v1/users/dairy/tasks/{task_type}")
+
+    def get_new_daily_tasks(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/users/new/daily/tasks")
+
     async def async_get_profile(self, uid: int) -> UserProfile | None:
         r = await self._account.async_request("GET", f"/friend/api/v1/friends/info/id/{uid}")
         if r.get("code") == 1:
@@ -175,3 +211,233 @@ class UserAPI:
 
     async def async_set_birthday(self, birthday: str) -> dict[str, Any]:
         return await self._account.async_request("PUT", "/user/api/v1/user/info", body={"birthday": birthday})
+
+    async def async_get_online_info(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/online/info")
+
+    async def async_update_engine(self, engine_version: str) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/user/api/v1/user/engine", body={"engineVersion": engine_version})
+
+    async def async_get_friend_count(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/friend/num")
+
+    async def async_get_report_info(self, uid: int) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/report/info", params={"userId": uid})
+
+    async def async_report_user(self, uid: int, reason: str, content: str = "") -> dict[str, Any]:
+        return await self._account.async_request("POST", "/user/api/v1/user/report", body={"userId": uid, "reason": reason, "content": content})
+
+    async def async_get_simple_info(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/simple/info")
+
+    async def async_get_vip_info(self, uid: int) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/user/api/v1/vip/users/{uid}")
+
+    async def async_get_player_info(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/player/info")
+
+    async def async_get_random_nickname(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/random/nickname")
+
+    async def async_check_nickname_exist(self, nickname: str) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/api/v1/temporary/check/nickname/exist", params={"nickname": nickname})
+
+    async def async_get_daily_tasks(self, task_type: int = 1) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/user/api/v1/users/dairy/tasks/{task_type}")
+
+    async def async_get_new_daily_tasks(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/users/new/daily/tasks")
+
+    # --- Avatar frames ---
+
+    def get_avatar_frames(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/avatar/frame")
+
+    def equip_avatar_frame(self, resource_id: int) -> dict[str, Any]:
+        return self._account.request("PUT", "/user/api/v1/user/avatar/frame", params={"resourceId": resource_id})
+
+    def check_avatar_frame_resources(self, res_version: int = 0) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/avatar/frame/resource/check", params={"resVersion": res_version})
+
+    # --- Colorful nicknames ---
+
+    def get_colorful_nicknames(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/colorful/nickName")
+
+    def equip_colorful_nickname(self, resource_id: int) -> dict[str, Any]:
+        return self._account.request("PUT", "/user/api/v1/user/colorful/nickName", params={"resourceId": resource_id})
+
+    # --- Personal space effects ---
+
+    def check_space_effects(self, res_version: int = 0) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/personal/space/effect/resource/check", params={"resVersion": res_version})
+
+    # --- VIP ---
+
+    def check_vip_personality(self, res_version: int = 0) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/vip/personality/resource/check", params={"resVersion": res_version})
+
+    # --- Sign-in v2 ---
+
+    def get_daily_sign_in_v2(self) -> dict[str, Any]:
+        return self._account.request("GET", f"/user/api/v2/users/{self._account.uid}/daily/sign/in")
+
+    def daily_sign_in_v2(self) -> dict[str, Any]:
+        return self._account.request("PUT", f"/user/api/v2/users/{self._account.uid}/daily/sign/in")
+
+    def claim_sign_in_ad_reward(self) -> dict[str, Any]:
+        return self._account.request("PUT", "/user/api/v1/users/daily/sign/ads")
+
+    # --- Profile ---
+
+    def update_profile_detail(self, body: dict[str, Any]) -> dict[str, Any]:
+        return self._account.request("PUT", f"/user/api/v1/profile/detail/{self._account.uid}", body=body)
+
+    def get_account_settings(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/account/settings")
+
+    def get_profile_join_switch(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/profile/join/switch")
+
+    def set_profile_join_switch(self) -> dict[str, Any]:
+        return self._account.request("POST", "/user/api/v1/user/profile/join/switch")
+
+    def is_nickname_free(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/nickName/free")
+
+    def get_frequent_games(self, count: int = 5) -> dict[str, Any]:
+        return self._account.request("GET", f"/user/api/v1/data/frequently/game/{self._account.uid}", params={"count": count})
+
+    # --- Shop ---
+
+    def get_shop_info(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/user/shop/info")
+
+    def get_decoration_details(self, decoration_id: int) -> dict[str, Any]:
+        return self._account.request("GET", f"/shop/api/v1/shop/decorations/details/{decoration_id}")
+
+    def get_suit_info(self, suit_id: int) -> dict[str, Any]:
+        return self._account.request("GET", f"/shop/api/v1/new/shop/suit/info/{suit_id}")
+
+    # --- Pay / Month card ---
+
+    def get_month_card_info(self) -> dict[str, Any]:
+        return self._account.request("GET", "/pay/api/v2/monthcard/info")
+
+    def claim_month_card_reward(self, month_card_id: int) -> dict[str, Any]:
+        return self._account.request("POST", "/pay/api/v2/monthcard/receive", params={"monthCardId": month_card_id})
+
+    def get_payment_red_point(self) -> dict[str, Any]:
+        return self._account.request("GET", "/pay/api/v1/red-point")
+
+    # --- Activity ---
+
+    def get_task_activity_info(self, activity_id: str) -> dict[str, Any]:
+        return self._account.request("GET", "/activity/api/v1/task/activity/info", params={"activityId": activity_id})
+
+    def claim_task_activity_reward(self, activity_id: str, task_reward_id: str) -> dict[str, Any]:
+        return self._account.request("POST", "/activity/api/v1/task/activity/reward/receive",
+                                     params={"activityId": activity_id, "taskRewardId": task_reward_id})
+
+    def claim_sharing_reward(self, type_: int = 0) -> dict[str, Any]:
+        return self._account.request("POST", "/user/api/v1/users/sharing/reward", params={"type": type_})
+
+    def get_security_email(self) -> dict[str, Any]:
+        return self._account.request("GET", "/user/api/v1/users/security/bind/email", params={"userId": self._account.uid})
+
+    # --- Async: Avatar frames ---
+
+    async def async_get_avatar_frames(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/avatar/frame")
+
+    async def async_equip_avatar_frame(self, resource_id: int) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/user/api/v1/user/avatar/frame", params={"resourceId": resource_id})
+
+    async def async_check_avatar_frame_resources(self, res_version: int = 0) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/avatar/frame/resource/check", params={"resVersion": res_version})
+
+    # --- Async: Colorful nicknames ---
+
+    async def async_get_colorful_nicknames(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/colorful/nickName")
+
+    async def async_equip_colorful_nickname(self, resource_id: int) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/user/api/v1/user/colorful/nickName", params={"resourceId": resource_id})
+
+    # --- Async: Personal space effects ---
+
+    async def async_check_space_effects(self, res_version: int = 0) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/personal/space/effect/resource/check", params={"resVersion": res_version})
+
+    # --- Async: VIP ---
+
+    async def async_check_vip_personality(self, res_version: int = 0) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/vip/personality/resource/check", params={"resVersion": res_version})
+
+    # --- Async: Sign-in v2 ---
+
+    async def async_get_daily_sign_in_v2(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/user/api/v2/users/{self._account.uid}/daily/sign/in")
+
+    async def async_daily_sign_in_v2(self) -> dict[str, Any]:
+        return await self._account.async_request("PUT", f"/user/api/v2/users/{self._account.uid}/daily/sign/in")
+
+    async def async_claim_sign_in_ad_reward(self) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/user/api/v1/users/daily/sign/ads")
+
+    # --- Async: Profile ---
+
+    async def async_update_profile_detail(self, body: dict[str, Any]) -> dict[str, Any]:
+        return await self._account.async_request("PUT", f"/user/api/v1/profile/detail/{self._account.uid}", body=body)
+
+    async def async_get_account_settings(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/account/settings")
+
+    async def async_get_profile_join_switch(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/profile/join/switch")
+
+    async def async_set_profile_join_switch(self) -> dict[str, Any]:
+        return await self._account.async_request("POST", "/user/api/v1/user/profile/join/switch")
+
+    async def async_is_nickname_free(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/nickName/free")
+
+    async def async_get_frequent_games(self, count: int = 5) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/user/api/v1/data/frequently/game/{self._account.uid}", params={"count": count})
+
+    # --- Async: Shop ---
+
+    async def async_get_shop_info(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/user/shop/info")
+
+    async def async_get_decoration_details(self, decoration_id: int) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/shop/api/v1/shop/decorations/details/{decoration_id}")
+
+    async def async_get_suit_info(self, suit_id: int) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/shop/api/v1/new/shop/suit/info/{suit_id}")
+
+    # --- Async: Pay / Month card ---
+
+    async def async_get_month_card_info(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/pay/api/v2/monthcard/info")
+
+    async def async_claim_month_card_reward(self, month_card_id: int) -> dict[str, Any]:
+        return await self._account.async_request("POST", "/pay/api/v2/monthcard/receive", params={"monthCardId": month_card_id})
+
+    async def async_get_payment_red_point(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/pay/api/v1/red-point")
+
+    # --- Async: Activity ---
+
+    async def async_get_task_activity_info(self, activity_id: str) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/activity/api/v1/task/activity/info", params={"activityId": activity_id})
+
+    async def async_claim_task_activity_reward(self, activity_id: str, task_reward_id: str) -> dict[str, Any]:
+        return await self._account.async_request("POST", "/activity/api/v1/task/activity/reward/receive",
+                                                  params={"activityId": activity_id, "taskRewardId": task_reward_id})
+
+    async def async_claim_sharing_reward(self, type_: int = 0) -> dict[str, Any]:
+        return await self._account.async_request("POST", "/user/api/v1/users/sharing/reward", params={"type": type_})
+
+    async def async_get_security_email(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/user/api/v1/users/security/bind/email", params={"userId": self._account.uid})

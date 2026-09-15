@@ -23,12 +23,13 @@ from .models import (
 )
 from .session import SessionStore, load_session, save_session
 from .submodules import (
-    ActivityAPI, ClanAPI, DecorationAPI, FriendsAPI, GroupAPI,
-    RankingAPI, RongCloudAPI, UserAPI,
+    ActivityAPI, BackpackAPI, BedwarAPI, ClanAPI, DecorationAPI, FriendsAPI,
+    GameAPI, GratitudeAPI, GroupAPI, MailboxAPI, PayAPI, RankingAPI,
+    RongCloudAPI, ShopAPI, UserAPI, VideoAPI,
 )
 from .time_sync import TimeSyncer, sync_time
 
-__version__ = "8202026.1"
+__version__ = "8202026.2"
 
 __all__ = [
     "BmgAccount", "BmgClient", "Config",
@@ -40,8 +41,9 @@ __all__ = [
     "RankEntry", "RongCloudToken", "SignInStatus", "TaskInfo", "UserProfile", "UserStats",
     "Wardrobe",
     "SessionStore", "load_session", "save_session",
-    "ActivityAPI", "ClanAPI", "DecorationAPI", "FriendsAPI", "GroupAPI",
-    "RankingAPI", "RongCloudAPI", "UserAPI",
+    "ActivityAPI", "BackpackAPI", "BedwarAPI", "ClanAPI", "DecorationAPI",
+    "FriendsAPI", "GameAPI", "GratitudeAPI", "GroupAPI", "MailboxAPI",
+    "PayAPI", "RankingAPI", "RongCloudAPI", "ShopAPI", "UserAPI", "VideoAPI",
     "TimeSyncer", "sync_time",
     "__version__",
 ]

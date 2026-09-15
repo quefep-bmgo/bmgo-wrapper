@@ -106,6 +106,34 @@ class ClanAPI:
     def dissolve(self, clan_id: int) -> dict[str, Any]:
         return self._account.request("DELETE", "/clan/api/v1/clan/tribe", params={"clanId": clan_id})
 
+    def get_donation_info(self) -> dict[str, Any]:
+        r = self._account.request("GET", "/clan/api/v1/clan/tribe/donation")
+        return r.get("data") if r.get("code") == 1 else r
+
+    def get_donation_history_page(self, page: int = 0, size: int = 50) -> dict[str, Any]:
+        return self._account.request(
+            "GET", "/clan/api/v2/clan/tribe/donation/history",
+            params={"pageNo": page, "pageSize": size},
+        )
+
+    def get_donation_history_all(self, size: int = 50, delay: float = 0.3) -> list[dict[str, Any]]:
+        import time as _time
+        out: list[dict[str, Any]] = []
+        page = 0
+        while True:
+            r = self.get_donation_history_page(page, size)
+            if r.get("code") != 1:
+                raise RuntimeError(f"donation history page {page} failed: {r}")
+            pd = r.get("data") or {}
+            items = pd.get("data") or pd.get("list") or []
+            out.extend(items)
+            if pd.get("lastPage", True):
+                break
+            page += 1
+            if delay:
+                _time.sleep(delay)
+        return out
+
     def get_user_clan_role(self, uid: int) -> ClanRole | None:
         r = self._account.request("GET", "/bedwar/api/v1/friends/clan/by/userIds", params={"userIds": str(uid)})
         if r.get("code") != 1:
@@ -220,6 +248,34 @@ class ClanAPI:
     async def async_dissolve(self, clan_id: int) -> dict[str, Any]:
         return await self._account.async_request("DELETE", "/clan/api/v1/clan/tribe", params={"clanId": clan_id})
 
+    async def async_get_donation_info(self) -> dict[str, Any]:
+        r = await self._account.async_request("GET", "/clan/api/v1/clan/tribe/donation")
+        return r.get("data") if r.get("code") == 1 else r
+
+    async def async_get_donation_history_page(self, page: int = 0, size: int = 50) -> dict[str, Any]:
+        return await self._account.async_request(
+            "GET", "/clan/api/v2/clan/tribe/donation/history",
+            params={"pageNo": page, "pageSize": size},
+        )
+
+    async def async_get_donation_history_all(self, size: int = 50, delay: float = 0.3) -> list[dict[str, Any]]:
+        import asyncio as _asyncio
+        out: list[dict[str, Any]] = []
+        page = 0
+        while True:
+            r = await self.async_get_donation_history_page(page, size)
+            if r.get("code") != 1:
+                raise RuntimeError(f"donation history page {page} failed: {r}")
+            pd = r.get("data") or {}
+            items = pd.get("data") or pd.get("list") or []
+            out.extend(items)
+            if pd.get("lastPage", True):
+                break
+            page += 1
+            if delay:
+                await _asyncio.sleep(delay)
+        return out
+
     async def async_get_user_clan_role(self, uid: int) -> ClanRole | None:
         r = await self._account.async_request("GET", "/bedwar/api/v1/friends/clan/by/userIds", params={"userIds": str(uid)})
         if r.get("code") != 1:
@@ -241,6 +297,120 @@ class ClanAPI:
     async def async_get_clan_info(self, clan_id: int) -> dict[str, Any] | None:
         r = await self._account.async_request("GET", "/clan/api/v2/clan/tribe", params={"clanId": clan_id})
         return r.get("data") if r.get("code") == 1 else None
+
+    def get_clan_rank(self, rank_type: str = "weekly", page: int = 0, size: int = 20, rank_key: str = "clanBattle") -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/clan/rank", params={
+            "type": rank_type, "pageNo": page, "pageSize": size, "rankKey": rank_key,
+        }, language="en_US")
+
+    def get_clan_rank_new(self) -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/clan/rank/new", language="en_US")
+
+    def get_user_clan_rank(self, rank_type: str = "weekly", rank_key: str = "clanBattle") -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/clan/user/rank", params={
+            "type": rank_type, "rankKey": rank_key,
+        }, language="en_US")
+
+    def get_user_clan_rank_new(self, rank_type: str = "weekly") -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/clan/user/rank/new", params={
+            "type": rank_type,
+        }, language="en_US")
+
+    def get_clan_currency(self) -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/clan/tribe/currency", language="en_US")
+
+    def donate(self, currency: int = 0, quantity: int = 0) -> dict[str, Any]:
+        return self._account.request("PUT", "/clan/api/v3/clan/tribe/donation", params={
+            "currency": currency, "quantity": quantity,
+        }, language="en_US")
+
+    def get_bulletin(self) -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/clan/tribe/bulletin", language="en_US")
+
+    def get_recommendations(self) -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/clan/tribe/recommendation", language="en_US")
+
+    def get_clan_id(self) -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/clan/tribe/id", language="en_US")
+
+    def accept_invitation(self, invitation_id: int) -> dict[str, Any]:
+        return self._account.request("PUT", "/clan/api/v1/clan/tribe/member/agreement/invitation", params={
+            "id": invitation_id,
+        }, language="en_US")
+
+    def reject_invitation(self, invitation_id: int) -> dict[str, Any]:
+        return self._account.request("PUT", "/clan/api/v1/clan/tribe/member/rejection/invitation", params={
+            "id": invitation_id,
+        }, language="en_US")
+
+    def get_member_messages(self) -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v2/clan/tribe/member/message", language="en_US")
+
+    def get_red_point(self) -> dict[str, Any]:
+        return self._account.request("GET", "/clan/api/v1/red-point")
+
+    def get_decorations_by_type(self, type_id: int) -> dict[str, Any]:
+        return self._account.request("GET", f"/clan/api/v1/clan/decorations/{type_id}", language="en_US")
+
+    def report_clan(self) -> dict[str, Any]:
+        return self._account.request("POST", "/clan/api/v1/clan/tribe/report", language="en_US")
+
+    async def async_get_clan_rank(self, rank_type: str = "weekly", page: int = 0, size: int = 20, rank_key: str = "clanBattle") -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/clan/rank", params={
+            "type": rank_type, "pageNo": page, "pageSize": size, "rankKey": rank_key,
+        }, language="en_US")
+
+    async def async_get_clan_rank_new(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/clan/rank/new", language="en_US")
+
+    async def async_get_user_clan_rank(self, rank_type: str = "weekly", rank_key: str = "clanBattle") -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/clan/user/rank", params={
+            "type": rank_type, "rankKey": rank_key,
+        }, language="en_US")
+
+    async def async_get_user_clan_rank_new(self, rank_type: str = "weekly") -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/clan/user/rank/new", params={
+            "type": rank_type,
+        }, language="en_US")
+
+    async def async_get_clan_currency(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/clan/tribe/currency", language="en_US")
+
+    async def async_donate(self, currency: int = 0, quantity: int = 0) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/clan/api/v3/clan/tribe/donation", params={
+            "currency": currency, "quantity": quantity,
+        }, language="en_US")
+
+    async def async_get_bulletin(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/clan/tribe/bulletin", language="en_US")
+
+    async def async_get_recommendations(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/clan/tribe/recommendation", language="en_US")
+
+    async def async_get_clan_id(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/clan/tribe/id", language="en_US")
+
+    async def async_accept_invitation(self, invitation_id: int) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/clan/api/v1/clan/tribe/member/agreement/invitation", params={
+            "id": invitation_id,
+        }, language="en_US")
+
+    async def async_reject_invitation(self, invitation_id: int) -> dict[str, Any]:
+        return await self._account.async_request("PUT", "/clan/api/v1/clan/tribe/member/rejection/invitation", params={
+            "id": invitation_id,
+        }, language="en_US")
+
+    async def async_get_member_messages(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v2/clan/tribe/member/message", language="en_US")
+
+    async def async_get_red_point(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/clan/api/v1/red-point")
+
+    async def async_get_decorations_by_type(self, type_id: int) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/clan/api/v1/clan/decorations/{type_id}", language="en_US")
+
+    async def async_report_clan(self) -> dict[str, Any]:
+        return await self._account.async_request("POST", "/clan/api/v1/clan/tribe/report", language="en_US")
 
     async def async_get_clan_members(self) -> list[dict[str, Any]]:
         r = await self._account.async_request("GET", "/clan/api/v1/clan/tribe/member")

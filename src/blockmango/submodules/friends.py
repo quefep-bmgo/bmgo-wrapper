@@ -91,6 +91,51 @@ class FriendsAPI:
     def get_family_list(self, uid: int) -> list[dict[str, Any]]:
         return self._account.get_family_list(uid)
 
+    def get_follow_list(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v1/friends/follow")
+
+    def get_notice_list(self, notice_type: int | None = None) -> dict[str, Any]:
+        path = "/friend/api/v1/friends/notice-list"
+        if notice_type is not None:
+            path += f"/{notice_type}"
+        return self._account.request("GET", path)
+
+    def get_recommendations(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v1/friends/recommendation")
+
+    def get_new_recommendations(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v2/friends/recommendation/new")
+
+    def get_settings(self, uid: int) -> dict[str, Any]:
+        return self._account.request("GET", f"/friend/api/v1/friends/settings/{uid}")
+
+    def get_gaming_status(self, friend_id: int) -> dict[str, Any]:
+        return self._account.request("GET", f"/friend/api/v1/friends/{friend_id}/gaming")
+
+    def get_friends_game_online(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v1/get/friends/game/online")
+
+    def get_apply_count(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v1/friends/apply/num")
+
+    def reject_request_by_id(self, request_id: int) -> dict[str, Any]:
+        return self._account.request("DELETE", f"/friend/api/v1/friends/requests/{request_id}")
+
+    def remove_alias(self, friend_id: int) -> dict[str, Any]:
+        return self._account.request("DELETE", f"/friend/api/v1/friends/{friend_id}/alias")
+
+    def get_popularity_list(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v1/popularity/list")
+
+    def get_popularity_props(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v1/popularity/props")
+
+    def get_tags(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v1/tag")
+
+    def get_tags_only(self) -> dict[str, Any]:
+        return self._account.request("GET", "/friend/api/v1/tag/only")
+
     async def async_list_friends(self, page: int = 1, size: int = 50) -> list[UserProfile]:
         r = await self._account.async_request("GET", "/friend/api/v1/friends/status", params={"pageNo": page, "pageSize": size})
         data = r.get("data") or {}
@@ -163,3 +208,48 @@ class FriendsAPI:
 
     async def async_get_family_list(self, uid: int) -> list[dict[str, Any]]:
         return await self._account.async_get_family_list(uid)
+
+    async def async_get_follow_list(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v1/friends/follow")
+
+    async def async_get_notice_list(self, notice_type: int | None = None) -> dict[str, Any]:
+        path = "/friend/api/v1/friends/notice-list"
+        if notice_type is not None:
+            path += f"/{notice_type}"
+        return await self._account.async_request("GET", path)
+
+    async def async_get_recommendations(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v1/friends/recommendation")
+
+    async def async_get_new_recommendations(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v2/friends/recommendation/new")
+
+    async def async_get_settings(self, uid: int) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/friend/api/v1/friends/settings/{uid}")
+
+    async def async_get_gaming_status(self, friend_id: int) -> dict[str, Any]:
+        return await self._account.async_request("GET", f"/friend/api/v1/friends/{friend_id}/gaming")
+
+    async def async_get_friends_game_online(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v1/get/friends/game/online")
+
+    async def async_get_apply_count(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v1/friends/apply/num")
+
+    async def async_reject_request_by_id(self, request_id: int) -> dict[str, Any]:
+        return await self._account.async_request("DELETE", f"/friend/api/v1/friends/requests/{request_id}")
+
+    async def async_remove_alias(self, friend_id: int) -> dict[str, Any]:
+        return await self._account.async_request("DELETE", f"/friend/api/v1/friends/{friend_id}/alias")
+
+    async def async_get_popularity_list(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v1/popularity/list")
+
+    async def async_get_popularity_props(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v1/popularity/props")
+
+    async def async_get_tags(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v1/tag")
+
+    async def async_get_tags_only(self) -> dict[str, Any]:
+        return await self._account.async_request("GET", "/friend/api/v1/tag/only")
