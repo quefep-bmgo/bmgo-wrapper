@@ -1,7 +1,7 @@
 # bmgo-wrapper
 
 Blockman GO API wrapper with full x-sign authentication.
-Compatible with Blockman GO v3.25.1.
+Compatible with Blockman GO v3.28.2.
 
 ## Installation
 
@@ -46,19 +46,24 @@ asyncio.run(main())
 
 ## Submodules
 
-- `acc.user` � profile, stats, lookup, nick/pass/email, details
-- `acc.friends` � list, search, requests, block, unblock, alias
-- `acc.clan` � join, leave, search, members, invite, tasks, mute, bulletin
-- `acc.group` � create, invite, kick, admin, mute, transfer, quit
-- `acc.decoration` � wardrobe, buy, equip, prices, skins
-- `acc.activity` � sign-in, status, tasks, claim
-- `acc.ranking` � user rank, global weekly
-- `acc.rongcloud` � IM token
+- `acc.user` - profile, stats, lookup, nick/pass/email, details
+- `acc.friends` - list, search, requests, block, unblock, unblock-all, alias
+- `acc.clan` - join, leave, search, members, invite, tasks, mute, bulletin
+- `acc.group` - create, invite, kick, admin, mute, transfer, quit
+- `acc.decoration` - wardrobe, buy, equip, prices, skins
+- `acc.activity` - sign-in, status, tasks, claim
+- `acc.ranking` - user rank, global weekly
+- `acc.rongcloud` - IM token
+- `acc.game` - game catalog, rooms, mining, likes, comments, creative works
+- `acc.gratitude` - contributor recognitions, like/unlike
 
-## Interactive Demo
+## Unblocking people
 
-```bash
-python bmgo-auth-demo.py
+```python
+acc.friends.get_blocklist()          # who is blocked
+acc.friends.block_user(uid)          # block
+acc.friends.unblock_user(uid)        # unblock one
+acc.friends.unblock_all()            # unblock everyone
 ```
 
 ## License
