@@ -16,8 +16,9 @@ from .device import DevicePool
 from .models import UserProfile, UserStats
 from .session import SessionStore
 from .submodules import (
-    ActivityAPI, ClanAPI, DecorationAPI, FriendsAPI,
-    GroupAPI, RankingAPI, RongCloudAPI, UserAPI,
+    ActivityAPI, BackpackAPI, BedwarAPI, ClanAPI, DecorationAPI, FriendsAPI,
+    GameAPI, GroupAPI, GratitudeAPI, MailboxAPI, PayAPI, RankingAPI,
+    RongCloudAPI, ShopAPI, UserAPI, VideoAPI,
 )
 from .time_sync import TimeSyncer
 
@@ -27,8 +28,9 @@ class BmgAccount:
         "_ak", "_async_session", "_device_id", "_device_pool",
         "_device_sign", "_nick", "_session", "_session_store",
         "_sk", "_t_off", "_time_syncer", "_token", "_uid",
-        "activity", "clan", "config", "decoration", "friends",
-        "group", "password", "ranking", "rongcloud", "user", "username",
+        "activity", "backpack", "bedwar", "clan", "config", "decoration",
+        "friends", "gratitude", "game", "group", "mailbox", "password",
+        "pay", "ranking", "rongcloud", "shop", "user", "username", "video",
     )
 
     def __init__(self, username: str, password: str, config: Config | None = None):
@@ -56,6 +58,14 @@ class BmgAccount:
         self.ranking = RankingAPI(self)
         self.activity = ActivityAPI(self)
         self.rongcloud = RongCloudAPI(self)
+        self.game = GameAPI(self)
+        self.gratitude = GratitudeAPI(self)
+        self.shop = ShopAPI(self)
+        self.bedwar = BedwarAPI(self)
+        self.video = VideoAPI(self)
+        self.pay = PayAPI(self)
+        self.mailbox = MailboxAPI(self)
+        self.backpack = BackpackAPI(self)
 
     @property
     def uid(self) -> int | None:
@@ -121,7 +131,7 @@ class BmgAccount:
         enc = _enc_password(self.password)
         rand = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=8))
         for attempt in range(max_tries):
-            dev_id, dev_sign = self._device_pool.get_random()
+            dev_id, dev_sign, bm_ddh_id = self._device_pool.get_random()
             ak, sk = random.choice(KEY_PAIRS)
             body = _compact({
                 "account": self.username, "password": enc,
@@ -131,10 +141,14 @@ class BmgAccount:
             flat = _flatten_params({})
             nonce, ts, sign = _sign("/user/api/v4/account/login", flat, body, ak, sk, None, self._t_off)
             headers = {
-                "Host": "gw.sandboxol.com", "bmg-device-id": dev_id, "bmg-sign": dev_sign,
+                "Host": "gw.sandboxol.com", "bmg-device-id": dev_id, "bmg-sign": bm_ddh_id,
                 "os": "android", "apptype": "1", "x-apikey": ak, "x-nonce": nonce,
                 "x-time": ts, "x-sign": sign, "x-urlpath": "/user/api/v4/account/login",
                 "content-type": "application/json; charset=UTF-8", "user-agent": self.config.user_agent,
+                "packagename": "blockymods", "packagenamefull": "com.sandboxol.blockymods",
+                "androidversion": "30", "appversion": "5742", "appversionname": "3.28.2",
+                "channel": "sandbox", "env": "prd", "region": "sandbox",
+                "userlanguage": "en_US", "clienttype": "client",
             }
             try:
                 r = self._get_session().post(
@@ -162,7 +176,7 @@ class BmgAccount:
                 self._token = token
                 self._nick = d.get("nickName")
                 self._device_id = dev_id
-                self._device_sign = dev_sign
+                self._device_sign = bm_ddh_id
                 self._ak = ak
                 self._sk = sk
                 self.save_session()
@@ -185,7 +199,7 @@ class BmgAccount:
         enc = _enc_password(self.password)
         rand = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=8))
         for attempt in range(max_tries):
-            dev_id, dev_sign = self._device_pool.get_random()
+            dev_id, dev_sign, bm_ddh_id = self._device_pool.get_random()
             ak, sk = random.choice(KEY_PAIRS)
             body = _compact({
                 "account": self.username, "password": enc,
@@ -195,10 +209,14 @@ class BmgAccount:
             flat = _flatten_params({})
             nonce, ts, sign = _sign("/user/api/v4/account/login", flat, body, ak, sk, None, self._t_off)
             headers = {
-                "Host": "gw.sandboxol.com", "bmg-device-id": dev_id, "bmg-sign": dev_sign,
+                "Host": "gw.sandboxol.com", "bmg-device-id": dev_id, "bmg-sign": bm_ddh_id,
                 "os": "android", "apptype": "1", "x-apikey": ak, "x-nonce": nonce,
                 "x-time": ts, "x-sign": sign, "x-urlpath": "/user/api/v4/account/login",
                 "content-type": "application/json; charset=UTF-8", "user-agent": self.config.user_agent,
+                "packagename": "blockymods", "packagenamefull": "com.sandboxol.blockymods",
+                "androidversion": "30", "appversion": "5742", "appversionname": "3.28.2",
+                "channel": "sandbox", "env": "prd", "region": "sandbox",
+                "userlanguage": "en_US", "clienttype": "client",
             }
             try:
                 client = self._get_async_session()
@@ -223,7 +241,7 @@ class BmgAccount:
                 self._token = token
                 self._nick = d.get("nickName")
                 self._device_id = dev_id
-                self._device_sign = dev_sign
+                self._device_sign = bm_ddh_id
                 self._ak = ak
                 self._sk = sk
                 self.save_session()

@@ -27,6 +27,9 @@ class Config:
     key_pairs: tuple[tuple[str, str], ...] = KEY_PAIRS
     rsa_key: bytes = RSA_KEY
     app_headers: Mapping[str, str] = DEFAULT_APP_HEADERS
+    device_id: str = ""
+    device_sign: str = ""
+    bm_ddh_id: str = ""
     request_timeout: float = 15.0
     login_timeout: float = 15.0
     time_sync_timeout: float = 10.0
@@ -44,6 +47,9 @@ class Config:
             device_pool_url=os.getenv("BMG_DEVICE_POOL_URL", DEVICE_POOL_URL),
             key_pairs=_parse_key_pairs(os.getenv("BMG_KEY_PAIRS_JSON", "")),
             rsa_key=os.getenv("BMG_RSA_KEY", "").encode() or RSA_KEY,
+            device_id=os.getenv("BMG_DEVICE_ID", ""),
+            device_sign=os.getenv("BMG_DEVICE_SIGN", ""),
+            bm_ddh_id=os.getenv("BMG_BMDDH_ID", ""),
             request_timeout=float(os.getenv("BMG_REQUEST_TIMEOUT", "15.0")),
             login_timeout=float(os.getenv("BMG_LOGIN_TIMEOUT", "15.0")),
             time_sync_timeout=float(os.getenv("BMG_TIME_SYNC_TIMEOUT", "10.0")),
@@ -59,6 +65,8 @@ class Config:
             api_base=self.api_base, time_api=self.time_api,
             device_pool_url=self.device_pool_url, key_pairs=self.key_pairs,
             rsa_key=self.rsa_key, app_headers=self.app_headers,
+            device_id=self.device_id, device_sign=self.device_sign,
+            bm_ddh_id=self.bm_ddh_id,
             request_timeout=self.request_timeout, login_timeout=self.login_timeout,
             time_sync_timeout=self.time_sync_timeout,
             time_sync_retries=self.time_sync_retries,

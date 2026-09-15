@@ -1,10 +1,81 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.egg-info/
+.eggs/
 build/
 dist/
-.eggs/
 *.so
-.DS_Store
+
+# Virtualenvs and env files
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Sessions and secrets
 .sessions.json
-lookup_user.py
+.sessions.json.tmp
+*.pem
+*.key
+
+# Local research and reverse engineering work
+/Dev folder/
+/Research Folder/
+/bmgo3/
+/bmgo6/
+/capture_session/
+/native_libs/
+/API_DOCUMENTATION.md
+/SANDMOD_EDITOR_AUTH_API.md
+/SIGNING_ANALYSIS.md
+/Temp_pkgs.txt
+/lookup_user.py
+/test_*.py
+/check_modules*.py
+/capture_*.py
+/parse_*.py
+/hook_*.py
+/hook_*.js
+/frida_*.py
+/frida_*.txt
+/setup_proxy.py
+/extract_token.py
+/clan_dump.py
+/clan_donation_logs.py
+*.pcap
+/bmg_cache.bin
+/mutilProcessData.bin
+
+# AI assistant files
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+COPILOT.md
+.claude/
+.opencode/
+.cursor/
+.cursorrules
+.windsurfrules
+.aider*
+.codeium/
+.continue/
+.serena/
+.repomix*
+.github/copilot-instructions.md
+
+# Caches and tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# OS and editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
