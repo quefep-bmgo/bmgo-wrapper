@@ -1,0 +1,12 @@
+{
+  "code": 1,
+  "message": "SUCCESS",
+  "data": {
+    "pageNo": 0,
+    "pageSize": 0,
+    "totalPage": 0,
+    "totalSize": 0,
+    "data": null
+  },
+  "other": null
+}
