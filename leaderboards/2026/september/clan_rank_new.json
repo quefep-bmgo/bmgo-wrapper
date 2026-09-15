@@ -1,0 +1,176 @@
+{
+  "code": 1,
+  "message": "SUCCESS",
+  "data": {
+    "pageInfo": {
+      "pageNo": 0,
+      "pageSize": 20,
+      "totalPage": 0,
+      "totalSize": 0,
+      "data": [
+        {
+          "clanId": 18973807,
+          "name": "▥꧁Time-Lost★",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1756066778696415.jpg",
+          "experience": 21635850,
+          "rank": 1,
+          "level": 9
+        },
+        {
+          "clanId": 21034192,
+          "name": "༆★ꪶꫀᧁꪖᥴꪗ★༆",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1768988767597719.jpg",
+          "experience": 17764050,
+          "rank": 2,
+          "level": 8
+        },
+        {
+          "clanId": 11759999,
+          "name": "▥ＩＭＰΛＲΛＢＬΞＳ么",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1781467641398447.jpg",
+          "experience": 15008660,
+          "rank": 3,
+          "level": 9
+        },
+        {
+          "clanId": 27387230,
+          "name": "▢FF030002.꧁HUNTERS꧂.",
+          "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1737983105889984.jpg",
+          "experience": 11967590,
+          "rank": 4,
+          "level": 7
+        },
+        {
+          "clanId": 281243,
+          "name": "꧁TPB~CWars⛦",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1770604900566781.jpg",
+          "experience": 11074345,
+          "rank": 5,
+          "level": 9
+        },
+        {
+          "clanId": 20804885,
+          "name": "▢FFF00454Ψ.GGs.Ψ",
+          "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1705782067731622.jpg",
+          "experience": 10600430,
+          "rank": 6,
+          "level": 9
+        },
+        {
+          "clanId": 25955134,
+          "name": "▥ঔৣ፝͜͡ＨＡＬＣＯ́ＮＢＡＮＤ鹰",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1789376257874430.jpg",
+          "experience": 10180720,
+          "rank": 7,
+          "level": 7
+        },
+        {
+          "clanId": 11949551,
+          "name": "▥༄͡ＯＦＣ〢Ｂｅｌｉａｌ༻ྀ࿐",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1789341097095293.jpg",
+          "experience": 8876915,
+          "rank": 8,
+          "level": 9
+        },
+        {
+          "clanId": 445957,
+          "name": "๖ۣۜβïệtĐộIྂᐯượTŇģųc",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1786768916116106.jpg",
+          "experience": 7750525,
+          "rank": 9,
+          "level": 9
+        },
+        {
+          "clanId": 10986287,
+          "name": "▥ΨAC-MILANΨ",
+          "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1719366087567723.jpg",
+          "experience": 4975905,
+          "rank": 10,
+          "level": 8
+        },
+        {
+          "clanId": 26394510,
+          "name": "⚚Ｎａｒａｋａ࿐「ғs」",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1773827746862903.jpg",
+          "experience": 4364055,
+          "rank": 11,
+          "level": 6
+        },
+        {
+          "clanId": 209298,
+          "name": " \u0000▢FFFF8000Øffi▥cial",
+          "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1720934489188417.jpg",
+          "experience": 3273495,
+          "rank": 12,
+          "level": 6
+        },
+        {
+          "clanId": 28384414,
+          "name": "ㅤ▥『±ＴＩＴＡＮＳ±』™",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1782558908773947.jpg",
+          "experience": 3157215,
+          "rank": 13,
+          "level": 6
+        },
+        {
+          "clanId": 456928,
+          "name": "stillARESGA™",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1779030101797364.jpg",
+          "experience": 3027240,
+          "rank": 14,
+          "level": 10
+        },
+        {
+          "clanId": 20597391,
+          "name": "▥ΨＬｏｓｔΞＳｏｕｌｓΨ \u0000  \u0000 ",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1785268151468662.jpg",
+          "experience": 2870765,
+          "rank": 15,
+          "level": 6
+        },
+        {
+          "clanId": 25455614,
+          "name": "Clan‌ForSale",
+          "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1734085338675641.jpg",
+          "experience": 2852795,
+          "rank": 16,
+          "level": 4
+        },
+        {
+          "clanId": 28438286,
+          "name": "꧁▥『Anime』▥꧂",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1787568737796213.jpg",
+          "experience": 2682995,
+          "rank": 17,
+          "level": 6
+        },
+        {
+          "clanId": 26917486,
+          "name": "EvolutionTwo",
+          "headPic": "http://staticgs.sandboxol.com/avatar/1775742698448709.jpg",
+          "experience": 2650090,
+          "rank": 18,
+          "level": 5
+        },
+        {
+          "clanId": 174937,
+          "name": "꧁ད✿◥◣★DRAGONS★◢◤✿ཌ꧂",
+          "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1705549305549583.jpg",
+          "experience": 2502990,
+          "rank": 19,
+          "level": 10
+        },
+        {
+          "clanId": 582132,
+          "name": "Ｒ  Ξ ：Ø ＶＥＲＬＯＲＤ",
+          "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1708252214889917.jpg",
+          "experience": 2281430,
+          "rank": 20,
+          "level": 9
+        }
+      ]
+    },
+    "remainTime": 0
+  },
+  "other": null
+}

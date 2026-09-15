@@ -1,0 +1,942 @@
+[
+  {
+    "gameId": "g2033",
+    "gameName": "Anime Fighting Simulator",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 0,
+          "totalSize": 0,
+          "data": []
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g1018",
+    "gameName": "Egg War",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 10000,
+          "totalSize": 100000,
+          "data": [
+            {
+              "userId": 177916592,
+              "nickName": "\u0000\u0002BOX\u0002\u0000",
+              "rank": 1,
+              "integral": 20404,
+              "displayValue": "20404",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1754801669466513.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "nameplate": "vip_nameplate_3.png"
+              }
+            },
+            {
+              "userId": 2432412686,
+              "nickName": "ҽҽҽҽҽҽ",
+              "rank": 2,
+              "integral": 9080,
+              "displayValue": "9080",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1783285044796175.jpg?pendant=vip_pendant_002.svga",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_002.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_7.svga",
+                "pendant": "vip_pendant_002.svga"
+              }
+            },
+            {
+              "userId": 5908813854,
+              "nickName": "Kypеr1",
+              "rank": 3,
+              "integral": 6267,
+              "displayValue": "6267",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1787865492381308.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_green_crowns.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_3.png"
+              }
+            },
+            {
+              "userId": 1334802670,
+              "nickName": "arimaXghoil",
+              "rank": 4,
+              "integral": 4891,
+              "displayValue": "4891",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1762411740416191.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_green_crowns.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_4.png"
+              }
+            },
+            {
+              "userId": 226048687,
+              "nickName": "AegisBlitz",
+              "rank": 5,
+              "integral": 4206,
+              "displayValue": "4206",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1787538822993583.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_Halloween_25.svga",
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            },
+            {
+              "userId": 1304136782,
+              "nickName": "Xedvin",
+              "rank": 6,
+              "integral": 4160,
+              "displayValue": "4160",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789433141861981.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_blue_shine_ACW.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga"
+              }
+            },
+            {
+              "userId": 277298479,
+              "nickName": "sincvrl",
+              "rank": 7,
+              "integral": 4089,
+              "displayValue": "4089",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788808208415380.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_green_crowns.png",
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            },
+            {
+              "userId": 3195197840,
+              "nickName": "\u0000\u0000Ŝĥėÿķ ŸŦ\u0000\u0000",
+              "rank": 8,
+              "integral": 4083,
+              "displayValue": "4083",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789239707740896.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_blue_shine_ACW.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_7.svga"
+              }
+            },
+            {
+              "userId": 2546380062,
+              "nickName": "GS-arslanBMG",
+              "rank": 9,
+              "integral": 3882,
+              "displayValue": "3882",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788892779754229.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_blue_shine_ACW.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga"
+              }
+            },
+            {
+              "userId": 1326186798,
+              "nickName": "UN....FANÁTICO.",
+              "rank": 10,
+              "integral": 3503,
+              "displayValue": "3503",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789426900588711.jpg?pendant=vip_pendant_003.svga",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_003.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_9.svga",
+                "pendant": "vip_pendant_003.svga"
+              }
+            }
+          ]
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g1055",
+    "gameName": "WWE School Simulator",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 10000,
+          "totalSize": 100000,
+          "data": [
+            {
+              "userId": 860875758,
+              "nickName": "cat  001 ؜؜\u0000؜؜؜؜",
+              "rank": 1,
+              "integral": 99994987733385001553625088,
+              "displayValue": "99.99Y",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788536746840381.jpg",
+              "vip": 2,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_blue_shine_ACW.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga"
+              }
+            },
+            {
+              "userId": 734866064,
+              "nickName": "Zzz_PaRaNo1A_zzZ",
+              "rank": 2,
+              "integral": 98979840858314995027410944,
+              "displayValue": "98.98Y",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788285029494350.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_blue_shine_ACW.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga"
+              }
+            },
+            {
+              "userId": 2341820670,
+              "nickName": "Gr-penguin",
+              "rank": 3,
+              "integral": 95976009964221994528407552,
+              "displayValue": "95.98Y",
+              "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1735145084402811.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_Official.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_5.svga"
+              }
+            },
+            {
+              "userId": 2638508224,
+              "nickName": "#101#xTYMANx",
+              "rank": 4,
+              "integral": 74474481289621996002344960,
+              "displayValue": "74.47Y",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1768496877013247.jpg",
+              "vip": 2,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_blue_shine_ACW.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga"
+              }
+            },
+            {
+              "userId": 3209249040,
+              "nickName": "ɱɩɼɼσɼّ\u0000\u0000  \u0000  ",
+              "rank": 5,
+              "integral": 68503741419712997224349696,
+              "displayValue": "68.5Y",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1787686777918639.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_9.svga"
+              }
+            },
+            {
+              "userId": 1233544222,
+              "nickName": "่$Mятa$",
+              "rank": 6,
+              "integral": 67475253474654996551172096,
+              "displayValue": "67.48Y",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789412780980199.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_blue_shine_ACW.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga"
+              }
+            },
+            {
+              "userId": 2504521168,
+              "nickName": "Zzz_Leonardo_zzZ",
+              "rank": 7,
+              "integral": 61664099537028998880034816,
+              "displayValue": "61.66Y",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788117390016292.jpg",
+              "vip": 2,
+              "colorfulNickName": "ffca00ff-fbd33fff-cad2ceff-23b8feff-677dffff-ac61ffff-fd15ffff",
+              "avatarFrame": "frame_gold_shine_ACW.svga@extra@santa_topright.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_10.svga"
+              }
+            },
+            {
+              "userId": 544416814,
+              "nickName": "Bossy_Millysvh0",
+              "rank": 8,
+              "integral": 55303392943207002950074368,
+              "displayValue": "55.3Y",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1761442066088505.jpg?pendant=vip_pendant_003.svga",
+              "vip": 2,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_003.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_8.svga",
+                "pendant": "vip_pendant_003.svga"
+              }
+            },
+            {
+              "userId": 345506126,
+              "nickName": "Re.MVP",
+              "rank": 9,
+              "integral": 38400168806295998902042624,
+              "displayValue": "38.4Y",
+              "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1717413712533331.jpg?pendant=vip_pendant_003.svga",
+              "vip": 0,
+              "colorfulNickName": "ffca00ff-fbd33fff-cad2ceff-23b8feff-677dffff-ac61ffff-fd15ffff",
+              "avatarFrame": "vip_pendant_003.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_9.svga",
+                "pendant": "vip_pendant_003.svga"
+              }
+            },
+            {
+              "userId": 163578303,
+              "nickName": "|×Maть×|",
+              "rank": 10,
+              "integral": 29685599570316000137052160,
+              "displayValue": "29.69Y",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1784390774915461.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_002.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_5.svga"
+              }
+            }
+          ]
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g9000069",
+    "gameName": "Goddess Connect",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 0,
+          "totalSize": 0,
+          "data": []
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g9000070",
+    "gameName": "Dragon Warrior",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 0,
+          "totalSize": 0,
+          "data": []
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g2069",
+    "gameName": "Anime Showdown",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 0,
+          "totalSize": 0,
+          "data": []
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g1042",
+    "gameName": "Build and Shoot",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 10000,
+          "totalSize": 100000,
+          "data": [
+            {
+              "userId": 1077980686,
+              "nickName": "ТheGoldеn",
+              "rank": 1,
+              "integral": 18228,
+              "displayValue": "18228",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789167138334116.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "nameplate": "vip_nameplate_1.png"
+              }
+            },
+            {
+              "userId": 10683920,
+              "nickName": "AllGloryToKraken",
+              "rank": 2,
+              "integral": 17292,
+              "displayValue": "17292",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1786299956246649.jpg?pendant=vip_pendant_001.png",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_001.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_2.png",
+                "pendant": "vip_pendant_001.png"
+              }
+            },
+            {
+              "userId": 1421041214,
+              "nickName": "AnneGod_BG",
+              "rank": 3,
+              "integral": 12894,
+              "displayValue": "12894",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1787726813982352.jpg?pendant=vip_pendant_001.png",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_001.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_3.png",
+                "pendant": "vip_pendant_001.png"
+              }
+            },
+            {
+              "userId": 892601214,
+              "nickName": "Habub!",
+              "rank": 4,
+              "integral": 11454,
+              "displayValue": "11454",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789074861724604.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_bronze.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga"
+              }
+            },
+            {
+              "userId": 4103391936,
+              "nickName": "-Shînazugawa-",
+              "rank": 5,
+              "integral": 11357,
+              "displayValue": "11357",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1762105822306105.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_Halloween_25.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_2.png"
+              }
+            },
+            {
+              "userId": 3715558208,
+              "nickName": "SlayerOfJews",
+              "rank": 6,
+              "integral": 10938,
+              "displayValue": "10938",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789216775883613.png",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "back2school.png",
+              "personalityItems": {
+                "nameplate": "vip_nameplate_3.png"
+              }
+            },
+            {
+              "userId": 860875758,
+              "nickName": "cat  001 ؜؜\u0000؜؜؜؜",
+              "rank": 7,
+              "integral": 10431,
+              "displayValue": "10431",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788536746840381.jpg",
+              "vip": 2,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_blue_shine_ACW.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga"
+              }
+            },
+            {
+              "userId": 4109317792,
+              "nickName": "HENDERSON_PRIME",
+              "rank": 8,
+              "integral": 10238,
+              "displayValue": "10238",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1786195009409703.jpg?pendant=vip_pendant_001.png",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_001.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_3.png",
+                "pendant": "vip_pendant_001.png"
+              }
+            },
+            {
+              "userId": 7162813054,
+              "nickName": "LEO.GREY",
+              "rank": 9,
+              "integral": 10200,
+              "displayValue": "10200",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789263832412133.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_ad_green.png",
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            },
+            {
+              "userId": 402593967,
+              "nickName": "Estrella. <3\u0000؜؜\u0000",
+              "rank": 10,
+              "integral": 9963,
+              "displayValue": "9963",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789475293769736.jpg?pendant=vip_pendant_002.svga",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_002.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_5.svga",
+                "pendant": "vip_pendant_002.svga"
+              }
+            }
+          ]
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g2041",
+    "gameName": "Anime All Star",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 0,
+          "totalSize": 0,
+          "data": []
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g1058",
+    "gameName": "Lucky Block: Skywars",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 10000,
+          "totalSize": 100000,
+          "data": [
+            {
+              "userId": 937611024,
+              "nickName": "×-ThE_ΚαΜιΚαζε-×",
+              "rank": 1,
+              "integral": 300000,
+              "displayValue": "300000",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789346936461611.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_4.png"
+              }
+            },
+            {
+              "userId": 897377150,
+              "nickName": "LynxyOwnsLin",
+              "rank": 2,
+              "integral": 210000,
+              "displayValue": "210000",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788434830456589.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_002.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_6.svga"
+              }
+            },
+            {
+              "userId": 4025400688,
+              "nickName": "x-ThE_Ryuga-x",
+              "rank": 3,
+              "integral": 140000,
+              "displayValue": "140000",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789234369956485.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_7.svga"
+              }
+            },
+            {
+              "userId": 4125324304,
+              "nickName": "OriginalCorea",
+              "rank": 4,
+              "integral": 85120,
+              "displayValue": "85120",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788181793153521.jpg?pendant=vip_pendant_003.svga",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_003.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_8.svga",
+                "pendant": "vip_pendant_003.svga"
+              }
+            },
+            {
+              "userId": 4126506448,
+              "nickName": "ItzCrowned",
+              "rank": 5,
+              "integral": 35015,
+              "displayValue": "35015",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788907908002207.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_5.svga"
+              }
+            },
+            {
+              "userId": 2158981856,
+              "nickName": "MICH",
+              "rank": 6,
+              "integral": 33541,
+              "displayValue": "33541",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1785773711437551.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "levelup_frame_001.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_003_bg.png\",\"lt\":\"vip_bubble_003_lt.svga\",\"lb\":\"vip_bubble_003_lb.svga\",\"rt\":\"vip_bubble_003_rt.svga\",\"rb\":\"vip_bubble_003_rb.svga\"}",
+                "nameplate": "vip_nameplate_9.svga"
+              }
+            },
+            {
+              "userId": 2761661054,
+              "nickName": "-Âríthêr-",
+              "rank": 7,
+              "integral": 30198,
+              "displayValue": "30198",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1787359823867925.jpg?pendant=vip_pendant_002.svga",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_002.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_002_bg.png\",\"lt\":\"vip_bubble_002_lt.svga\",\"lb\":\"vip_bubble_002_lb.svga\",\"rt\":\"vip_bubble_002_rt.svga\",\"rb\":\"vip_bubble_002_rb.svga\"}",
+                "nameplate": "vip_nameplate_5.svga",
+                "pendant": "vip_pendant_002.svga"
+              }
+            },
+            {
+              "userId": 6017096558,
+              "nickName": "Молли_777",
+              "rank": 8,
+              "integral": 24173,
+              "displayValue": "24173",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1772457976898611.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_001.png",
+              "personalityItems": {
+                "nameplate": "vip_nameplate_3.png"
+              }
+            },
+            {
+              "userId": 7107540190,
+              "nickName": "โMAKOTOไYT",
+              "rank": 9,
+              "integral": 19775,
+              "displayValue": "19775",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789454865150788.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_green_crowns.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_3.png"
+              }
+            },
+            {
+              "userId": 2587967758,
+              "nickName": "\u0000Polar777",
+              "rank": 10,
+              "integral": 18798,
+              "displayValue": "18798",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788819413185839.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_bronze.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_3.png"
+              }
+            }
+          ]
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  },
+  {
+    "gameId": "g1025",
+    "gameName": "Hero Tycoon 2",
+    "ranking": {
+      "code": 1,
+      "message": null,
+      "data": {
+        "pageInfo": {
+          "pageNo": 0,
+          "pageSize": 10,
+          "totalPage": 9962,
+          "totalSize": 99613,
+          "data": [
+            {
+              "userId": 1920725184,
+              "nickName": "Rosinaa",
+              "rank": 1,
+              "integral": 1826160,
+              "displayValue": "1826160",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1789094539861428.png",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            },
+            {
+              "userId": 550392111,
+              "nickName": "EXTIGERXX2",
+              "rank": 2,
+              "integral": 1564379,
+              "displayValue": "1564379",
+              "headPic": "http://staticgs.sandboxol.com/sandbox/avatar/1718388201619528.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            },
+            {
+              "userId": 1305933664,
+              "nickName": "TigerErika400",
+              "rank": 3,
+              "integral": 1378953,
+              "displayValue": "1378953",
+              "headPic": "http://static.sandboxol.com/sandbox/avatar/1611765503317706.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            },
+            {
+              "userId": 3399489872,
+              "nickName": "؜\u0000 ؜\u0000\u0000 ؜\u0000\u0000Kennet",
+              "rank": 4,
+              "integral": 1231320,
+              "displayValue": "1231320",
+              "headPic": "",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "back2school.png",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_5.svga"
+              }
+            },
+            {
+              "userId": 3262598352,
+              "nickName": "XX...TIGER...XX",
+              "rank": 5,
+              "integral": 1180340,
+              "displayValue": "1180340",
+              "headPic": "http://static.sandboxol.com/sandbox/avatar/1612797718329221.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            },
+            {
+              "userId": 5878413614,
+              "nickName": "5872nm478",
+              "rank": 6,
+              "integral": 1148299,
+              "displayValue": "1148299",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1777804868053469.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": null,
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            },
+            {
+              "userId": 2801865840,
+              "nickName": "Jm0413",
+              "rank": 7,
+              "integral": 1059326,
+              "displayValue": "1059326",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1780019758364760.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_coin_shine_ACW.svga",
+              "personalityItems": {
+                "nameplate": "vip_nameplate_1.png"
+              }
+            },
+            {
+              "userId": 4162991216,
+              "nickName": "CRASFOORD",
+              "rank": 8,
+              "integral": 964209,
+              "displayValue": "964209",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1773112165969532.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "vip_pendant_002.svga",
+              "personalityItems": {
+                "bubble": "{\"bg\":\"vip_bubble_001_bg.png\"}",
+                "nameplate": "vip_nameplate_5.svga"
+              }
+            },
+            {
+              "userId": 412515583,
+              "nickName": "Niñopapadylan",
+              "rank": 9,
+              "integral": 845827,
+              "displayValue": "845827",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1785785478760333.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_ad_green.png",
+              "personalityItems": {
+                "nameplate": "vip_nameplate_1.png"
+              }
+            },
+            {
+              "userId": 2981690686,
+              "nickName": "ฬใเ-Nเght-เใฬ",
+              "rank": 10,
+              "integral": 784702,
+              "displayValue": "784702",
+              "headPic": "http://staticgs.sandboxol.com/avatar/1788053968831193.jpg",
+              "vip": 0,
+              "colorfulNickName": null,
+              "avatarFrame": "frame_Halloween_25.svga",
+              "personalityItems": {
+                "nameplate": "vip_nameplate_0.png"
+              }
+            }
+          ]
+        },
+        "remainTime": 0
+      },
+      "other": null
+    }
+  }
+]

@@ -1,0 +1,52 @@
+{
+  "code": 1,
+  "message": "OK",
+  "data": [
+    {
+      "id": 0,
+      "name": "All games",
+      "subCategoryList": []
+    },
+    {
+      "id": 1,
+      "name": "Latest online",
+      "subCategoryList": []
+    },
+    {
+      "id": 2,
+      "name": "PVP",
+      "subCategoryList": []
+    },
+    {
+      "id": 3,
+      "name": "Lite games",
+      "subCategoryList": []
+    },
+    {
+      "id": 12,
+      "name": "Make friends",
+      "subCategoryList": []
+    },
+    {
+      "id": 8,
+      "name": "role play",
+      "subCategoryList": []
+    },
+    {
+      "id": 9,
+      "name": "Horror/thriller",
+      "subCategoryList": []
+    },
+    {
+      "id": 10,
+      "name": "shooting",
+      "subCategoryList": []
+    },
+    {
+      "id": 11,
+      "name": "UGC",
+      "subCategoryList": []
+    }
+  ],
+  "other": null
+}

@@ -42,9 +42,6 @@ class FriendsAPI:
     def delete_friend(self, friend_id: int) -> dict[str, Any]:
         return self._account.request("DELETE", "/friend/api/v1/friends", params={"friendId": friend_id})
 
-    def unblock_user(self, friend_id: int) -> dict[str, Any]:
-        return self._account.request("DELETE", "/friend/api/v1/friends/black", params={"friendId": friend_id})
-
     def set_alias(self, friend_id: int, alias: str) -> dict[str, Any]:
         return self._account.request("POST", f"/friend/api/v1/friends/{friend_id}/alias", params={"alias": alias})
 
@@ -152,9 +149,6 @@ class FriendsAPI:
 
     async def async_delete_friend(self, friend_id: int) -> dict[str, Any]:
         return await self._account.async_request("DELETE", "/friend/api/v1/friends", params={"friendId": friend_id})
-
-    async def async_unblock_user(self, friend_id: int) -> dict[str, Any]:
-        return await self._account.async_request("DELETE", "/friend/api/v1/friends/black", params={"friendId": friend_id})
 
     async def async_set_alias(self, friend_id: int, alias: str) -> dict[str, Any]:
         return await self._account.async_request("POST", f"/friend/api/v1/friends/{friend_id}/alias", params={"alias": alias})
