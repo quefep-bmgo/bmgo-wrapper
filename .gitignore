@@ -48,7 +48,7 @@ env/
 /bmg_cache.bin
 /mutilProcessData.bin
 
-# AI assistant files
+# Local assistant and editor files
 CLAUDE.md
 AGENTS.md
 GEMINI.md
