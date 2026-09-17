@@ -94,8 +94,6 @@ BMG_BMDDH_ID=your_bm_ddh_id
 # BMG_DEVICE_SIGN=your_matching_device_pool_signature
 ```
 
-Never commit `.env`, account passwords, access tokens, pulled MMKV files, or `.sessions.json`.
-
 Useful optional settings include:
 
 | Variable | Default | Purpose |
