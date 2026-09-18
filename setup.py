@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="bmgo-wrapper",
-    version="8202026.1",
+    version="8202026.2",
     description="Blockman GO v3.28.2 API wrapper with x-sign authentication",
     packages=find_packages(where="src"),
     package_dir={"": "src"},

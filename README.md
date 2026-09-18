@@ -1,5 +1,7 @@
 # bmgo-wrapper
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/PQhj8zcmBK)
+
 Python client for the reverse-engineered Blockman GO (BlockyMods) HTTP API and its x-sign request format.
 
 The code currently targets the Android client headers used by Blockman GO v3.28.2 (version code 5742). This is not an official SDK. Server behavior, keys, headers, and endpoints can change without notice.
