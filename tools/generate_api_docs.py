@@ -50,7 +50,7 @@ def arguments(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
         rendered = rendered[6:]
     elif rendered == "self":
         rendered = ""
-    return rendered
+    return rendered.replace("|", "\\|")
 
 
 def render() -> str:

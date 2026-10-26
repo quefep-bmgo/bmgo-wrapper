@@ -1,6 +1,7 @@
 # API overview
 
 For the generated method/endpoint index, see [api-reference.md](api-reference.md).
+For what has actually been verified, see [endpoint-support.md](endpoint-support.md).
 
 The wrapper targets the Android client HTTP API at
 `https://gw.sandboxol.com` and mirrors the v3.29.3 request headers and signing

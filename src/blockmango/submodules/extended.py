@@ -83,9 +83,6 @@ class ExtendedAPI:
         params = {"popup_scene": popup_scene} if popup_scene is not None else None
         return self._get("/activity/api/v1/limit/gcube/pack/info", params)
 
-    def return_activity_info(self) -> dict[str, Any]:
-        return self._get("/activity/api/v1/return-activity/info")
-
     def receive_sub_pkg_transfer_reward(self, body: dict[str, Any] | None = None) -> dict[str, Any]:
         return self._post("/activity/api/v1/sub-pkg-transfer/reward/receive", body=body)
 
