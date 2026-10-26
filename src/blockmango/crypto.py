@@ -5,7 +5,7 @@ import hashlib
 import json
 import time
 import uuid
-from typing import Any
+from typing import Any, Callable
 
 try:
     from Crypto.Cipher import PKCS1_v1_5
@@ -16,8 +16,17 @@ except ImportError:
     PKCS1_v1_5 = None
     RSA = None
 
-from .constants import RSA_KEY
+from .constants import (
+    APP_MD5,
+    DEVICE_HEADER_PATHS,
+    RAW_SIGN_PATHS,
+    RAW_SIGN_PATH_PREFIXES,
+    RSA_KEY,
+)
 from .exceptions import CryptoError
+
+TokenEncoder = Callable[[str, str, str, str, str, str, str], str]
+"""Optional callback that returns a per-request Access-Token header value."""
 
 
 def _md5(data: str | bytes) -> str:
@@ -56,6 +65,10 @@ def _params_to_string(flat: list[tuple[str, str]]) -> str:
     return "&".join(f"{k}={v}" for k, v in flat)
 
 
+def _is_raw_sign_path(path: str) -> bool:
+    return path in RAW_SIGN_PATHS or path.startswith(RAW_SIGN_PATH_PREFIXES)
+
+
 def _sign(
     path: str, params: list[tuple[str, str]], body: str,
     ak: str, sk: str, device_id: str | None, t_off: int,
@@ -64,11 +77,11 @@ def _sign(
     ts = str(int(time.time()) + t_off)
     ps = _params_to_string(params)
     base = ak + path + nonce + ts + ps + body + sk
-    if path.startswith("/user/api/v4/account/"):
+    if _is_raw_sign_path(path):
         sign = _md5(base)
     else:
         if not device_id:
-            raise CryptoError("device_id required for non-account endpoint signing")
+            raise CryptoError("device_id required for this endpoint")
         sign = _md5(_md5(base) + device_id)
     return nonce, ts, sign
 
@@ -78,19 +91,47 @@ def _build_signed_headers(
     ak: str, sk: str, device_id: str, device_sign: str,
     t_off: int, uid: int | None = None, token: str | None = None,
     language: str | None = None, app_headers: dict[str, str] | None = None,
+    region: str | None = None, uid_register_ts: str | int | None = None,
+    device_register_ts: str | int | None = None,
+    device_headers: dict[str, str] | None = None,
+    token_encoder: TokenEncoder | None = None,
 ) -> dict[str, str]:
     nonce, ts, sign = _sign(path, flat_params, body_str, ak, sk, device_id, t_off)
     headers: dict[str, str] = dict(app_headers) if app_headers else {}
+    if device_headers:
+        headers.update(device_headers)
     headers.update({
-        "Host": "gw.sandboxol.com", "bmg-device-id": device_id,
-        "bmg-sign": device_sign, "x-apikey": ak, "x-nonce": nonce,
-        "x-time": ts, "x-sign": sign, "x-urlpath": path,
+        "x-apikey": ak,
+        "x-nonce": nonce,
+        "x-time": ts,
+        "x-sign": sign,
+        "x-urlpath": path,
+        "userdeviceid": device_id,
+        "md5": APP_MD5,
     })
+    if region:
+        headers["region"] = region
+    if uid_register_ts is not None:
+        headers["uid_register_ts"] = str(uid_register_ts)
+    if device_register_ts is not None:
+        headers["device_register_ts"] = str(device_register_ts)
+    if path in DEVICE_HEADER_PATHS:
+        headers["bmg-device-id"] = device_id
+        headers["bmg-sign"] = device_sign
     if body_str:
-        headers["md5"] = _md5(body_str)
+        headers.setdefault("content-length", str(len(body_str.encode("utf-8"))))
     if uid is not None and token:
         headers["userid"] = str(uid)
-        headers["access-token"] = token
+        token_value = token
+        if token_encoder is not None:
+            try:
+                token_value = token_encoder(
+                    token, path, nonce, ts,
+                    _params_to_string(flat_params), body_str, region or "",
+                )
+            except Exception:
+                token_value = token
+        headers["access-token"] = token_value
     if language:
         headers["language"] = language
     return headers

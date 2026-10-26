@@ -11,6 +11,8 @@ from ..models import ClanInfo, ClanMember, ClanRole
 
 
 class ClanAPI:
+    """Clan/tribe management and rankings."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

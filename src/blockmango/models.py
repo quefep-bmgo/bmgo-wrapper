@@ -250,24 +250,40 @@ class GroupMember:
 
 @dataclass(slots=True)
 class RankEntry:
+    """One leaderboard row.
+
+    `score` is kept as a Python integer, so simulator games with values
+    larger than 64 bits are represented exactly. `display_value` is the
+    server-formatted compact string such as `99.99Y`.
+    """
+
     user_id: int
     nick_name: str
     rank: int
     score: int
     level: int
     pic_url: str | None = None
+    display_value: str | None = None
+    vip: int = 0
+    avatar_frame: str | None = None
+    colorful_nick_name: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> RankEntry | None:
         if not data:
             return None
+        score = int(data.get("score", data.get("integral", 0)))
         return cls(
             user_id=int(data.get("userId", 0)),
             nick_name=data.get("nickName", ""),
             rank=int(data.get("rank", 0)),
-            score=int(data.get("score", 0)),
+            score=score,
             level=int(data.get("level", 0)),
-            pic_url=data.get("picUrl"),
+            pic_url=data.get("picUrl") or data.get("headPic"),
+            display_value=data.get("displayValue") or (str(score) if score else None),
+            vip=int(data.get("vip", 0) or 0),
+            avatar_frame=data.get("avatarFrame"),
+            colorful_nick_name=data.get("colorfulNickName"),
         )
 
 

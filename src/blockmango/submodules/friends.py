@@ -11,6 +11,8 @@ from ..models import UserProfile
 
 
 class FriendsAPI:
+    """Friends, requests, tags, and popularity."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

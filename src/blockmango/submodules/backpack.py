@@ -9,6 +9,8 @@ else:
 
 
 class BackpackAPI:
+    """Backpack, pickaxe, and mining balances."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

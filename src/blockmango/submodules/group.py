@@ -11,6 +11,8 @@ from ..models import GroupInfo
 
 
 class GroupAPI:
+    """Chat groups and notifications."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

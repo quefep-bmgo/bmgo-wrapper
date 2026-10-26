@@ -11,6 +11,8 @@ from ..models import UserProfile, UserStats
 
 
 class UserAPI:
+    """Profile, settings, VIP, and feedback."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

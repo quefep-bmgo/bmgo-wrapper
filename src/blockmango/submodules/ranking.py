@@ -11,6 +11,8 @@ from ..models import RankEntry
 
 
 class RankingAPI:
+    """Global, clan, gold/diamond, and per-game leaderboards."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):
@@ -199,3 +201,57 @@ class RankingAPI:
     async def async_get_region_home_page_info(self, rank_type: str = "active") -> dict[str, Any]:
         return await self._account.async_request("GET", "/ranking/api/v1/ranking/region/home/page/info",
                                                  params={"rankType": rank_type})
+
+    def get_game_leaderboard(self, game_id: str, period: str = "all", page: int = 0,
+                             size: int = 10, game_version: int | None = None,
+                             language: str = "en_US") -> dict[str, Any]:
+        return self._account.game.get_game_leaderboard(game_id, period, page, size, game_version, language)
+
+    async def async_get_game_leaderboard(self, game_id: str, period: str = "all", page: int = 0,
+                                         size: int = 10, game_version: int | None = None,
+                                         language: str = "en_US") -> dict[str, Any]:
+        return await self._account.game.async_get_game_leaderboard(game_id, period, page, size, game_version, language)
+
+    def get_game_usage_leaderboard(self, game_id: str, period: str = "all",
+                                   language: str = "en_US") -> dict[str, Any]:
+        return self._account.game.get_game_usage_leaderboard(game_id, period, language)
+
+    async def async_get_game_usage_leaderboard(self, game_id: str, period: str = "all",
+                                               language: str = "en_US") -> dict[str, Any]:
+        return await self._account.game.async_get_game_usage_leaderboard(game_id, period, language)
+
+    def get_game_my_rank(self, game_id: str, period: str = "all",
+                         language: str = "en_US") -> dict[str, Any]:
+        """Return the logged-in account's rank for a game and period."""
+        return self._account.game.get_game_my_rank(game_id, period, language)
+
+    async def async_get_game_my_rank(self, game_id: str, period: str = "all",
+                                     language: str = "en_US") -> dict[str, Any]:
+        return await self._account.game.async_get_game_my_rank(game_id, period, language)
+
+    def get_game_leaderboard_entries(self, game_id: str, period: str = "all", page: int = 0,
+                                     size: int = 10, game_version: int | None = None,
+                                     language: str = "en_US") -> list[RankEntry]:
+        """Return a page of game leaderboard rows as :class:RankEntry objects.
+
+        Scores are Python integers and keep full precision; `display_value`
+        contains the server's compact display string (for example `99.99Y`).
+        """
+        r = self.get_game_leaderboard(game_id, period, page, size, game_version, language)
+        data = r.get("data")
+        page_info = data.get("pageInfo") if isinstance(data, dict) else None
+        items = page_info.get("data") if isinstance(page_info, dict) else None
+        if not isinstance(items, list):
+            items = []
+        return [e for e in (RankEntry.from_dict(item) for item in items if item) if e is not None]
+
+    async def async_get_game_leaderboard_entries(self, game_id: str, period: str = "all", page: int = 0,
+                                                 size: int = 10, game_version: int | None = None,
+                                                 language: str = "en_US") -> list[RankEntry]:
+        r = await self.async_get_game_leaderboard(game_id, period, page, size, game_version, language)
+        data = r.get("data")
+        page_info = data.get("pageInfo") if isinstance(data, dict) else None
+        items = page_info.get("data") if isinstance(page_info, dict) else None
+        if not isinstance(items, list):
+            items = []
+        return [e for e in (RankEntry.from_dict(item) for item in items if item) if e is not None]

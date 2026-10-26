@@ -9,6 +9,8 @@ else:
 
 
 class PayAPI:
+    """Payments, products, and Xsolla."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

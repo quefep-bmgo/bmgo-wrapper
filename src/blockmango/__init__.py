@@ -3,6 +3,7 @@ from __future__ import annotations
 from .account import BmgAccount
 from .client import BmgClient
 from .config import Config
+from .crypto import TokenEncoder
 from .constants import (
     API_BASE,
     DEFAULT_APP_HEADERS,
@@ -23,17 +24,17 @@ from .models import (
 )
 from .session import SessionStore, load_session, save_session
 from .submodules import (
-    ActivityAPI, BackpackAPI, BedwarAPI, ClanAPI, DecorationAPI, FriendsAPI,
-    GameAPI, GratitudeAPI, GroupAPI, MailboxAPI, PayAPI, RankingAPI,
-    RongCloudAPI, ShopAPI, UserAPI, VideoAPI,
+    ActivityAPI, BackpackAPI, BedwarAPI, ClanAPI, DecorationAPI, ExtendedAPI,
+    FriendsAPI, GameAPI, GratitudeAPI, GroupAPI, MailboxAPI, NoticeAPI, PayAPI,
+    RankingAPI, RemoteConfigAPI, RongCloudAPI, ShopAPI, UserAPI, VideoAPI,
 )
 from .time_sync import TimeSyncer, sync_time
 
-__version__ = "8202026.2"
+__version__ = "3.29.3.1"
 
 __all__ = [
     "BmgAccount", "BmgClient", "Config",
-    "API_BASE", "DEFAULT_APP_HEADERS", "DEVICE_POOL_URL", "KEY_PAIRS", "RSA_KEY", "TIME_API",
+    "API_BASE", "DEFAULT_APP_HEADERS", "DEVICE_POOL_URL", "KEY_PAIRS", "RSA_KEY", "TIME_API", "TokenEncoder",
     "DevicePool", "fetch_devices",
     "AuthError", "BlockmangoError", "CryptoError", "NetworkError",
     "NotFoundError", "RateLimitError", "SessionError", "SignError", "ValidationError",
@@ -42,8 +43,9 @@ __all__ = [
     "Wardrobe",
     "SessionStore", "load_session", "save_session",
     "ActivityAPI", "BackpackAPI", "BedwarAPI", "ClanAPI", "DecorationAPI",
-    "FriendsAPI", "GameAPI", "GratitudeAPI", "GroupAPI", "MailboxAPI",
-    "PayAPI", "RankingAPI", "RongCloudAPI", "ShopAPI", "UserAPI", "VideoAPI",
+    "ExtendedAPI", "FriendsAPI", "GameAPI", "GratitudeAPI", "GroupAPI",
+    "MailboxAPI", "NoticeAPI", "PayAPI", "RankingAPI", "RemoteConfigAPI",
+    "RongCloudAPI", "ShopAPI", "UserAPI", "VideoAPI",
     "TimeSyncer", "sync_time",
     "__version__",
 ]

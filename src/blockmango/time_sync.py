@@ -28,8 +28,8 @@ class TimeSyncer:
                 )
                 t1 = time.time()
                 r.raise_for_status()
-                server_ms = int(r.json()["data"])
-                server_sec = server_ms // 1000
+                raw_data = int(r.json()["data"])
+                server_sec = raw_data // 1000 if raw_data > 10**12 else raw_data
                 self._offset = int(server_sec - (t0 + t1) / 2)
                 return self._offset
             except Exception as e:

@@ -9,6 +9,8 @@ else:
 
 
 class MailboxAPI:
+    """Mail and CD-key rewards."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

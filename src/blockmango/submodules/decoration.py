@@ -11,6 +11,8 @@ from ..models import DecorationItem, Wardrobe
 
 
 class DecorationAPI:
+    """Decoration resources and recommendations."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

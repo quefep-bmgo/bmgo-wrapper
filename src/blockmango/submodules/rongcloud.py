@@ -11,6 +11,8 @@ from ..models import RongCloudToken
 
 
 class RongCloudAPI:
+    """RongCloud IM token."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

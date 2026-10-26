@@ -11,6 +11,8 @@ from ..models import SignInStatus, TaskInfo
 
 
 class ActivityAPI:
+    """Activity events, sign-in, ads, banners, and red packets."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

@@ -6,7 +6,6 @@ import re
 import requests
 
 from .config import Config
-from .exceptions import NetworkError
 
 
 class DevicePool:

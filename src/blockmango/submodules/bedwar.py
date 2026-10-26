@@ -9,6 +9,8 @@ else:
 
 
 class BedwarAPI:
+    """Bed Wars-specific endpoints."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

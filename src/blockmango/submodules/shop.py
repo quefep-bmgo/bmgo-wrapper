@@ -9,6 +9,8 @@ else:
 
 
 class ShopAPI:
+    """Shop catalogue."""
+
     __slots__ = ("_account",)
 
     def __init__(self, account: BmgAccount):

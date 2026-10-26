@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import random
 import time
 from typing import Any
@@ -7,36 +8,43 @@ from typing import Any
 import requests
 
 from .config import Config
-from .constants import DEFAULT_APP_HEADERS, KEY_PAIRS
+from .constants import KEY_PAIRS
 from .crypto import (
+    TokenEncoder,
     _build_signed_headers, _compact, _enc_password,
-    _flatten_params, _sign,
+    _flatten_params,
 )
 from .device import DevicePool
 from .models import UserProfile, UserStats
 from .session import SessionStore
 from .submodules import (
-    ActivityAPI, BackpackAPI, BedwarAPI, ClanAPI, DecorationAPI, FriendsAPI,
-    GameAPI, GroupAPI, GratitudeAPI, MailboxAPI, PayAPI, RankingAPI,
-    RongCloudAPI, ShopAPI, UserAPI, VideoAPI,
+    ActivityAPI, BackpackAPI, BedwarAPI, ClanAPI, DecorationAPI, ExtendedAPI,
+    FriendsAPI, GameAPI, GroupAPI, GratitudeAPI, MailboxAPI, NoticeAPI, PayAPI,
+    RankingAPI, RemoteConfigAPI, RongCloudAPI, ShopAPI, UserAPI, VideoAPI,
 )
 from .time_sync import TimeSyncer
 
 
 class BmgAccount:
+    """Authenticated Blockman GO account and API facade."""
+
     __slots__ = (
         "_ak", "_async_session", "_device_id", "_device_pool",
-        "_device_sign", "_nick", "_session", "_session_store",
-        "_sk", "_t_off", "_time_syncer", "_token", "_uid",
+        "_device_register_ts", "_device_sign", "_nick", "_region",
+        "_session", "_session_store", "_sk", "_t_off", "_time_syncer",
+        "_token", "_token_encoder", "_uid", "_uid_register_ts",
         "activity", "backpack", "bedwar", "clan", "config", "decoration",
-        "friends", "gratitude", "game", "group", "mailbox", "password",
-        "pay", "ranking", "rongcloud", "shop", "user", "username", "video",
+        "extended", "friends", "gratitude", "game", "group", "mailbox",
+        "notice", "password", "pay", "ranking", "remote_config", "rongcloud",
+        "shop", "user", "username", "video",
     )
 
-    def __init__(self, username: str, password: str, config: Config | None = None):
+    def __init__(self, username: str, password: str, config: Config | None = None,
+                 token_encoder: TokenEncoder | None = None):
         self.username = username
         self.password = password
         self.config = config or Config.from_env()
+        self._token_encoder = token_encoder
         self._session_store = SessionStore(self.config)
         self._time_syncer = TimeSyncer(self.config)
         self._device_pool = DevicePool(self.config)
@@ -47,6 +55,9 @@ class BmgAccount:
         self._nick: str | None = None
         self._device_id: str | None = None
         self._device_sign: str | None = None
+        self._region: str = self.config.region
+        self._uid_register_ts: str = "0"
+        self._device_register_ts: str = "0"
         self._ak: str = KEY_PAIRS[0][0]
         self._sk: str = KEY_PAIRS[0][1]
         self._t_off: int = 0
@@ -66,6 +77,23 @@ class BmgAccount:
         self.pay = PayAPI(self)
         self.mailbox = MailboxAPI(self)
         self.backpack = BackpackAPI(self)
+        self.remote_config = RemoteConfigAPI(self)
+        self.notice = NoticeAPI(self)
+        self.extended = ExtendedAPI(self)
+
+    @classmethod
+    def from_env(cls) -> BmgAccount:
+        """Create an account from `.env` / environment variables.
+
+        Required: `BMG_USERNAME`, `BMG_PASSWORD`, `BMG_DEVICE_ID`, and
+        `BMG_BMDDH_ID`. Other `BMG_*` settings are optional.
+        """
+        config = Config.from_env()
+        username = os.getenv("BMG_USERNAME")
+        password = os.getenv("BMG_PASSWORD")
+        if not username or not password:
+            raise ValueError("Set BMG_USERNAME and BMG_PASSWORD")
+        return cls(username, password, config)
 
     @property
     def uid(self) -> int | None:
@@ -78,6 +106,10 @@ class BmgAccount:
     @property
     def nick(self) -> str | None:
         return self._nick
+
+    @property
+    def region(self) -> str:
+        return self._region
 
     @property
     def device_id(self) -> str | None:
@@ -102,6 +134,9 @@ class BmgAccount:
         return {
             "uid": self._uid, "token": self._token, "nick": self._nick,
             "device_id": self._device_id, "device_sign": self._device_sign,
+            "region": self._region,
+            "uid_register_ts": self._uid_register_ts,
+            "device_register_ts": self._device_register_ts,
             "ak": self._ak, "sk": self._sk,
         }
 
@@ -117,6 +152,9 @@ class BmgAccount:
         self._nick = sess.get("nick")
         self._device_id = sess.get("device_id")
         self._device_sign = sess.get("device_sign")
+        self._region = sess.get("region") or self._region
+        self._uid_register_ts = sess.get("uid_register_ts") or self._uid_register_ts
+        self._device_register_ts = sess.get("device_register_ts") or self._device_register_ts
         self._ak = sess.get("ak") or self._ak
         self._sk = sess.get("sk") or self._sk
         return bool(self._uid and self._token)
@@ -124,32 +162,32 @@ class BmgAccount:
     def _sync_time(self) -> None:
         self._t_off = self._time_syncer.sync()
 
+    def _app_headers(self) -> dict[str, str]:
+        headers = dict(self.config.app_headers)
+        headers["user-agent"] = self.config.user_agent
+        return headers
+
     def login(self, tries: int | None = None) -> bool:
         max_tries = tries or self.config.login_max_tries
         self._sync_time()
         self._device_pool.ensure_loaded()
         enc = _enc_password(self.password)
-        rand = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=8))
         for attempt in range(max_tries):
             dev_id, dev_sign, bm_ddh_id = self._device_pool.get_random()
             ak, sk = random.choice(KEY_PAIRS)
             body = _compact({
                 "account": self.username, "password": enc,
                 "tsvAccount": "", "tsvPlatform": "", "tsvToken": "",
-                "ticket": "", "randomstr": rand,
             })
-            flat = _flatten_params({})
-            nonce, ts, sign = _sign("/user/api/v4/account/login", flat, body, ak, sk, None, self._t_off)
-            headers = {
-                "Host": "gw.sandboxol.com", "bmg-device-id": dev_id, "bmg-sign": bm_ddh_id,
-                "os": "android", "apptype": "1", "x-apikey": ak, "x-nonce": nonce,
-                "x-time": ts, "x-sign": sign, "x-urlpath": "/user/api/v4/account/login",
-                "content-type": "application/json; charset=UTF-8", "user-agent": self.config.user_agent,
-                "packagename": "blockymods", "packagenamefull": "com.sandboxol.blockymods",
-                "androidversion": "30", "appversion": "5742", "appversionname": "3.28.2",
-                "channel": "sandbox", "env": "prd", "region": "sandbox",
-                "userlanguage": "en_US", "clienttype": "client",
-            }
+            headers = _build_signed_headers(
+                "/user/api/v4/account/login", [], body, ak, sk, dev_id,
+                bm_ddh_id or dev_sign, self._t_off, uid=self._uid,
+                token=self._token, app_headers=self._app_headers(),
+                region=self._region, uid_register_ts=self._uid_register_ts,
+                device_register_ts=self._device_register_ts,
+                device_headers=dict(self.config.device_headers),
+                token_encoder=self._token_encoder,
+            )
             try:
                 r = self._get_session().post(
                     self.config.api_base + "/user/api/v4/account/login",
@@ -177,6 +215,9 @@ class BmgAccount:
                 self._nick = d.get("nickName")
                 self._device_id = dev_id
                 self._device_sign = bm_ddh_id
+                self._region = d.get("region") or self._region
+                self._uid_register_ts = str(d.get("registerTime") or self._uid_register_ts or "0")
+                self._device_register_ts = str(d.get("deviceRegisterTime") or self._device_register_ts or "0")
                 self._ak = ak
                 self._sk = sk
                 self.save_session()
@@ -197,27 +238,22 @@ class BmgAccount:
         self._sync_time()
         self._device_pool.ensure_loaded()
         enc = _enc_password(self.password)
-        rand = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=8))
         for attempt in range(max_tries):
             dev_id, dev_sign, bm_ddh_id = self._device_pool.get_random()
             ak, sk = random.choice(KEY_PAIRS)
             body = _compact({
                 "account": self.username, "password": enc,
                 "tsvAccount": "", "tsvPlatform": "", "tsvToken": "",
-                "ticket": "", "randomstr": rand,
             })
-            flat = _flatten_params({})
-            nonce, ts, sign = _sign("/user/api/v4/account/login", flat, body, ak, sk, None, self._t_off)
-            headers = {
-                "Host": "gw.sandboxol.com", "bmg-device-id": dev_id, "bmg-sign": bm_ddh_id,
-                "os": "android", "apptype": "1", "x-apikey": ak, "x-nonce": nonce,
-                "x-time": ts, "x-sign": sign, "x-urlpath": "/user/api/v4/account/login",
-                "content-type": "application/json; charset=UTF-8", "user-agent": self.config.user_agent,
-                "packagename": "blockymods", "packagenamefull": "com.sandboxol.blockymods",
-                "androidversion": "30", "appversion": "5742", "appversionname": "3.28.2",
-                "channel": "sandbox", "env": "prd", "region": "sandbox",
-                "userlanguage": "en_US", "clienttype": "client",
-            }
+            headers = _build_signed_headers(
+                "/user/api/v4/account/login", [], body, ak, sk, dev_id,
+                bm_ddh_id or dev_sign, self._t_off, uid=self._uid,
+                token=self._token, app_headers=self._app_headers(),
+                region=self._region, uid_register_ts=self._uid_register_ts,
+                device_register_ts=self._device_register_ts,
+                device_headers=dict(self.config.device_headers),
+                token_encoder=self._token_encoder,
+            )
             try:
                 client = self._get_async_session()
                 r = await client.post(
@@ -242,6 +278,9 @@ class BmgAccount:
                 self._nick = d.get("nickName")
                 self._device_id = dev_id
                 self._device_sign = bm_ddh_id
+                self._region = d.get("region") or self._region
+                self._uid_register_ts = str(d.get("registerTime") or self._uid_register_ts or "0")
+                self._device_register_ts = str(d.get("deviceRegisterTime") or self._device_register_ts or "0")
                 self._ak = ak
                 self._sk = sk
                 self.save_session()
@@ -265,7 +304,7 @@ class BmgAccount:
             return False
         try:
             self._sync_time()
-            r = self.request("GET", "/user/api/v1/users/bg-careers", params={"userId": str(self._uid)})
+            r = self.request("GET", "/user/api/v3/user/details/info")
             return r.get("code") == 1
         except Exception:
             return False
@@ -275,7 +314,7 @@ class BmgAccount:
             return False
         try:
             self._sync_time()
-            r = await self.async_request("GET", "/user/api/v1/users/bg-careers", params={"userId": str(self._uid)})
+            r = await self.async_request("GET", "/user/api/v3/user/details/info")
             return r.get("code") == 1
         except Exception:
             return False
@@ -310,7 +349,11 @@ class BmgAccount:
             path, flat, body_str, self._ak, self._sk,
             self._device_id or "", self._device_sign or "",
             self._t_off, self._uid, self._token, language,
-            dict(DEFAULT_APP_HEADERS),
+            self._app_headers(), region=self._region,
+            uid_register_ts=self._uid_register_ts,
+            device_register_ts=self._device_register_ts,
+            device_headers=dict(self.config.device_headers),
+            token_encoder=self._token_encoder,
         )
         if _extra_headers:
             headers.update(_extra_headers)
@@ -360,7 +403,11 @@ class BmgAccount:
             path, flat, body_str, self._ak, self._sk,
             self._device_id or "", self._device_sign or "",
             self._t_off, self._uid, self._token, language,
-            dict(DEFAULT_APP_HEADERS),
+            self._app_headers(), region=self._region,
+            uid_register_ts=self._uid_register_ts,
+            device_register_ts=self._device_register_ts,
+            device_headers=dict(self.config.device_headers),
+            token_encoder=self._token_encoder,
         )
         if _extra_headers:
             headers.update(_extra_headers)
@@ -387,9 +434,10 @@ class BmgAccount:
         return None
 
     def get_own_profile(self) -> UserProfile | None:
-        r = self.request("GET", "/user/api/v2/user/details/info")
-        if r.get("code") == 1:
-            return UserProfile.from_dict(r.get("data"))
+        for path in ("/user/api/v3/user/details/info", "/user/api/v2/user/details/info"):
+            r = self.request("GET", path)
+            if r.get("code") == 1:
+                return UserProfile.from_dict(r.get("data"))
         return None
 
     def get_stats(self, uid: int) -> UserStats | None:
@@ -539,13 +587,27 @@ class BmgAccount:
         return self.request("PUT", "/msg/api/v1/msg/group/chat/kickOut",
                            body={"groupId": group_id, "groupName": group_name, "inviterId": self._uid, "memberIds": uids})
 
-    def get_game_ranking(self, game_id: str, period: str = "all", page: int = 1, size: int = 10) -> dict[str, Any]:
-        return self.request("GET", f"/game/api/v1/games/{game_id}/rank",
-                           params={"type": period, "pageNo": page - 1, "pageSize": size})
+    def get_game_ranking(self, game_id: str, period: str = "all", page: int = 1, size: int = 10,
+                         game_version: int | None = None) -> dict[str, Any]:
+        params: dict[str, Any] = {"type": period, "pageNo": max(page - 1, 0), "pageSize": size}
+        if game_version:
+            params["gameVersion"] = game_version
+        return self.request("GET", f"/game/api/v1/games/{game_id}/rank", params=params)
 
-    async def async_get_game_ranking(self, game_id: str, period: str = "all", page: int = 1, size: int = 10) -> dict[str, Any]:
-        return await self.async_request("GET", f"/game/api/v1/games/{game_id}/rank",
-                                       params={"type": period, "pageNo": page - 1, "pageSize": size})
+    async def async_get_game_ranking(self, game_id: str, period: str = "all", page: int = 1, size: int = 10,
+                                     game_version: int | None = None) -> dict[str, Any]:
+        params: dict[str, Any] = {"type": period, "pageNo": max(page - 1, 0), "pageSize": size}
+        if game_version:
+            params["gameVersion"] = game_version
+        return await self.async_request("GET", f"/game/api/v1/games/{game_id}/rank", params=params)
+
+    def game_auth(self, uid: int, game_id: str, game_version: int = 10114) -> dict[str, Any]:
+        return self.request("GET", "/game/api/v3/game/auth",
+                           params={"typeId": game_id, "targetId": uid, "gameVersion": game_version})
+
+    async def async_game_auth(self, uid: int, game_id: str, game_version: int = 10114) -> dict[str, Any]:
+        return await self.async_request("GET", "/game/api/v3/game/auth",
+                                       params={"typeId": game_id, "targetId": uid, "gameVersion": game_version})
 
     def party_auth(self, uid: int, psid: str, game_id: str = "g1008", is_new_engine: bool = True, engine4_version: int = 0) -> dict[str, Any]:
         return self.request("GET", "/game/api/v3/party/auth",
@@ -603,10 +665,9 @@ class BmgAccount:
                  geetest_seccode: str | None = None) -> dict[str, Any]:
         self._sync_time()
         self._device_pool.ensure_loaded()
-        rand = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=8))
         body_dict = {
             "account": account, "password": _enc_password(password),
-            "tsvAccount": "", "tsvPlatform": "", "tsvToken": "", "ticket": "", "randomstr": rand,
+            "tsvAccount": "", "tsvPlatform": "", "tsvToken": "",
         }
         if geetest_challenge and geetest_validate and geetest_seccode:
             body_dict["geetest_challenge"] = geetest_challenge
@@ -619,14 +680,16 @@ class BmgAccount:
         if verify_code:
             body_dict["verifyCode"] = verify_code
         body = _compact(body_dict)
-        flat = _flatten_params({})
-        nonce, ts, sign = _sign("/user/api/v4/account/register", flat, body, self._ak, self._sk, None, self._t_off)
-        headers = {
-            "Host": "gw.sandboxol.com", "bmg-device-id": self._device_id or "", "bmg-sign": self._device_sign or "",
-            "os": "android", "apptype": "1", "x-apikey": self._ak, "x-nonce": nonce,
-            "x-time": ts, "x-sign": sign, "x-urlpath": "/user/api/v4/account/register",
-            "content-type": "application/json; charset=UTF-8", "user-agent": self.config.user_agent,
-        }
+        dev_id = self._device_id or self.config.device_id
+        dev_sign = self.config.bm_ddh_id or self._device_sign or self.config.device_sign
+        headers = _build_signed_headers(
+            "/user/api/v4/account/register", [], body, self._ak, self._sk,
+            dev_id, dev_sign, self._t_off, app_headers=self._app_headers(),
+            region=self._region, uid_register_ts=self._uid_register_ts,
+            device_register_ts=self._device_register_ts,
+            device_headers=dict(self.config.device_headers),
+            token_encoder=self._token_encoder,
+        )
         try:
             r = self._get_session().post(
                 self.config.api_base + "/user/api/v4/account/register",
@@ -644,10 +707,9 @@ class BmgAccount:
                               geetest_seccode: str | None = None) -> dict[str, Any]:
         self._sync_time()
         self._device_pool.ensure_loaded()
-        rand = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=8))
         body_dict = {
             "account": account, "password": _enc_password(password),
-            "tsvAccount": "", "tsvPlatform": "", "tsvToken": "", "ticket": "", "randomstr": rand,
+            "tsvAccount": "", "tsvPlatform": "", "tsvToken": "",
         }
         if geetest_challenge and geetest_validate and geetest_seccode:
             body_dict["geetest_challenge"] = geetest_challenge
@@ -660,14 +722,16 @@ class BmgAccount:
         if verify_code:
             body_dict["verifyCode"] = verify_code
         body = _compact(body_dict)
-        flat = _flatten_params({})
-        nonce, ts, sign = _sign("/user/api/v4/account/register", flat, body, self._ak, self._sk, None, self._t_off)
-        headers = {
-            "Host": "gw.sandboxol.com", "bmg-device-id": self._device_id or "", "bmg-sign": self._device_sign or "",
-            "os": "android", "apptype": "1", "x-apikey": self._ak, "x-nonce": nonce,
-            "x-time": ts, "x-sign": sign, "x-urlpath": "/user/api/v4/account/register",
-            "content-type": "application/json; charset=UTF-8", "user-agent": self.config.user_agent,
-        }
+        dev_id = self._device_id or self.config.device_id
+        dev_sign = self.config.bm_ddh_id or self._device_sign or self.config.device_sign
+        headers = _build_signed_headers(
+            "/user/api/v4/account/register", [], body, self._ak, self._sk,
+            dev_id, dev_sign, self._t_off, app_headers=self._app_headers(),
+            region=self._region, uid_register_ts=self._uid_register_ts,
+            device_register_ts=self._device_register_ts,
+            device_headers=dict(self.config.device_headers),
+            token_encoder=self._token_encoder,
+        )
         try:
             client = self._get_async_session()
             r = await client.post(
