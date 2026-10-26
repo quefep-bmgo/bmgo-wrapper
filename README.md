@@ -205,6 +205,7 @@ Set `TELEGRAM_TOKEN`. The command is `/rank [game_id] [period]`.
 | [API reference](docs/api-reference.md) | generated list of methods, signatures, and endpoints |
 | [Leaderboards](docs/leaderboards.md) | periods, response shapes, large scores, observed data |
 | [Game IDs](docs/games.md) | known IDs and how to check them |
+| [Endpoint support](docs/endpoint-support.md) | verified methods, known limitations, removal policy |
 
 Regenerate the API reference after changing public methods:
 
@@ -223,7 +224,8 @@ to certify every method:
 - Write, social, purchase, and account-changing endpoints were not executed.
 - 3.30.x has not been tested. Treat untested methods as exploratory.
 
-See [Limitations](#limitations) before using this with a real account.
+See [Limitations](#limitations) and [Endpoint support](docs/endpoint-support.md)
+before using this with a real account.
 
 ## Project layout
 
@@ -233,7 +235,7 @@ src/blockmango/
   crypto.py        signing and password encryption
   constants.py     app version, headers, endpoint rules
   submodules/      typed endpoint groups
-tools/             device extractor and API-doc generator
+tools/             device extractor, read-only audit, and API-doc generator
 examples/          runnable CLI, Discord, and Telegram examples
 docs/              hand-written guides and generated API reference
 tests/             offline unit tests
@@ -246,13 +248,15 @@ python -m pip install -e .
 python -m unittest discover -s tests -v
 ```
 
-The offline tests do not contact the API. For a live check:
+The offline tests do not contact the API. For a read-only live check:
 
 ```bash
-python examples/leaderboards.py
+python tools/audit_readonly.py
 ```
 
-Live checks need valid `.env` values.
+The audit logs in and calls a curated set of GET endpoints. It does not call
+write, purchase, friend, clan, mailbox, or inventory mutations. Live checks need
+valid `.env` values.
 
 ## Troubleshooting
 

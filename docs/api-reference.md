@@ -98,7 +98,7 @@ Bed Wars-specific endpoints.
 | `get_team(team_id: str)` | `/bedwar/api/v1/game/team` |  |
 | `like()` | `/bedwar/api/v1/game/like` |  |
 | `get_season()` | `/bedwar/api/v1/game/season` |  |
-| `get_achievement(user_id: int | None=None)` | `/bedwar/api/v1/game/achievement` |  |
+| `get_achievement(user_id: int \| None=None)` | `/bedwar/api/v1/game/achievement` |  |
 | `get_match_name()` | `/bedwar/api/v1/contest/match-name` |  |
 | `get_user_game_date_value(user_id: int)` | `/bedwar/api/v1/user/game/date/value/get` |  |
 | `async async_get_clan_role_for_users(user_ids: str)` | `/bedwar/api/v1/friends/clan/by/userIds` |  |
@@ -109,7 +109,7 @@ Bed Wars-specific endpoints.
 | `async async_get_team(team_id: str)` | `/bedwar/api/v1/game/team` |  |
 | `async async_like()` | `/bedwar/api/v1/game/like` |  |
 | `async async_get_season()` | `/bedwar/api/v1/game/season` |  |
-| `async async_get_achievement(user_id: int | None=None)` | `/bedwar/api/v1/game/achievement` |  |
+| `async async_get_achievement(user_id: int \| None=None)` | `/bedwar/api/v1/game/achievement` |  |
 | `async async_get_match_name()` | `/bedwar/api/v1/contest/match-name` |  |
 | `async async_get_user_game_date_value(user_id: int)` | `/bedwar/api/v1/user/game/date/value/get` |  |
 
@@ -133,7 +133,7 @@ Clan/tribe management and rankings.
 | `mute_all()` | `/clan/api/v1/clan/tribe/mute` |  |
 | `unmute_all()` | `/clan/api/v1/clan/tribe/mute` |  |
 | `remove_members(member_ids: list[int])` | `/clan/api/v1/clan/tribe/member/remove/batch` |  |
-| `edit(clan_id: int, currency: int=0, details: str='', head_pic: str='', name: str='', tags: list[str] | None=None)` | `/clan/api/v1/clan/tribe` |  |
+| `edit(clan_id: int, currency: int=0, details: str='', head_pic: str='', name: str='', tags: list[str] \| None=None)` | `/clan/api/v1/clan/tribe` |  |
 | `edit_elders(type_: int, elder_ids: list[int])` | `/clan/api/v1/clan/tribe/members` |  |
 | `set_verification(enabled: bool)` | `/clan/api/v1/clan/free/verification` |  |
 | `buy_decoration(decoration_id: int)` | `/clan/api/v1/clan/decorations/purchase` |  |
@@ -142,7 +142,7 @@ Clan/tribe management and rankings.
 | `get_personal_tasks(task_type: int=1)` | `/clan/api/v3/clan/personal/tasks` |  |
 | `post_bulletin(content: str)` | `/clan/api/v1/clan/tribe/bulletin` |  |
 | `transfer_chief(new_chief_id: int)` | `/clan/api/v1/clan/tribe/member` |  |
-| `create(clan_id: int=0, currency: int=2, details: str='', head_pic: str='', name: str='', tags: list[str] | None=None)` | `/clan/api/v3/clan/tribe` |  |
+| `create(clan_id: int=0, currency: int=2, details: str='', head_pic: str='', name: str='', tags: list[str] \| None=None)` | `/clan/api/v3/clan/tribe` |  |
 | `dissolve(clan_id: int)` | `/clan/api/v1/clan/tribe` |  |
 | `get_donation_info()` | `/clan/api/v1/clan/tribe/donation` |  |
 | `get_donation_history_page(page: int=0, size: int=50)` | `/clan/api/v2/clan/tribe/donation/history` |  |
@@ -166,7 +166,7 @@ Clan/tribe management and rankings.
 | `async async_mute_all()` | `/clan/api/v1/clan/tribe/mute` |  |
 | `async async_unmute_all()` | `/clan/api/v1/clan/tribe/mute` |  |
 | `async async_remove_members(member_ids: list[int])` | `/clan/api/v1/clan/tribe/member/remove/batch` |  |
-| `async async_edit(clan_id: int, currency: int=0, details: str='', head_pic: str='', name: str='', tags: list[str] | None=None)` | `/clan/api/v1/clan/tribe` |  |
+| `async async_edit(clan_id: int, currency: int=0, details: str='', head_pic: str='', name: str='', tags: list[str] \| None=None)` | `/clan/api/v1/clan/tribe` |  |
 | `async async_edit_elders(type_: int, elder_ids: list[int])` | `/clan/api/v1/clan/tribe/members` |  |
 | `async async_set_verification(enabled: bool)` | `/clan/api/v1/clan/free/verification` |  |
 | `async async_buy_decoration(decoration_id: int)` | `/clan/api/v1/clan/decorations/purchase` |  |
@@ -175,7 +175,7 @@ Clan/tribe management and rankings.
 | `async async_get_personal_tasks(task_type: int=1)` | `/clan/api/v3/clan/personal/tasks` |  |
 | `async async_post_bulletin(content: str)` | `/clan/api/v1/clan/tribe/bulletin` |  |
 | `async async_transfer_chief(new_chief_id: int)` | `/clan/api/v1/clan/tribe/member` |  |
-| `async async_create(clan_id: int=0, currency: int=2, details: str='', head_pic: str='', name: str='', tags: list[str] | None=None)` | `/clan/api/v3/clan/tribe` |  |
+| `async async_create(clan_id: int=0, currency: int=2, details: str='', head_pic: str='', name: str='', tags: list[str] \| None=None)` | `/clan/api/v3/clan/tribe` |  |
 | `async async_dissolve(clan_id: int)` | `/clan/api/v1/clan/tribe` |  |
 | `async async_get_donation_info()` | `/clan/api/v1/clan/tribe/donation` |  |
 | `async async_get_donation_history_page(page: int=0, size: int=50)` | `/clan/api/v2/clan/tribe/donation/history` |  |
@@ -250,22 +250,21 @@ Wrappers for the newer 3.29.x endpoints captured from the Android client. These 
 | `direct_purchase_puzzles_popup()` | `/activity/api/v1/direct-purchase/puzzles/popup` |  |
 | `game_banner_red_point()` | `/activity/api/v1/game/banner/new/red-point` |  |
 | `holiday_score_info(activity_id: str='holiday_score_202609')` | `/activity/api/v1/holiday-score/info` |  |
-| `preorder_holiday_score_pack(body: dict[str, Any] | None=None)` | `/activity/api/v1/holiday-score/pack/pre-order` |  |
-| `holiday_score_rank_period(params: dict[str, Any] | None=None)` | `/activity/api/v1/holiday-score/rank/period` |  |
-| `holiday_score_rank_reward_preview(params: dict[str, Any] | None=None)` | `/activity/api/v1/holiday-score/rank/reward-preview` |  |
-| `holiday_score_rank_total(params: dict[str, Any] | None=None)` | `/activity/api/v1/holiday-score/rank/total` |  |
-| `homepage_ad_banner(language: str='en_US', region: str | None=None, tab_code: str='')` | `/activity/api/v1/homepage/ad-banner` |  |
+| `preorder_holiday_score_pack(body: dict[str, Any] \| None=None)` | `/activity/api/v1/holiday-score/pack/pre-order` |  |
+| `holiday_score_rank_period(params: dict[str, Any] \| None=None)` | `/activity/api/v1/holiday-score/rank/period` |  |
+| `holiday_score_rank_reward_preview(params: dict[str, Any] \| None=None)` | `/activity/api/v1/holiday-score/rank/reward-preview` |  |
+| `holiday_score_rank_total(params: dict[str, Any] \| None=None)` | `/activity/api/v1/holiday-score/rank/total` |  |
+| `homepage_ad_banner(language: str='en_US', region: str \| None=None, tab_code: str='')` | `/activity/api/v1/homepage/ad-banner` |  |
 | `homepage_game_detail_icon_activity(game_id: str)` | `/activity/api/v1/homepage/game-detail/icon-activity` |  |
-| `limit_gcube_pack_info(popup_scene: int | None=None)` | `/activity/api/v1/limit/gcube/pack/info` |  |
-| `return_activity_info()` | `/activity/api/v1/return-activity/info` |  |
-| `receive_sub_pkg_transfer_reward(body: dict[str, Any] | None=None)` | `/activity/api/v1/sub-pkg-transfer/reward/receive` |  |
+| `limit_gcube_pack_info(popup_scene: int \| None=None)` | `/activity/api/v1/limit/gcube/pack/info` |  |
+| `receive_sub_pkg_transfer_reward(body: dict[str, Any] \| None=None)` | `/activity/api/v1/sub-pkg-transfer/reward/receive` |  |
 | `tradplus_ad_config(force_update: bool=False)` | `/activity/api/v1/tradplus/ad/open-config` |  |
 | `treasure_bowl_survey_status()` | `/activity/api/v1/treasure/bowl/rebate/survey/status` |  |
 | `homepage_activity_list_group(language: str='en_US')` | `/activity/api/v2/homepage/activity-list/group` |  |
 | `newbie_activity_status()` | `/activity/api/v2/newbie/activity/status` |  |
 | `theme()` | `/activity/api/v2/theme` |  |
 | `daily_ad_red_points()` | `/activity/daily/ad/activity/red/points` |  |
-| `using_decorations(uid: int | None=None)` | `/decoration/api/v1/decorations-v2/{uid or self._account.uid}/using` |  |
+| `using_decorations(uid: int \| None=None)` | `/decoration/api/v1/decorations-v2/{uid or self._account.uid}/using` |  |
 | `check_new_decorations_resource(res_version: int, engine_version: int=10114)` | `/decoration/api/v1/new/decorations/check/resource` |  |
 | `recommended_decorations()` | `/decoration/api/v1/recommend/get` |  |
 | `decoration_red_points()` | `/decoration/api/v1/redpoints` |  |
@@ -282,15 +281,15 @@ Wrappers for the newer 3.29.x endpoints captured from the Android client. These 
 | `user_highlight_data(target_id: int)` | `/game/api/v1/user/highlight/data` |  |
 | `game_revision_combine(filter_type_id: int=0, is_filter: int=0, os_name: str='android', page: int=0, size: int=20)` | `/game/api/v2/game/revision/all/list/by/condition/combine` |  |
 | `check_app_engine_update(engine_version: int=10114, common_res_version: int=0, game_res_version: int=0, game_type: str='', engine_type: str='v1')` | `/game/api/v2/games/app-engine/check-update` |  |
-| `clan_rank(params: dict[str, Any] | None=None)` | `/clan/api/v1/clan/rank` |  |
-| `clan_rank_new(params: dict[str, Any] | None=None)` | `/clan/api/v1/clan/rank/new` |  |
-| `clan_user_rank(params: dict[str, Any] | None=None)` | `/clan/api/v1/clan/user/rank` |  |
-| `clan_user_rank_new(params: dict[str, Any] | None=None)` | `/clan/api/v1/clan/user/rank/new` |  |
-| `redeem_cdkey(body: dict[str, Any] | None=None, cdkey: str | None=None)` | `/mailbox/api/v1/cdkey/redeem` |  |
-| `mark_user_notifications_unread(body: dict[str, Any] | None=None)` | `/msg/api/v1/user-notification/unread` |  |
+| `clan_rank(params: dict[str, Any] \| None=None)` | `/clan/api/v1/clan/rank` |  |
+| `clan_rank_new(params: dict[str, Any] \| None=None)` | `/clan/api/v1/clan/rank/new` |  |
+| `clan_user_rank(params: dict[str, Any] \| None=None)` | `/clan/api/v1/clan/user/rank` |  |
+| `clan_user_rank_new(params: dict[str, Any] \| None=None)` | `/clan/api/v1/clan/user/rank/new` |  |
+| `redeem_cdkey(body: dict[str, Any] \| None=None, cdkey: str \| None=None)` | `/mailbox/api/v1/cdkey/redeem` |  |
+| `mark_user_notifications_unread(body: dict[str, Any] \| None=None)` | `/msg/api/v1/user-notification/unread` |  |
 | `area_pack_popup_info()` | `/pay/api/v1/area/pack/popup/info` |  |
 | `disposable_advance_order(product_id: str, data: str)` | `/pay/api/v1/pay/disposable/advance/order` |  |
-| `product_info_batch(product_ids: list[str] | str, country: str='US')` | `/pay/api/v1/product/info/batch/get` |  |
+| `product_info_batch(product_ids: list[str] \| str, country: str='US')` | `/pay/api/v1/product/info/batch/get` |  |
 | `third_pay_access_status()` | `/pay/api/v1/third-pay/user/access-status` |  |
 | `xsolla_billing_get()` | `/pay/api/v1/xsolla/billing/get` |  |
 | `xsolla_enable()` | `/pay/api/v1/xsolla/enable` |  |
@@ -299,11 +298,11 @@ Wrappers for the newer 3.29.x endpoints captured from the Android client. These 
 | `trigger_client_event(trigger_type: int=1)` | `/user/api/v1/client/trigger/event` |  |
 | `sensitive_word_regions()` | `/user/api/v1/sensitive/word/region/list` |  |
 | `collect_feedback_task()` | `/user/api/v1/user-feedback/collect-task` |  |
-| `set_user_language(user_id: int | None=None, language: str='en')` | `/user/api/v1/user/language` |  |
+| `set_user_language(user_id: int \| None=None, language: str='en')` | `/user/api/v1/user/language` |  |
 | `logout()` | `/user/api/v1/user/login-out` |  |
 | `vip_customer_popup_needed()` | `/user/api/v1/user/vip/customer/info/pop/up/needed` |  |
-| `web_auth_code(body: dict[str, Any] | None=None)` | `/user/api/v1/web/auth-code` |  |
-| `security_settings(user_id: int | None=None)` | `/user/api/v2/users/verify/user/security/settings` |  |
+| `web_auth_code(body: dict[str, Any] \| None=None)` | `/user/api/v1/web/auth-code` |  |
+| `security_settings(user_id: int \| None=None)` | `/user/api/v2/users/verify/user/security/settings` |  |
 | `user_details_v3()` | `/user/api/v3/user/details/info` |  |
 | `auth_token(q: str)` | `/user/api/v5/account/auth-token` |  |
 
@@ -330,7 +329,7 @@ Friends, requests, tags, and popularity.
 | `search_friends(query: str)` | `—` |  |
 | `get_family_list(uid: int)` | `—` |  |
 | `get_follow_list()` | `/friend/api/v1/friends/follow` |  |
-| `get_notice_list(notice_type: int | None=None)` | `/friend/api/v1/friends/notice-list` |  |
+| `get_notice_list(notice_type: int \| None=None)` | `/friend/api/v1/friends/notice-list` |  |
 | `get_recommendations()` | `/friend/api/v1/friends/recommendation` |  |
 | `get_new_recommendations()` | `/friend/api/v2/friends/recommendation/new` |  |
 | `get_settings(uid: int)` | `/friend/api/v1/friends/settings/{uid}` |  |
@@ -360,7 +359,7 @@ Friends, requests, tags, and popularity.
 | `async async_search_friends(query: str)` | `—` |  |
 | `async async_get_family_list(uid: int)` | `—` |  |
 | `async async_get_follow_list()` | `/friend/api/v1/friends/follow` |  |
-| `async async_get_notice_list(notice_type: int | None=None)` | `/friend/api/v1/friends/notice-list` |  |
+| `async async_get_notice_list(notice_type: int \| None=None)` | `/friend/api/v1/friends/notice-list` |  |
 | `async async_get_recommendations()` | `/friend/api/v1/friends/recommendation` |  |
 | `async async_get_new_recommendations()` | `/friend/api/v2/friends/recommendation/new` |  |
 | `async async_get_settings(uid: int)` | `/friend/api/v1/friends/settings/{uid}` |  |
@@ -384,7 +383,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `async async_get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` |  |
 | `list_games(page: int=1, size: int=20, order_type: str='', type_id: int=0, order: str='', is_publish: int=1)` | `/game/api/v1/games` | Legacy v1 game list; prefer :meth:get_game_list. |
 | `get_game_details(game_id: str, app_version: int=5753, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
-| `get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int | None=None)` | `—` |  |
+| `get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int \| None=None)` | `—` |  |
 | `get_usage_ranking(game_id: str, page: int=1, size: int=10)` | `/game/api/v1/games/{game_id}/uses/rank` |  |
 | `get_hot_games()` | `/game/api/v1/game-list/homepage/hot` |  |
 | `get_recommended_games()` | `/game/api/v2/game-list/homepage/recommend` |  |
@@ -403,7 +402,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `get_team_members(team_id: str)` | `/game/api/v1/games/team/member/{team_id}` |  |
 | `get_turntable_info(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
 | `claim_turntable(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
-| `get_praise_online_info(game_ids: str | list[str] | None=None)` | `/game/api/v1/game/praise/online/info` |  |
+| `get_praise_online_info(game_ids: str \| list[str] \| None=None)` | `/game/api/v1/game/praise/online/info` |  |
 | `update_engine(engine_version: str)` | `/game/api/v1/games/engine` |  |
 | `like_game(game_id: str)` | `/game/api/v1/games/like` |  |
 | `post_comment(game_id: str, content: str)` | `/game/api/v1/comment` |  |
@@ -444,7 +443,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `game_auth_v2(game_id: str)` | `/game/api/v2/flow/game/auth` |  |
 | `async async_list_games(page: int=1, size: int=20, order_type: str='', type_id: int=0, order: str='', is_publish: int=1)` | `/game/api/v1/games` |  |
 | `async async_get_game_details(game_id: str, app_version: int=5753, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
-| `async async_get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int | None=None)` | `—` |  |
+| `async async_get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int \| None=None)` | `—` |  |
 | `async async_get_usage_ranking(game_id: str, page: int=1, size: int=10)` | `/game/api/v1/games/{game_id}/uses/rank` |  |
 | `async async_get_hot_games()` | `/game/api/v1/game-list/homepage/hot` |  |
 | `async async_get_recommended_games()` | `/game/api/v2/game-list/homepage/recommend` |  |
@@ -463,7 +462,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `async async_get_team_members(team_id: str)` | `/game/api/v1/games/team/member/{team_id}` |  |
 | `async async_get_turntable_info(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
 | `async async_claim_turntable(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
-| `async async_get_praise_online_info(game_ids: str | list[str] | None=None)` | `/game/api/v1/game/praise/online/info` |  |
+| `async async_get_praise_online_info(game_ids: str \| list[str] \| None=None)` | `/game/api/v1/game/praise/online/info` |  |
 | `async async_update_engine(engine_version: str)` | `/game/api/v1/games/engine` |  |
 | `async async_like_game(game_id: str)` | `/game/api/v1/games/like` |  |
 | `async async_post_comment(game_id: str, content: str)` | `/game/api/v1/comment` |  |
@@ -502,10 +501,10 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `async async_get_pickaxe_balance()` | `/game/api/v1/pickaxe/balance` |  |
 | `async async_get_mining_token_balance()` | `/game/api/v1/mining/token/balance` |  |
 | `async async_game_auth_v2(game_id: str)` | `/game/api/v2/flow/game/auth` |  |
-| `get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `/game/api/v1/games/{game_id}/rank` | Return one raw page of a game leaderboard. `period` is `all`, `week`, or `month`. `page` is zero-based. Use :meth:get_game_leaderboard_entries for parsed `RankEntry` rows. |
-| `async async_get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `/game/api/v1/games/{game_id}/rank` |  |
-| `get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` | Return parsed leaderboard rows from :class:RankingAPI. |
-| `async async_get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` |  |
+| `get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int \| None=None, language: str='en_US')` | `/game/api/v1/games/{game_id}/rank` | Return one raw page of a game leaderboard. `period` is `all`, `week`, or `month`. `page` is zero-based. Use :meth:get_game_leaderboard_entries for parsed `RankEntry` rows. |
+| `async async_get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int \| None=None, language: str='en_US')` | `/game/api/v1/games/{game_id}/rank` |  |
+| `get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int \| None=None, language: str='en_US')` | `—` | Return parsed leaderboard rows from :class:RankingAPI. |
+| `async async_get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int \| None=None, language: str='en_US')` | `—` |  |
 | `get_game_usage_leaderboard(game_id: str, period: str='all', language: str='en_US')` | `/game/api/v1/games/{game_id}/uses/rank` | Return the logged-in account's rank for a game and period. |
 | `async async_get_game_usage_leaderboard(game_id: str, period: str='all', language: str='en_US')` | `/game/api/v1/games/{game_id}/uses/rank` |  |
 | `get_game_my_rank(game_id: str, period: str='all', language: str='en_US')` | `—` | Alias for :meth:get_game_usage_leaderboard. |
@@ -528,10 +527,10 @@ Contributor-recognition endpoints.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `list(category_id: int | None=None, page: int=1, size: int=20, language: str | None=None)` | `/user/api/v1/contributor-recognitions` |  |
+| `list(category_id: int \| None=None, page: int=1, size: int=20, language: str \| None=None)` | `/user/api/v1/contributor-recognitions` |  |
 | `like(target_uid: int)` | `/user/api/v1/contributor-recognitions/likes` |  |
 | `unlike(target_uid: int)` | `/user/api/v1/contributor-recognitions/likes` |  |
-| `async async_list(category_id: int | None=None, page: int=1, size: int=20, language: str | None=None)` | `/user/api/v1/contributor-recognitions` |  |
+| `async async_list(category_id: int \| None=None, page: int=1, size: int=20, language: str \| None=None)` | `/user/api/v1/contributor-recognitions` |  |
 | `async async_like(target_uid: int)` | `/user/api/v1/contributor-recognitions/likes` |  |
 | `async async_unlike(target_uid: int)` | `/user/api/v1/contributor-recognitions/likes` |  |
 
@@ -545,9 +544,9 @@ Chat groups and notifications.
 | `get_info(group_id: int)` | `/msg/api/v1/msg/group/chat/info` |  |
 | `list_groups(page: int=1, size: int=50)` | `/msg/api/v1/msg/group/chat/list` |  |
 | `rename(group_id: int, name: str)` | `/msg/api/v1/msg/group/chat/modify` |  |
-| `edit(group_id: int, name: str, notice: str, invite_status: int, notice_pics: list[str] | None=None)` | `/msg/api/v1/msg/group/chat/modify` |  |
+| `edit(group_id: int, name: str, notice: str, invite_status: int, notice_pics: list[str] \| None=None)` | `/msg/api/v1/msg/group/chat/modify` |  |
 | `invite(group_id: int, member_ids: list[int])` | `/msg/api/v1/msg/group/chat/invite` |  |
-| `kick(group_id: int, member_ids: list[int], group_name: str | None=None)` | `/msg/api/v1/msg/group/chat/kickOut` |  |
+| `kick(group_id: int, member_ids: list[int], group_name: str \| None=None)` | `/msg/api/v1/msg/group/chat/kickOut` |  |
 | `set_admin(group_id: int, member_id: int, operation_type: int)` | `/msg/api/v1/msg/group/chat/member` |  |
 | `mute(group_id: int, member_id: int, minutes: int)` | `/msg/api/v1/msg/group/chat/forbidden/member` |  |
 | `approve_join(group_id: int, operate_id: int, join_type: int)` | `/msg/api/v1/msg/group/chat/agreement` |  |
@@ -570,9 +569,9 @@ Chat groups and notifications.
 | `async async_get_info(group_id: int)` | `/msg/api/v1/msg/group/chat/info` |  |
 | `async async_list_groups(page: int=1, size: int=50)` | `/msg/api/v1/msg/group/chat/list` |  |
 | `async async_rename(group_id: int, name: str)` | `/msg/api/v1/msg/group/chat/modify` |  |
-| `async async_edit(group_id: int, name: str, notice: str, invite_status: int, notice_pics: list[str] | None=None)` | `/msg/api/v1/msg/group/chat/modify` |  |
+| `async async_edit(group_id: int, name: str, notice: str, invite_status: int, notice_pics: list[str] \| None=None)` | `/msg/api/v1/msg/group/chat/modify` |  |
 | `async async_invite(group_id: int, member_ids: list[int])` | `/msg/api/v1/msg/group/chat/invite` |  |
-| `async async_kick(group_id: int, member_ids: list[int], group_name: str | None=None)` | `/msg/api/v1/msg/group/chat/kickOut` |  |
+| `async async_kick(group_id: int, member_ids: list[int], group_name: str \| None=None)` | `/msg/api/v1/msg/group/chat/kickOut` |  |
 | `async async_set_admin(group_id: int, member_id: int, operation_type: int)` | `/msg/api/v1/msg/group/chat/member` |  |
 | `async async_mute(group_id: int, member_id: int, minutes: int)` | `/msg/api/v1/msg/group/chat/forbidden/member` |  |
 | `async async_approve_join(group_id: int, operate_id: int, join_type: int)` | `/msg/api/v1/msg/group/chat/agreement` |  |
@@ -699,14 +698,14 @@ Global, clan, gold/diamond, and per-game leaderboards.
 | `async async_get_gold_diamond_region_overall(page: int=1, size: int=10)` | `/ranking/api/v1/gold/diamond/region/overall/rank` |  |
 | `async async_get_gold_diamond_region_weekly(page: int=1, size: int=10)` | `/ranking/api/v1/gold/diamond/region/weekly/rank` |  |
 | `async async_get_region_home_page_info(rank_type: str='active')` | `/ranking/api/v1/ranking/region/home/page/info` |  |
-| `get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` |  |
-| `async async_get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` |  |
+| `get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int \| None=None, language: str='en_US')` | `—` |  |
+| `async async_get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int \| None=None, language: str='en_US')` | `—` |  |
 | `get_game_usage_leaderboard(game_id: str, period: str='all', language: str='en_US')` | `—` |  |
 | `async async_get_game_usage_leaderboard(game_id: str, period: str='all', language: str='en_US')` | `—` |  |
 | `get_game_my_rank(game_id: str, period: str='all', language: str='en_US')` | `—` | Return the logged-in account's rank for a game and period. |
 | `async async_get_game_my_rank(game_id: str, period: str='all', language: str='en_US')` | `—` |  |
-| `get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` | Return a page of game leaderboard rows as :class:RankEntry objects. Scores are Python integers and keep full precision; `display_value` contains the server's compact display string (for example `99.99Y`). |
-| `async async_get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` |  |
+| `get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int \| None=None, language: str='en_US')` | `—` | Return a page of game leaderboard rows as :class:RankEntry objects. Scores are Python integers and keep full precision; `display_value` contains the server's compact display string (for example `99.99Y`). |
+| `async async_get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int \| None=None, language: str='en_US')` | `—` |  |
 
 ## `RemoteConfigAPI`
 
@@ -714,8 +713,8 @@ Read-only access to `/config/files` and `/config/ml/files` resources.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `get_config(name: str, client_md5: str | None=None, client_version: int | None=None, ml: bool=False)` | `—` |  |
-| `async async_get_config(name: str, client_md5: str | None=None, client_version: int | None=None, ml: bool=False)` | `—` |  |
+| `get_config(name: str, client_md5: str \| None=None, client_version: int \| None=None, ml: bool=False)` | `—` |  |
+| `async async_get_config(name: str, client_md5: str \| None=None, client_version: int \| None=None, ml: bool=False)` | `—` |  |
 | `check_version()` | `—` |  |
 | `async async_check_version()` | `—` |  |
 | `get_deeplink_remote_config(client_md5: str='590747fc8d5b438bd6d427e1003e0d1a', client_version: int=67)` | `—` |  |
@@ -926,34 +925,34 @@ Video and ad endpoints.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `list_videos(type_: str, page: int=1, size: int=20, tags: list[str] | None=None)` | `/video/api/v1/app/video/list/{type_}` |  |
+| `list_videos(type_: str, page: int=1, size: int=20, tags: list[str] \| None=None)` | `/video/api/v1/app/video/list/{type_}` |  |
 | `get_video_details(video_id: str)` | `/video/api/v1/videos/{video_id}` |  |
 | `like_video(video_id: str)` | `/video/api/v1/videos/like` |  |
 | `share_video(video_id: str)` | `/video/api/v1/videos/share` |  |
-| `get_video_feed(page: int=1, size: int=20, author_id: int=0, video_id: int=0, tags: list[str] | None=None)` | `/video/api/v1/app/video/more/list` |  |
+| `get_video_feed(page: int=1, size: int=20, author_id: int=0, video_id: int=0, tags: list[str] \| None=None)` | `/video/api/v1/app/video/more/list` |  |
 | `get_user_videos(user_id: str, page: int=1, size: int=20)` | `/video/api/v1/videos/user/{user_id}` |  |
 | `comment_video(video_id: str, content: str)` | `/video/api/v1/videos/comment` |  |
 | `get_video_comments(video_id: str, page: int=1, size: int=20)` | `/video/api/v1/videos/comments` |  |
 | `get_banner_config()` | `/video/api/v1/app/video/banner/config` |  |
 | `get_video_detail_info(video_id: str)` | `/video/api/v1/app/video/detail/info` |  |
-| `get_video_list_by_type(type_: str, page: int=1, size: int=20, tags: list[str] | None=None)` | `/video/api/v1/app/video/list/{type_}` |  |
-| `get_more_videos(page: int=1, size: int=20, author_id: int=0, video_id: int=0, tags: list[str] | None=None)` | `/video/api/v1/app/video/more/list` |  |
+| `get_video_list_by_type(type_: str, page: int=1, size: int=20, tags: list[str] \| None=None)` | `/video/api/v1/app/video/list/{type_}` |  |
+| `get_more_videos(page: int=1, size: int=20, author_id: int=0, video_id: int=0, tags: list[str] \| None=None)` | `/video/api/v1/app/video/more/list` |  |
 | `get_video_tags()` | `/video/api/v1/app/video/tag/list` |  |
 | `praise_video(video_id: str)` | `/video/api/v1/app/video/praise/{video_id}` |  |
 | `dislike_video(video_id: str)` | `/video/api/v1/app/video/dislike/{video_id}` |  |
 | `report_play_amount(video_id: str, duration: int)` | `/video/api/v1/app/video/report/play/amount` |  |
-| `async async_list_videos(type_: str, page: int=1, size: int=20, tags: list[str] | None=None)` | `/video/api/v1/app/video/list/{type_}` |  |
+| `async async_list_videos(type_: str, page: int=1, size: int=20, tags: list[str] \| None=None)` | `/video/api/v1/app/video/list/{type_}` |  |
 | `async async_get_video_details(video_id: str)` | `/video/api/v1/videos/{video_id}` |  |
 | `async async_like_video(video_id: str)` | `/video/api/v1/videos/like` |  |
 | `async async_share_video(video_id: str)` | `/video/api/v1/videos/share` |  |
-| `async async_get_video_feed(page: int=1, size: int=20, author_id: int=0, video_id: int=0, tags: list[str] | None=None)` | `/video/api/v1/app/video/more/list` |  |
+| `async async_get_video_feed(page: int=1, size: int=20, author_id: int=0, video_id: int=0, tags: list[str] \| None=None)` | `/video/api/v1/app/video/more/list` |  |
 | `async async_get_user_videos(user_id: str, page: int=1, size: int=20)` | `/video/api/v1/videos/user/{user_id}` |  |
 | `async async_comment_video(video_id: str, content: str)` | `/video/api/v1/videos/comment` |  |
 | `async async_get_video_comments(video_id: str, page: int=1, size: int=20)` | `/video/api/v1/videos/comments` |  |
 | `async async_get_banner_config()` | `/video/api/v1/app/video/banner/config` |  |
 | `async async_get_video_detail_info(video_id: str)` | `/video/api/v1/app/video/detail/info` |  |
-| `async async_get_video_list_by_type(type_: str, page: int=1, size: int=20, tags: list[str] | None=None)` | `/video/api/v1/app/video/list/{type_}` |  |
-| `async async_get_more_videos(page: int=1, size: int=20, author_id: int=0, video_id: int=0, tags: list[str] | None=None)` | `/video/api/v1/app/video/more/list` |  |
+| `async async_get_video_list_by_type(type_: str, page: int=1, size: int=20, tags: list[str] \| None=None)` | `/video/api/v1/app/video/list/{type_}` |  |
+| `async async_get_more_videos(page: int=1, size: int=20, author_id: int=0, video_id: int=0, tags: list[str] \| None=None)` | `/video/api/v1/app/video/more/list` |  |
 | `async async_get_video_tags()` | `/video/api/v1/app/video/tag/list` |  |
 | `async async_praise_video(video_id: str)` | `/video/api/v1/app/video/praise/{video_id}` |  |
 | `async async_dislike_video(video_id: str)` | `/video/api/v1/app/video/dislike/{video_id}` |  |
