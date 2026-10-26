@@ -19,11 +19,21 @@ Do not reuse a device pair from a different account if the server rejects it.
 
 The bundled extractor prints both values:
 
-`ash
+```bash
 python tools/get_device_values.py
-`
+```
 
-See the README for manual extraction commands and the MMKV parser.
+For a manual fallback, read the Android ID and pull the app's MMKV directory:
+
+```bash
+adb shell settings get secure android_id
+adb root
+adb pull /data/data/com.sandboxol.blockymods/files/mmkv ./mmkv
+```
+
+Open the app once before pulling. The value may be in any file under the
+directory, not just `mutilProcessData`. The parser in
+`tools/get_device_values.py` shows the MMKV string format.
 
 ## 2. Login
 
@@ -35,10 +45,10 @@ if not account.login():
     raise RuntimeError("login failed")
 
 print(account.uid, account.region)
-`
+```
 
 You can also pass credentials explicitly with
-BmgAccount("username", "password").``
+`BmgAccount("username", "password")`.
 
 Login uses `POST /user/api/v4/account/login`. The password is RSA-encrypted with
 the public key embedded in the app. The response contains the raw access token,
