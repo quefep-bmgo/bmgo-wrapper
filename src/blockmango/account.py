@@ -32,7 +32,7 @@ class BmgAccount:
         "_ak", "_async_session", "_device_id", "_device_pool",
         "_device_register_ts", "_device_sign", "_nick", "_region",
         "_session", "_session_store", "_sk", "_t_off", "_time_syncer",
-        "_token", "_token_encoder", "_uid", "_uid_register_ts",
+        "_token", "_token_encoder", "_uid", "_uid_register_ts", "_last_login_code",
         "activity", "backpack", "bedwar", "clan", "config", "decoration",
         "extended", "friends", "gratitude", "game", "group", "mailbox",
         "notice", "password", "pay", "ranking", "remote_config", "rongcloud",
@@ -52,6 +52,7 @@ class BmgAccount:
         self._async_session: Any = None
         self._uid: int | None = None
         self._token: str | None = None
+        self._last_login_code: int | None = None
         self._nick: str | None = None
         self._device_id: str | None = None
         self._device_sign: str | None = None
@@ -119,6 +120,11 @@ class BmgAccount:
     def is_logged_in(self) -> bool:
         return bool(self._uid and self._token)
 
+    @property
+    def last_login_code(self) -> int | None:
+        """The last server code returned by login, or None if no response arrived."""
+        return self._last_login_code
+
     def _get_session(self) -> requests.Session:
         if self._session is None:
             self._session = requests.Session()
@@ -169,6 +175,7 @@ class BmgAccount:
 
     def login(self, tries: int | None = None) -> bool:
         max_tries = tries or self.config.login_max_tries
+        self._last_login_code = None
         self._sync_time()
         self._device_pool.ensure_loaded()
         enc = _enc_password(self.password)
@@ -204,6 +211,7 @@ class BmgAccount:
                 time.sleep(0.5)
                 continue
             code = data.get("code")
+            self._last_login_code = code if isinstance(code, int) else None
             if code == 1:
                 d = data.get("data", {})
                 token = d.get("accessToken")
@@ -235,6 +243,7 @@ class BmgAccount:
 
     async def async_login(self, tries: int | None = None) -> bool:
         max_tries = tries or self.config.login_max_tries
+        self._last_login_code = None
         self._sync_time()
         self._device_pool.ensure_loaded()
         enc = _enc_password(self.password)
@@ -266,6 +275,7 @@ class BmgAccount:
                 await asyncio.sleep(0.5)
                 continue
             code = data.get("code")
+            self._last_login_code = code if isinstance(code, int) else None
             if code == 1:
                 d = data.get("data", {})
                 token = d.get("accessToken")

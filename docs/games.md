@@ -40,7 +40,7 @@ current game catalogue:
 
 ```python
 rows = account.ranking.get_game_leaderboard_entries_by_name(
-    "Alien Attack", period="week", page=0, size=10
+    "Bed Wars", period="week", page=0, size=10
 )
 ```
 
@@ -48,6 +48,9 @@ If a title maps to more than one game ID (Bed Wars is one example), the helper
 raises a `ValueError` listing the matching IDs. Pass the ID directly to choose
 the version you mean. The `bg-games` archive is useful for checking which game
 IDs and engine versions exist; it is a resource archive, not an API contract.
+In live 3.31.1 testing, leaderboard lookup by `g1019` worked, but that ID did
+not appear in the catalogue pages used for title resolution. Pass `g1019`
+directly for Alien Attack rather than relying on the title helper.
 
 You can also inspect the current game list:
 

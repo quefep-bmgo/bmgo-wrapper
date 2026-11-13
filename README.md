@@ -1,298 +1,227 @@
 # bmgo-wrapper
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/aW436uawfZ)
+An unofficial Python client for Blockman GO's (BlockyMods) HTTP API. The
+wrapper handles request signing, login, sessions, and typed helpers for common
+player, clan, game, and leaderboard calls.
 
-A Python client for the Blockman GO (BlockyMods) HTTP API. It handles login, the
-`x-sign` request format, session storage, and the calls this repository uses
-most: profiles, game data, and leaderboards.
+The API is private and can change without notice. A method being present does
+not mean its endpoint has been verified against every app release.
 
-This is an unofficial client. The API is private, version-sensitive, and can
-change without notice.
+## Quick start
 
-> **Version status:** the request headers in this branch match the supplied
-> 3.31.1 APK (`appVersion 5771`). The last live API checks were run against
-> 3.29.3, so a running 3.31.1 install is still needed to confirm the new
-> fingerprint and any endpoint changes. See [Tested scope](#tested-scope).
-
-[Install](#install) | [Device values](#get-device-values) | [First login](#first-login) | [Leaderboards](#leaderboards) | [Documentation](#documentation) | [Troubleshooting](#troubleshooting)
-
-## Before you start
-
-- Python 3.10 or newer.
-- A Blockman GO account.
-- `BMG_DEVICE_ID` and `BMG_BMDDH_ID` from the same app installation. Some
-  accounts are device-bound, so values from another installation may be
-  rejected.
-- `adb` and a rooted emulator if you use the bundled device extractor.
-
-## Install
-
-From a checkout:
+You need Python 3.10+, a Blockman GO account, and device values from the same
+app installation as that account.
 
 ```bash
 python -m pip install -e .
-```
-
-This installs the runtime dependencies, including `requests`, `httpx`,
-`pycryptodome`, and `python-dotenv`.
-
-## Get device values
-
-The API needs two values from the app installation:
-
-| Variable | What it is |
-| --- | --- |
-| `BMG_DEVICE_ID` | the app-scoped `android.id` used by Blockman GO (or `Settings.System.android_id` if set) |
-| `BMG_BMDDH_ID` | the `bm_ddh_id` string stored by Blockman GO |
-
-Open Blockman GO once, then run:
-
-```bash
+cp .env.example .env
 python tools/get_device_values.py --waydroid --output-env .env
 ```
 
-For a conventional rooted emulator, omit `--waydroid`. The Waydroid option
-reads the MMKV store through `sudo waydroid shell` because Waydroid does not
-support `adb root`. On 3.31.1 the app stores its signing ID as `android.id` in
-MMKV; Android's shell-scoped `Settings.Secure.ANDROID_ID` is not interchangeable.
-The default package name is the official 3.31.1 app; use
-`--package` or `BMG_PACKAGE_NAME` for another variant. `--output-env` writes
-only the two device values with file permissions set to `0600`; it does not
-print tokens or passwords.
+The extractor reads the app's `android.id` and `bm_ddh_id` from its MMKV store.
+For Waydroid it uses one `sudo waydroid shell` read because `adb root` is not
+available there. For a conventional rooted emulator, omit `--waydroid`.
 
-Create a local config and fill in the values:
+The official 3.31.1 app package is
+`com.sandboxol.blockymods.channel.official`. Open the app once before extracting
+values. `--output-env` preserves other settings and writes the file with
+permissions `0600`.
 
-```bash
-cp .env.example .env
-```
+The extractor updates only the two device-value lines and preserves the rest
+of `.env`. Add your `BMG_USERNAME` and `BMG_PASSWORD` to that file before
+signing in.
 
-On PowerShell:
+`.env` is ignored by Git. Never paste its contents into an issue or commit it.
 
-```powershell
-Copy-Item .env.example .env
-```
-
-Add `BMG_USERNAME` and `BMG_PASSWORD` as well. `.env` is ignored by Git and is
-loaded from the current working directory, so run commands from the repository
-root.
-
-If the extractor cannot find the value, see
-[Authentication](docs/authentication.md) and `tools/get_device_values.py`.
-A `code 100008` login error usually means the device values do not match the
-account.
-
-## First login
+## Sign in and make a request
 
 ```python
 from blockmango import BmgAccount
 
 account = BmgAccount.from_env()
-if not account.login():
-    raise SystemExit("login failed")
-
-print(account.uid, account.nick, account.region)
-print(account.get_own_profile())
+try:
+    if not account.login():
+        raise RuntimeError(f"Blockman GO login failed (code {account.last_login_code})")
+    print("Signed in as", account.uid)
+    profile = account.get_own_profile()
+    print(profile)
+finally:
+    account.close()
 ```
 
-`BmgAccount.from_env()` reads `.env` or the same variables from the environment.
-If you keep credentials elsewhere, pass them explicitly:
+You can also provide the username and password explicitly with
+`BmgAccount(username, password)`. Device values are still read from the
+environment or a `Config` object.
+
+Some accounts are bound to a particular installation. If login returns
+`code 100008`, sign in to that account in the matching app installation and
+use its device values. A session's `Access-Token` may require the app's
+per-request native transform; see [Authentication](docs/authentication.md).
+Login uses the configured device pair by default; the older remote device pool
+is opt-in with `BMG_USE_DEVICE_POOL=true`.
+
+## Look up players and clans
 
 ```python
-account = BmgAccount("username", "password")
+# Lookup by numeric player ID.
+target_uid = 123456789
+player = account.user.lookup(target_uid)
+if player:
+    print(player.nick_name)
+    print(player.clan_name)
+
+# Nickname search is fuzzy; inspect candidates rather than assuming one match.
+candidates = account.user.search_by_name("Player name", page=1, size=10)
+for player in candidates:
+    print(player.user_id, player.nick_name)
+
+# Search clans by name or fetch one by its ID.
+clans = account.clan.search("Clan name", page=0, size=10)
+clan = account.clan.get_info(clan_id=12345)
 ```
 
-Device values still come from the environment or config. `login()` performs a
-fresh login; session reuse is covered in
-[Authentication](docs/authentication.md#5-sessions).
+`lookup()` returns `None` when the profile endpoint has no result. Nickname
+search may return no matches or several fuzzy matches.
 
-## Leaderboards
+## Game leaderboards
+
+Use a known game ID for the most reliable lookup:
 
 ```python
-game_id = "g1055"
-period = "week"
-
 rows = account.ranking.get_game_leaderboard_entries(
-    game_id, period=period, page=0, size=5
+    "g1019", period="all", page=0, size=10
 )
-for entry in rows:
-    print(entry.rank, entry.nick_name, entry.score, entry.display_value)
-
-my_rank = account.ranking.get_game_my_rank(game_id, period=period)
-print(my_rank)
+for row in rows:
+    print(row.rank, row.nick_name, row.score, row.display_value)
 ```
 
-- `period` is `all`, `week`, or `month`.
-- `page` is zero-based.
-- `entry.score` keeps the exact integer, even for very large simulator scores.
-- `entry.display_value` is the server's short form, such as `99.99Y`.
+`period` accepts `all`, `week`, or `month`; `page` is zero-based. `score` is
+kept as an exact Python integer, while `display_value` is the compact value
+shown by the server.
 
-More detail, including response shapes and observed data:
-[Leaderboards](docs/leaderboards.md).
+For a title, the wrapper searches the current game catalogue:
 
-## Async
+```python
+rows = account.ranking.get_game_leaderboard_entries_by_name(
+    "Bed Wars", period="week", page=0, size=10
+)
+```
 
-Most module methods have an `async_` counterpart.
+If a title has multiple IDs, the helper raises `ValueError`; pass the ID you
+want instead. Titles absent from the current catalogue cannot be resolved by
+name. See [Known game IDs](docs/games.md) for examples and ways to verify them.
+
+## Async use
+
+Most endpoint helpers have an `async_` counterpart. The account object's
+session state is not designed for concurrent login/session mutation.
 
 ```python
 import asyncio
-
 from blockmango import BmgAccount
-
 
 async def main():
     account = BmgAccount.from_env()
-    if not await account.async_login():
-        raise SystemExit("login failed")
+    try:
+        if not await account.async_login():
+            raise RuntimeError(f"Blockman GO login failed (code {account.last_login_code})")
+        rows = await account.ranking.async_get_game_leaderboard_entries(
+            "g1019", period="all", page=0, size=5
+        )
+        print(len(rows))
+    finally:
+        await account.async_close()
 
-    rows = await account.ranking.async_get_game_leaderboard_entries(
-        "g1055", period="all", page=0, size=5
-    )
-    for entry in rows:
-        print(entry.rank, entry.nick_name, entry.display_value)
-
-    await account.async_close()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
 ```
 
-`account.extended` is synchronous; use `account.async_request()` for those
-endpoints in async code. See [API overview](docs/api-overview.md#async).
+`account.extended` is synchronous; use `account.async_request()` for an async
+raw endpoint call.
 
-## Common calls
+## Modules and documentation
 
-| Task | Call |
+The account exposes groups such as `account.user`, `friends`, `clan`,
+`ranking`, `game`, `activity`, `mailbox`, `shop`, `pay`, and `remote_config`.
+The full method index is in [API reference](docs/api-reference.md).
+
+| Guide | What it covers |
 | --- | --- |
-| Your profile | `account.get_own_profile()` |
-| Your stats | `account.get_stats(account.uid)` |
-| Game catalogue | `account.game.get_game_list()` |
-| Game details | `account.game.get_game_details("g1055")` |
-| Global leaderboard | `account.ranking.get_global_overall()` |
-| Game leaderboard by title | `account.ranking.get_game_leaderboard_entries_by_name("Alien Attack")` |
-| Player search by nickname | `account.user.search_by_name("Player name")` |
-| Clan search by name | `account.clan.search("Clan name")` |
-| Raw endpoint | `account.request("GET", "/path", params={"pageNo": 0})` |
+| [Authentication](docs/authentication.md) | Device values, login, signing, tokens, and sessions |
+| [API overview](docs/api-overview.md) | Module map, raw requests, and response/error behavior |
+| [Leaderboards](docs/leaderboards.md) | Periods, pagination, models, and large scores |
+| [Known game IDs](docs/games.md) | Example IDs and catalogue lookup |
+| [3.31.1 path candidates](docs/api-candidates-3.31.1.csv) | Static APK string inventory; not an endpoint contract |
 
-Use `account.request()` for a new endpoint before adding a typed method. The
-generated method index is in [API reference](docs/api-reference.md).
+For an endpoint without a typed helper, use `account.request()`:
 
-## Examples
-
-Set up `.env` first.
-
-```bash
-python examples/leaderboards.py
+```python
+response = account.request(
+    "GET",
+    "/game/api/v1/games/g1019/rank",
+    params={"type": "all", "pageNo": 0, "pageSize": 10},
+)
 ```
 
-Optional `BMG_GAME_ID` changes the example game (default `g1055`).
-
-Telegram:
-
-```bash
-python -m pip install python-telegram-bot
-python examples/telegram_leaderboard_bot.py
-```
-
-Set `TELEGRAM_TOKEN`. The command is `/rank [game_id] [period]`.
-
-## Documentation
-
-| Guide | Use it for |
-| --- | --- |
-| [Authentication](docs/authentication.md) | device values, login, signing, tokens, sessions |
-| [API overview](docs/api-overview.md) | module map, important endpoints, raw requests, errors |
-| [API reference](docs/api-reference.md) | generated list of methods, signatures, and endpoints |
-| [3.31.1 API string candidates](docs/api-candidates-3.31.1.csv) | static APK DEX path-string inventory; not runtime-verified |
-| [Leaderboards](docs/leaderboards.md) | periods, response shapes, large scores, observed data |
-| [Game IDs](docs/games.md) | known IDs and how to check them |
-
-Regenerate the API reference after changing public methods:
-
-```bash
-python tools/generate_api_docs.py
-```
+Use `account.async_request()` for the async equivalent. The server normally
+returns a dictionary containing `code`, `message`, and `data`; check `code`
+before treating `data` as a successful result. Transport failures use
+`code == -1`.
 
 ## Tested scope
 
-The live checks were read-only and intended to catch obvious endpoint drift, not
-to certify every method:
+The current branch targets app version **3.31.1 / 5771**. The app fingerprint
+and app-scoped signing ID were observed from the installed Waydroid app.
 
-- Offline tests: 13 passing.
-- Live smoke: 91 captured GET endpoints; 83 returned `code 1`, 8 returned other
-  codes. 30 module calls were also checked.
-- Write, social, purchase, and account-changing endpoints were not executed.
-- The 3.31.1 defaults are based on APK metadata; the live endpoint checks still
-  come from 3.29.3. Treat newer routes and response shapes as unverified.
+The latest live, read-only checks verified player profile lookup, clan search
+and lookup by ID, and five-row leaderboards for three known game IDs. A game
+catalogue page also returned successfully. The live catalogue did not contain
+every documented title, so some title lookups still require a known game ID.
+The API login call returned `100008` for the test account even though signing
+into that account in the app worked. The verified API calls used the app's
+per-request native token signer through the supported `token_encoder` callback;
+the wrapper does not ship a standalone native encoder. These checks do not
+certify every method in the package.
 
-See [Limitations](#limitations) before using this with a real account.
-
-## Project layout
-
-```text
-src/blockmango/
-  account.py       login, requests, sessions, account facade
-  crypto.py        signing and password encryption
-  constants.py     app version, headers, endpoint rules
-  submodules/      typed endpoint groups
-tools/             device extractor and API-doc generator
-examples/          CLI and Telegram examples
-docs/              hand-written guides and generated API reference
-tests/             offline unit tests
-```
-
-## Testing
+Offline tests:
 
 ```bash
-python -m pip install -e .
 python -m unittest discover -s tests -v
 ```
 
-The offline tests do not contact the API. For a live check:
+The tests cover configuration, signing, device-value parsing, nickname/title
+helpers, and leaderboard parsing. They do not contact Blockman GO servers.
 
-```bash
-python examples/leaderboards.py
-```
+## Safety and limitations
 
-Live checks need valid `.env` values.
+- This is an unofficial client for a private, version-sensitive API.
+- Read helpers are safe for exploration; methods named `buy`, `claim`, `join`,
+  `send_request`, `change_*`, `delete_*`, `like`, or similar can change a live
+  account or spend currency. Check the method before calling it.
+- Payments, purchases, account changes, friend/clan mutations, and gameplay
+  automation are not covered by the live smoke tests.
+- Keep `.env`, `.sessions.json`, tokens, device values, and captured request
+  data private. Extractor and session files are written with `0600` permissions
+  on Unix. The wrapper does not print secrets, but your own logging code can.
+- The API and its access-token requirements can change between app versions.
 
 ## Troubleshooting
 
-| Problem | What to check |
+| Result | What to check |
 | --- | --- |
-| `login()` returns `False` | credentials, device values, region, or rate limit |
-| `code 100008` / access denied | device values from the account's own install; wait if rate-limited |
-| `code 6` or `code 37` | re-login; check device values; see the Access-Token note in Authentication |
-| `.env` not read | run from the repo root; install the package; check `python-dotenv` |
-| `bm_ddh_id` not found | open the app once, use a rooted emulator, run the extractor |
-| Empty leaderboard | try other periods; confirm the game ID with `get_game_details` |
-| Score shows `99.99Y` | use `entry.score` for the exact integer |
-| SSL warning | `BMG_VERIFY_SSL`; only enable verification if your certificate chain works |
-| `adb root` fails | use a rooted emulator and enable USB debugging |
+| `login()` returns `False` | Credentials, app version, region, and device values |
+| `code 100008` | Device-bound access or rate limiting; use the matching app install |
+| `code 6` or `code 37` | The session may need the app's native Access-Token transform |
+| Empty player/clan search | Search is fuzzy; try an ID or a different spelling |
+| Empty leaderboard | Confirm the game ID and try another period |
+| `adb root` is unavailable | Use `python tools/get_device_values.py --waydroid` |
+| `.env` is not loaded | Run from the repository root and install the package |
 
-## Security
+## Contributing
 
-- Never commit `.env`, `.sessions.json`, or captured HTTP logs. They can contain
-  live credentials, tokens, and device values.
-- Use a test account for experiments.
-- Do not use this to bypass anti-cheat or automate unfair gameplay.
-
-See [Authentication](docs/authentication.md) for session and token details.
-
-## Limitations
-
-- The request headers default to 3.31.1, but the live API checks are from
-  3.29.3. Some endpoints or response fields may have changed.
-- The app `md5` fingerprint is still the last value we observed. Set
-  `BMG_APP_MD5` only when you have confirmed the value from a 3.31.1 install.
-- Some accounts are device-bound and may require the native Access-Token
-  transform.
-- Write actions have no dry-run layer.
-- Live coverage is partial; a method existing in the package does not mean it
-  has been verified against the current server.
-- `remote_config.get_game_resource_config()` returned `code 6`, and
-  `game.get_update_tip()` returned an empty response in the last live run.
+Run the offline test suite before submitting changes. Treat DEX string scans as
+leads only; verify new endpoint behavior against the installed app before
+describing it as live-tested.
 
 ## License
 
-MIT
+MIT.

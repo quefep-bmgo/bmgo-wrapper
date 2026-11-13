@@ -129,8 +129,10 @@ def _build_signed_headers(
                     token, path, nonce, ts,
                     _params_to_string(flat_params), body_str, region or "",
                 )
-            except Exception:
-                token_value = token
+            except Exception as error:
+                raise CryptoError(
+                    f"Access-Token encoder failed ({type(error).__name__})"
+                ) from error
         headers["access-token"] = token_value
     if language:
         headers["language"] = language

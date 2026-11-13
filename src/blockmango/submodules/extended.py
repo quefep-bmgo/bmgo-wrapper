@@ -1,4 +1,4 @@
-"""Additional 3.29.x endpoint wrappers grouped by domain."""
+"""Additional Android-client endpoint wrappers grouped by domain."""
 
 from __future__ import annotations
 
@@ -11,10 +11,11 @@ else:
 
 
 class ExtendedAPI:
-    """Wrappers for the newer 3.29.x endpoints captured from the Android client.
+    """Wrappers for additional endpoints found in the Android client.
 
     These methods are intentionally thin: they return the raw API envelope. Most
     methods are synchronous; ``async_request`` remains available for async callers.
+    Availability and response shapes vary by app/server version.
     """
 
     __slots__ = ("_account",)

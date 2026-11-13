@@ -18,6 +18,9 @@ For a direct emulator setup, the login `bmg-sign` value is the `bm_ddh_id`.
 Some accounts are device-bound. If login returns `code 100008` with
 `access denied`, use the device values that belong to that account/install.
 Do not reuse a device pair from a different account if the server rejects it.
+By default, login uses the configured pair. The optional remote device pool is
+disabled unless `BMG_USE_DEVICE_POOL=true` is set; leave it disabled for a
+device-bound account.
 
 The bundled extractor reads `android.id` and `bm_ddh_id` from the app's MMKV
 store, and can save both values to a local env file. For Waydroid:
@@ -31,7 +34,8 @@ official APK uses package `com.sandboxol.blockymods.channel.official`; pass
 `--package` if you installed another app variant. On Waydroid the script uses
 the host's `sudo waydroid shell`, since `adb root` is not available there.
 
-For a manual fallback, the MMKV directory is:
+For a manual fallback on another rooted emulator (not Waydroid), the MMKV
+directory is:
 
 ```bash
 adb root
@@ -50,7 +54,7 @@ from blockmango import BmgAccount
 
 account = BmgAccount.from_env()  # reads .env / environment
 if not account.login():
-    raise RuntimeError("login failed")
+    raise RuntimeError(f"login failed with code {account.last_login_code}")
 
 print(account.uid, account.region)
 ```
@@ -102,15 +106,16 @@ Header set for normal requests:
 Login and auth-token requests additionally include `bmg-device-id` and
 `bmg-sign`.
 
-## 4. Access-Token caveat
+## 4. Access-Token encoding
 
-The 3.29.x client normally transforms the login JWT into a 344-character,
-native-encoded `access-token` value. In live testing on 2026-10-26 the server
-also accepted the raw login JWT for the tested account, including profile, game
-details, game auth, and leaderboards. Some accounts or sessions may require the
-native value; those endpoints then return `code 6` or `code 37`.
+The 3.31.1 client generates its `access-token` header per request with native
+app code. The result changes with the request and is not the raw token returned
+by login. In live Waydroid checks, profile, clan, and game-leaderboard calls
+succeeded when the wrapper was given a callback that invokes the installed
+app's native signer. The package does not bundle that native runtime or a
+standalone encoder.
 
-If you have a working encoder, pass a callback:
+If you have a compatible encoder, pass a callback:
 
 ```python
 def encode_token(token, path, nonce, ts, params, body, region):
@@ -120,13 +125,19 @@ def encode_token(token, path, nonce, ts, params, body, region):
 account = BmgAccount("username", "password", token_encoder=encode_token)
 ```
 
-If the callback raises, the wrapper falls back to the raw JWT.
+The callback receives the raw token, path, nonce, timestamp, sorted query
+parameters, body, and region. It must return the encoded header for that exact
+request. If it raises, request construction fails with a `CryptoError` instead
+of silently sending a raw token that may be rejected with `code 6` or `code 37`.
 
 ## 5. Sessions
 
 Session data can be cached with `save_session()` / `load_session()` and
 `restore_session()`. The default file is `.sessions.json`, which is ignored by
-Git. It contains live credentials; never commit it.
+Git and written with `0600` permissions on Unix. It contains live credentials;
+never commit it. A `token_encoder` callback is runtime code and is not stored in
+the session; pass it again when constructing an account that needs the native
+Access-Token format.
 
 ## 6. Common errors
 

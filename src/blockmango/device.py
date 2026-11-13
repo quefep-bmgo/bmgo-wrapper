@@ -15,6 +15,8 @@ class DevicePool:
         self._fallback = (config.device_id, config.device_sign, config.bm_ddh_id)
 
     def fetch(self) -> list[tuple[str, str, str]]:
+        if not self.config.use_device_pool:
+            return [self._fallback]
         try:
             r = requests.get(
                 self.config.device_pool_url,

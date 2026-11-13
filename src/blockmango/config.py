@@ -54,6 +54,7 @@ class Config:
     device_id: str = ""
     device_sign: str = ""
     bm_ddh_id: str = ""
+    use_device_pool: bool = False
     request_timeout: float = 15.0
     login_timeout: float = 15.0
     time_sync_timeout: float = 10.0
@@ -88,6 +89,7 @@ class Config:
             device_id=os.getenv("BMG_DEVICE_ID", ""),
             device_sign=os.getenv("BMG_DEVICE_SIGN", ""),
             bm_ddh_id=os.getenv("BMG_BMDDH_ID", ""),
+            use_device_pool=os.getenv("BMG_USE_DEVICE_POOL", "false").lower() == "true",
             request_timeout=float(os.getenv("BMG_REQUEST_TIMEOUT", "15.0")),
             login_timeout=float(os.getenv("BMG_LOGIN_TIMEOUT", "15.0")),
             time_sync_timeout=float(os.getenv("BMG_TIME_SYNC_TIMEOUT", "10.0")),
@@ -106,6 +108,7 @@ class Config:
             device_headers=self.device_headers, region=self.region,
             device_id=self.device_id, device_sign=self.device_sign,
             bm_ddh_id=self.bm_ddh_id,
+            use_device_pool=self.use_device_pool,
             request_timeout=self.request_timeout, login_timeout=self.login_timeout,
             time_sync_timeout=self.time_sync_timeout,
             time_sync_retries=self.time_sync_retries,

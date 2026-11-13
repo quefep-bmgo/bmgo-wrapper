@@ -16,6 +16,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(headers["appversionname"], "3.31.1")
         self.assertEqual(APP_VERSION, "5771")
         self.assertEqual(APP_VERSION_NAME, "3.31.1")
+        self.assertFalse(Config().use_device_pool)
 
     def test_dotenv_and_from_env(self):
         with tempfile.TemporaryDirectory() as temp:

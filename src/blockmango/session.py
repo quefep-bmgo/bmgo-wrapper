@@ -19,6 +19,7 @@ class SessionStore:
         try:
             if not self._path.exists():
                 return {}
+            os.chmod(self._path, 0o600)
             with open(self._path, encoding="utf-8") as f:
                 data = json.load(f)
             return data.get(username) or {}
@@ -37,10 +38,7 @@ class SessionStore:
                 except Exception:
                     data = {}
             data[username] = session
-            tmp = self._path.with_suffix(self._path.suffix + ".tmp")
-            with open(tmp, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            os.replace(tmp, self._path)
+            self._write_private(data)
         except Exception as e:
             raise SessionError(f"Failed to save session: {e}") from e
 
@@ -52,12 +50,25 @@ class SessionStore:
                 data = json.load(f)
             if username in data:
                 del data[username]
-                tmp = self._path.with_suffix(self._path.suffix + ".tmp")
-                with open(tmp, "w", encoding="utf-8") as f:
-                    json.dump(data, f, ensure_ascii=False, indent=2)
-                os.replace(tmp, self._path)
+                self._write_private(data)
         except Exception:
             pass
+
+    def _write_private(self, data: dict[str, Any]) -> None:
+        tmp = self._path.with_suffix(self._path.suffix + ".tmp")
+        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except Exception:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+            raise
+        os.chmod(tmp, 0o600)
+        os.replace(tmp, self._path)
+        os.chmod(self._path, 0o600)
 
 
 def load_session(config: Config, username: str) -> dict[str, Any]:

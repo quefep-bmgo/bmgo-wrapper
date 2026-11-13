@@ -239,7 +239,7 @@ Decoration resources and recommendations.
 
 ## `ExtendedAPI`
 
-Wrappers for the newer 3.29.x endpoints captured from the Android client. These methods are intentionally thin: they return the raw API envelope. Most methods are synchronous; ``async_request`` remains available for async callers.
+Wrappers for additional endpoints found in the Android client. These methods are intentionally thin: they return the raw API envelope. Most methods are synchronous; ``async_request`` remains available for async callers. Availability and response shapes vary by app/server version.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
@@ -380,10 +380,10 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` | Return the current game catalogue using the v2 condition endpoint. |
-| `async async_get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` |  |
-| `resolve_game_id(query: str, page: int=0, size: int=100)` | `—` | Resolve a game ID directly or by a title in the current catalogue. |
-| `async async_resolve_game_id(query: str, page: int=0, size: int=100)` | `—` | Async version of :meth:`resolve_game_id`. |
+| `get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='complex', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` | Return the current game catalogue using the v2 condition endpoint. |
+| `async async_get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='complex', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` |  |
+| `resolve_game_id(query: str, page: int=0, size: int=20)` | `—` | Resolve a game ID directly or by a title in the current catalogue. |
+| `async async_resolve_game_id(query: str, page: int=0, size: int=20)` | `—` | Async version of :meth:`resolve_game_id`. |
 | `list_games(page: int=1, size: int=20, order_type: str='', type_id: int=0, order: str='', is_publish: int=1)` | `/game/api/v1/games` | Legacy v1 game list; prefer :meth:get_game_list. |
 | `get_game_details(game_id: str, app_version: int=5771, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
 | `get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int | None=None)` | `—` |  |

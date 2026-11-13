@@ -5,10 +5,10 @@ The [3.31.1 DEX scan](api-candidates-3.31.1.csv) is a path-string candidate
 list only; it does not prove that a route is called, reachable, or read-only.
 
 The wrapper talks to the Android client API at `https://gw.sandboxol.com`.
-Default app-version headers now match 3.31.1 (`appVersion 5771`), but the last
-live request checks used 3.29.3. The `md5` app fingerprint is still the last
-value we observed; `BMG_APP_MD5` lets you override it after checking a 3.31.1
-install. All responses use the same envelope:
+Its defaults match app version 3.31.1 (`appVersion 5771`), including the
+fingerprint captured from the installed 3.31.1 Waydroid client. `BMG_APP_MD5`
+can override it for another build. Most responses use this envelope, though
+some endpoints return a different shape:
 
 ```json
 { "code": 1, "message": "OK", "data": {}, "other": null }
@@ -43,10 +43,11 @@ account.async_request("POST", "/some/path", body={"key": "value"})
 | `account.gratitude` | Contributor-recognition flow |
 | `account.remote_config` | `/config/files` and `/config/ml/files` resources |
 | `account.notice` | Server notices |
-| `account.extended` | Additional 3.29.x activity/pay/user/game endpoints |
+| `account.extended` | Additional activity, payment, user, and game endpoints |
 
 For player lookups, `account.user.lookup(uid)` resolves a player by numeric
-ID; `account.user.search_by_name(nickname)` returns nickname-search candidates.
+ID; `account.user.search_by_name(nickname)` returns fuzzy nickname-search
+candidates (it may return none or several).
 Clan details are available by ID with `account.clan.get_info(clan_id)` and by
 name with `account.clan.search(name)`. Game rankings accept a game ID such as
 `g1019` (Alien Attack) or `g1046` (Bed Wars):
