@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any
 
 from ..models import RankEntry
@@ -57,6 +58,76 @@ class GameAPI:
             params=params, language=language, _extra_headers=extra,
         )
 
+    @staticmethod
+    def _catalogue_records(value: Any) -> list[tuple[str, str]]:
+        records: list[tuple[str, str]] = []
+        seen: set[tuple[str, str]] = set()
+
+        def visit(item: Any) -> None:
+            if isinstance(item, list):
+                for child in item:
+                    visit(child)
+                return
+            if not isinstance(item, dict):
+                return
+            game_id = item.get("gameId") or item.get("typeId")
+            title = item.get("gameTitle") or item.get("gameName") or item.get("title") or item.get("name")
+            if game_id and title and re.fullmatch(r"g\d+", str(game_id), re.IGNORECASE):
+                record = (str(game_id), str(title))
+                if record not in seen:
+                    seen.add(record)
+                    records.append(record)
+            for child in item.values():
+                if isinstance(child, (dict, list)):
+                    visit(child)
+
+        visit(value)
+        return records
+
+    @staticmethod
+    def _normalize_game_name(value: str) -> str:
+        return " ".join("".join(ch if ch.isalnum() else " " for ch in value.casefold()).split())
+
+    @classmethod
+    def _resolve_catalogue_name(cls, query: str, response: dict[str, Any]) -> str:
+        if response.get("code") != 1:
+            raise RuntimeError(f"Game catalogue request failed: {response.get('message', 'unknown error')}")
+        wanted = cls._normalize_game_name(query)
+        records = cls._catalogue_records(response.get("data"))
+        exact = list(dict.fromkeys(game_id for game_id, title in records
+                                   if cls._normalize_game_name(title) == wanted))
+        if len(exact) == 1:
+            return exact[0]
+        matches = list(dict.fromkeys((game_id, title) for game_id, title in records
+                                     if wanted and wanted in cls._normalize_game_name(title)))
+        matching_ids = list(dict.fromkeys(game_id for game_id, _ in matches))
+        if len(matching_ids) == 1:
+            return matching_ids[0]
+        if matches:
+            choices = ", ".join(f"{title} ({game_id})" for game_id, title in matches[:8])
+            raise ValueError(f"Game name {query!r} is ambiguous. Matches: {choices}")
+        raise LookupError(f"No game matched {query!r}; pass a game ID such as g1019")
+
+    def resolve_game_id(self, query: str, page: int = 0, size: int = 100) -> str:
+        """Resolve a game ID directly or by a title in the current catalogue."""
+        value = str(query).strip()
+        if re.fullmatch(r"g\d+", value, re.IGNORECASE):
+            return value.lower()
+        if not value:
+            raise ValueError("game name or ID is required")
+        response = self.get_game_list(page=page, size=size)
+        return self._resolve_catalogue_name(value, response)
+
+    async def async_resolve_game_id(self, query: str, page: int = 0, size: int = 100) -> str:
+        """Async version of :meth:`resolve_game_id`."""
+        value = str(query).strip()
+        if re.fullmatch(r"g\d+", value, re.IGNORECASE):
+            return value.lower()
+        if not value:
+            raise ValueError("game name or ID is required")
+        response = await self.async_get_game_list(page=page, size=size)
+        return self._resolve_catalogue_name(value, response)
+
     def list_games(self, page: int = 1, size: int = 20, order_type: str = "",
                    type_id: int = 0, order: str = "", is_publish: int = 1) -> dict[str, Any]:
         """Legacy v1 game list; prefer :meth:get_game_list."""
@@ -70,7 +141,7 @@ class GameAPI:
         return self._account.request("GET", "/game/api/v1/games",
                                      params=params, language="en_US")
 
-    def get_game_details(self, game_id: str, app_version: int = 5753,
+    def get_game_details(self, game_id: str, app_version: int = 5771,
                          engine_version: int = 0, ram: int = 0) -> dict[str, Any]:
         params: dict[str, Any] = {}
         if app_version:
@@ -137,7 +208,7 @@ class GameAPI:
     def get_warmup_info(self, game_id: str, language: str = "en_US") -> dict[str, Any]:
         return self._account.request("GET", f"/game/api/v1/games/warmup/{game_id}/languages/{language}")
 
-    def get_all_open_parties(self, app_version: int = 5753) -> dict[str, Any]:
+    def get_all_open_parties(self, app_version: int = 5771) -> dict[str, Any]:
         return self._account.request("GET", "/game/api/v1/games/all/open/party",
                                      params={"appVersion": app_version})
 
@@ -315,7 +386,7 @@ class GameAPI:
         return await self._account.async_request("GET", "/game/api/v1/games",
                                                  params=params, language="en_US")
 
-    async def async_get_game_details(self, game_id: str, app_version: int = 5753,
+    async def async_get_game_details(self, game_id: str, app_version: int = 5771,
                                       engine_version: int = 0, ram: int = 0) -> dict[str, Any]:
         params: dict[str, Any] = {}
         if app_version:
@@ -382,7 +453,7 @@ class GameAPI:
     async def async_get_warmup_info(self, game_id: str, language: str = "en_US") -> dict[str, Any]:
         return await self._account.async_request("GET", f"/game/api/v1/games/warmup/{game_id}/languages/{language}")
 
-    async def async_get_all_open_parties(self, app_version: int = 5753) -> dict[str, Any]:
+    async def async_get_all_open_parties(self, app_version: int = 5771) -> dict[str, Any]:
         return await self._account.async_request("GET", "/game/api/v1/games/all/open/party",
                                                  params={"appVersion": app_version})
 

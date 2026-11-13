@@ -70,6 +70,10 @@ class UserAPI:
             profile.clan_role = clan.get("role")
         return profile
 
+    def search_by_name(self, nickname: str, page: int = 1, size: int = 10) -> list[UserProfile]:
+        """Search public player profiles by nickname (results may be fuzzy)."""
+        return self._account.friends.search(nickname, page=page, size=size)
+
     def change_name(self, new_name: str, old_name: str) -> dict[str, Any]:
         return self._account.request("PUT", "/user/api/v3/user/nickName",
                                      params={"newName": new_name, "oldName": old_name})
@@ -182,6 +186,11 @@ class UserAPI:
             profile.clan_name = clan.get("clanName")
             profile.clan_role = clan.get("role")
         return profile
+
+    async def async_search_by_name(self, nickname: str, page: int = 1,
+                                   size: int = 10) -> list[UserProfile]:
+        """Async nickname search; use the returned user ID for an exact lookup."""
+        return await self._account.friends.async_search(nickname, page=page, size=size)
 
     async def async_lookup_result(self, uid: int):
         return await self._account.async_lookup_result(uid)

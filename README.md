@@ -1,6 +1,6 @@
 # bmgo-wrapper
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/PQhj8zcmBK)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/aW436uawfZ)
 
 A Python client for the Blockman GO (BlockyMods) HTTP API. It handles login, the
 `x-sign` request format, session storage, and the calls this repository uses
@@ -9,9 +9,10 @@ most: profiles, game data, and leaderboards.
 This is an unofficial client. The API is private, version-sensitive, and can
 change without notice.
 
-> **Version status:** this repository targets Blockman GO **3.29.3**
-> (`appVersion 5753`). Support for 3.30.x is not confirmed.
-> See [Tested scope](#tested-scope).
+> **Version status:** the request headers in this branch match the supplied
+> 3.31.1 APK (`appVersion 5771`). The last live API checks were run against
+> 3.29.3, so a running 3.31.1 install is still needed to confirm the new
+> fingerprint and any endpoint changes. See [Tested scope](#tested-scope).
 
 [Install](#install) | [Device values](#get-device-values) | [First login](#first-login) | [Leaderboards](#leaderboards) | [Documentation](#documentation) | [Troubleshooting](#troubleshooting)
 
@@ -162,6 +163,9 @@ endpoints in async code. See [API overview](docs/api-overview.md#async).
 | Game catalogue | `account.game.get_game_list()` |
 | Game details | `account.game.get_game_details("g1055")` |
 | Global leaderboard | `account.ranking.get_global_overall()` |
+| Game leaderboard by title | `account.ranking.get_game_leaderboard_entries_by_name("Alien Attack")` |
+| Player search by nickname | `account.user.search_by_name("Player name")` |
+| Clan search by name | `account.clan.search("Clan name")` |
 | Raw endpoint | `account.request("GET", "/path", params={"pageNo": 0})` |
 
 Use `account.request()` for a new endpoint before adding a typed method. The
@@ -176,16 +180,6 @@ python examples/leaderboards.py
 ```
 
 Optional `BMG_GAME_ID` changes the example game (default `g1055`).
-
-Discord:
-
-```bash
-python -m pip install discord.py
-python examples/discord_leaderboard_bot.py
-```
-
-Set `DISCORD_TOKEN` and enable **Message Content Intent** in the Discord
-developer portal. The bot command is `!rank [game_id] [period]`.
 
 Telegram:
 
@@ -203,6 +197,7 @@ Set `TELEGRAM_TOKEN`. The command is `/rank [game_id] [period]`.
 | [Authentication](docs/authentication.md) | device values, login, signing, tokens, sessions |
 | [API overview](docs/api-overview.md) | module map, important endpoints, raw requests, errors |
 | [API reference](docs/api-reference.md) | generated list of methods, signatures, and endpoints |
+| [3.31.1 API string candidates](docs/api-candidates-3.31.1.csv) | static APK DEX path-string inventory; not runtime-verified |
 | [Leaderboards](docs/leaderboards.md) | periods, response shapes, large scores, observed data |
 | [Game IDs](docs/games.md) | known IDs and how to check them |
 
@@ -217,11 +212,12 @@ python tools/generate_api_docs.py
 The live checks were read-only and intended to catch obvious endpoint drift, not
 to certify every method:
 
-- Offline tests: 9 passing.
+- Offline tests: 13 passing.
 - Live smoke: 91 captured GET endpoints; 83 returned `code 1`, 8 returned other
   codes. 30 module calls were also checked.
 - Write, social, purchase, and account-changing endpoints were not executed.
-- 3.30.x has not been tested. Treat untested methods as exploratory.
+- The 3.31.1 defaults are based on APK metadata; the live endpoint checks still
+  come from 3.29.3. Treat newer routes and response shapes as unverified.
 
 See [Limitations](#limitations) before using this with a real account.
 
@@ -234,7 +230,7 @@ src/blockmango/
   constants.py     app version, headers, endpoint rules
   submodules/      typed endpoint groups
 tools/             device extractor and API-doc generator
-examples/          runnable CLI, Discord, and Telegram examples
+examples/          CLI and Telegram examples
 docs/              hand-written guides and generated API reference
 tests/             offline unit tests
 ```
@@ -272,15 +268,17 @@ Live checks need valid `.env` values.
 
 - Never commit `.env`, `.sessions.json`, or captured HTTP logs. They can contain
   live credentials, tokens, and device values.
-- Use a test account for bots and experiments.
+- Use a test account for experiments.
 - Do not use this to bypass anti-cheat or automate unfair gameplay.
 
 See [Authentication](docs/authentication.md) for session and token details.
 
 ## Limitations
 
-- Targets Blockman GO 3.29.3; later clients may change headers, paths, or
-  response shapes.
+- The request headers default to 3.31.1, but the live API checks are from
+  3.29.3. Some endpoints or response fields may have changed.
+- The app `md5` fingerprint is still the last value we observed. Set
+  `BMG_APP_MD5` only when you have confirmed the value from a 3.31.1 install.
 - Some accounts are device-bound and may require the native Access-Token
   transform.
 - Write actions have no dry-run layer.

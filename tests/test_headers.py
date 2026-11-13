@@ -1,6 +1,6 @@
 import unittest
 
-from blockmango.constants import APP_MD5
+from blockmango.constants import APP_MD5, APP_VERSION
 from blockmango.crypto import _build_signed_headers
 
 AK = "test-api-key"
@@ -12,7 +12,7 @@ DEVICE_SIGN = "test-device-sign"
 def build(path, body=""):
     return _build_signed_headers(
         path, [], body, AK, SK, DEVICE, DEVICE_SIGN, 0,
-        uid=123, token="raw-token", app_headers={"appversion": "5753"},
+        uid=123, token="raw-token", app_headers={"appversion": APP_VERSION},
         region="LATAM", uid_register_ts="1", device_register_ts="2",
         device_headers={"manufacturer": "Test"},
     )

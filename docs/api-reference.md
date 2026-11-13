@@ -382,8 +382,10 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | --- | --- | --- |
 | `get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` | Return the current game catalogue using the v2 condition endpoint. |
 | `async async_get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` |  |
+| `resolve_game_id(query: str, page: int=0, size: int=100)` | `—` | Resolve a game ID directly or by a title in the current catalogue. |
+| `async async_resolve_game_id(query: str, page: int=0, size: int=100)` | `—` | Async version of :meth:`resolve_game_id`. |
 | `list_games(page: int=1, size: int=20, order_type: str='', type_id: int=0, order: str='', is_publish: int=1)` | `/game/api/v1/games` | Legacy v1 game list; prefer :meth:get_game_list. |
-| `get_game_details(game_id: str, app_version: int=5753, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
+| `get_game_details(game_id: str, app_version: int=5771, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
 | `get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int | None=None)` | `—` |  |
 | `get_usage_ranking(game_id: str, page: int=1, size: int=10)` | `/game/api/v1/games/{game_id}/uses/rank` |  |
 | `get_hot_games()` | `/game/api/v1/game-list/homepage/hot` |  |
@@ -399,7 +401,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `get_update_tip(game_id: str, engine_version: int=10114, is_new: int=0)` | `/game/api/v1/games/update/tip/info/app/{game_id}` |  |
 | `get_update_list(user_id: int, old_engine_version: int=10114, new_engine_version: int=20084)` | `/game/api/v1/games/update/list/{user_id}` |  |
 | `get_warmup_info(game_id: str, language: str='en_US')` | `/game/api/v1/games/warmup/{game_id}/languages/{language}` |  |
-| `get_all_open_parties(app_version: int=5753)` | `/game/api/v1/games/all/open/party` |  |
+| `get_all_open_parties(app_version: int=5771)` | `/game/api/v1/games/all/open/party` |  |
 | `get_team_members(team_id: str)` | `/game/api/v1/games/team/member/{team_id}` |  |
 | `get_turntable_info(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
 | `claim_turntable(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
@@ -443,7 +445,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `get_mining_token_balance()` | `/game/api/v1/mining/token/balance` |  |
 | `game_auth_v2(game_id: str)` | `/game/api/v2/flow/game/auth` |  |
 | `async async_list_games(page: int=1, size: int=20, order_type: str='', type_id: int=0, order: str='', is_publish: int=1)` | `/game/api/v1/games` |  |
-| `async async_get_game_details(game_id: str, app_version: int=5753, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
+| `async async_get_game_details(game_id: str, app_version: int=5771, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
 | `async async_get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int | None=None)` | `—` |  |
 | `async async_get_usage_ranking(game_id: str, page: int=1, size: int=10)` | `/game/api/v1/games/{game_id}/uses/rank` |  |
 | `async async_get_hot_games()` | `/game/api/v1/game-list/homepage/hot` |  |
@@ -459,7 +461,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `async async_get_update_tip(game_id: str, engine_version: int=10114, is_new: int=0)` | `/game/api/v1/games/update/tip/info/app/{game_id}` |  |
 | `async async_get_update_list(user_id: int, old_engine_version: int=10114, new_engine_version: int=20084)` | `/game/api/v1/games/update/list/{user_id}` |  |
 | `async async_get_warmup_info(game_id: str, language: str='en_US')` | `/game/api/v1/games/warmup/{game_id}/languages/{language}` |  |
-| `async async_get_all_open_parties(app_version: int=5753)` | `/game/api/v1/games/all/open/party` |  |
+| `async async_get_all_open_parties(app_version: int=5771)` | `/game/api/v1/games/all/open/party` |  |
 | `async async_get_team_members(team_id: str)` | `/game/api/v1/games/team/member/{team_id}` |  |
 | `async async_get_turntable_info(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
 | `async async_claim_turntable(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
@@ -701,12 +703,16 @@ Global, clan, gold/diamond, and per-game leaderboards.
 | `async async_get_region_home_page_info(rank_type: str='active')` | `/ranking/api/v1/ranking/region/home/page/info` |  |
 | `get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` |  |
 | `async async_get_game_leaderboard(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` |  |
+| `get_game_leaderboard_by_name(game_name: str, period: str='all', page: int=0, size: int=10, language: str='en_US')` | `—` | Fetch a leaderboard using a game title from the current catalogue. |
+| `async async_get_game_leaderboard_by_name(game_name: str, period: str='all', page: int=0, size: int=10, language: str='en_US')` | `—` |  |
 | `get_game_usage_leaderboard(game_id: str, period: str='all', language: str='en_US')` | `—` |  |
 | `async async_get_game_usage_leaderboard(game_id: str, period: str='all', language: str='en_US')` | `—` |  |
 | `get_game_my_rank(game_id: str, period: str='all', language: str='en_US')` | `—` | Return the logged-in account's rank for a game and period. |
 | `async async_get_game_my_rank(game_id: str, period: str='all', language: str='en_US')` | `—` |  |
 | `get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` | Return a page of game leaderboard rows as :class:RankEntry objects. Scores are Python integers and keep full precision; `display_value` contains the server's compact display string (for example `99.99Y`). |
 | `async async_get_game_leaderboard_entries(game_id: str, period: str='all', page: int=0, size: int=10, game_version: int | None=None, language: str='en_US')` | `—` |  |
+| `get_game_leaderboard_entries_by_name(game_name: str, period: str='all', page: int=0, size: int=10, language: str='en_US')` | `—` |  |
+| `async async_get_game_leaderboard_entries_by_name(game_name: str, period: str='all', page: int=0, size: int=10, language: str='en_US')` | `—` |  |
 
 ## `RemoteConfigAPI`
 
@@ -822,6 +828,7 @@ Profile, settings, VIP, and feedback.
 | `get_stats(uid: int)` | `/user/api/v1/users/bg-careers` |  |
 | `get_clan_role(uid: int)` | `/bedwar/api/v1/friends/clan/by/userIds` |  |
 | `lookup(uid: int)` | `—` |  |
+| `search_by_name(nickname: str, page: int=1, size: int=10)` | `—` | Search public player profiles by nickname (results may be fuzzy). |
 | `change_name(new_name: str, old_name: str)` | `/user/api/v3/user/nickName` |  |
 | `change_details(details: str)` | `/user/api/v1/user/info` |  |
 | `change_avatar(pic_url: str)` | `/user/api/v1/user/info` |  |
@@ -846,6 +853,7 @@ Profile, settings, VIP, and feedback.
 | `async async_get_stats(uid: int)` | `/user/api/v1/users/bg-careers` |  |
 | `async async_get_clan_role(uid: int)` | `/bedwar/api/v1/friends/clan/by/userIds` |  |
 | `async async_lookup(uid: int)` | `—` |  |
+| `async async_search_by_name(nickname: str, page: int=1, size: int=10)` | `—` | Async nickname search; use the returned user ID for an exact lookup. |
 | `async async_lookup_result(uid: int)` | `—` |  |
 | `async async_get_decorations_result(uid: int)` | `—` |  |
 | `async async_change_name(new_name: str, old_name: str)` | `/user/api/v3/user/nickName` |  |

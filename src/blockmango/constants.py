@@ -6,9 +6,11 @@ API_BASE = "https://gw.sandboxol.com"
 TIME_API = "https://gw.sandboxol.com/server-time"
 DEVICE_POOL_URL = "https://pastebin.com/raw/m4EZm0z5"
 
-APP_VERSION = "5753"
-APP_VERSION_NAME = "3.29.3"
+APP_VERSION = "5771"
+APP_VERSION_NAME = "3.31.1"
 ANDROID_VERSION = "32"
+# Last value was observed in the 3.29.3 client. Keep configurable until the
+# 3.31.1 request fingerprint can be confirmed from a live, authorized install.
 APP_MD5 = "5d0de77b0f4b93b44669f146e54b49d9"
 
 KEY_PAIRS: tuple[tuple[str, str], ...] = (

@@ -212,6 +212,17 @@ class RankingAPI:
                                          language: str = "en_US") -> dict[str, Any]:
         return await self._account.game.async_get_game_leaderboard(game_id, period, page, size, game_version, language)
 
+    def get_game_leaderboard_by_name(self, game_name: str, period: str = "all", page: int = 0,
+                                     size: int = 10, language: str = "en_US") -> dict[str, Any]:
+        """Fetch a leaderboard using a game title from the current catalogue."""
+        game_id = self._account.game.resolve_game_id(game_name)
+        return self.get_game_leaderboard(game_id, period, page, size, language=language)
+
+    async def async_get_game_leaderboard_by_name(self, game_name: str, period: str = "all", page: int = 0,
+                                                 size: int = 10, language: str = "en_US") -> dict[str, Any]:
+        game_id = await self._account.game.async_resolve_game_id(game_name)
+        return await self.async_get_game_leaderboard(game_id, period, page, size, language=language)
+
     def get_game_usage_leaderboard(self, game_id: str, period: str = "all",
                                    language: str = "en_US") -> dict[str, Any]:
         return self._account.game.get_game_usage_leaderboard(game_id, period, language)
@@ -255,3 +266,23 @@ class RankingAPI:
         if not isinstance(items, list):
             items = []
         return [e for e in (RankEntry.from_dict(item) for item in items if item) if e is not None]
+
+    def get_game_leaderboard_entries_by_name(self, game_name: str, period: str = "all", page: int = 0,
+                                             size: int = 10, language: str = "en_US") -> list[RankEntry]:
+        response = self.get_game_leaderboard_by_name(game_name, period, page, size, language)
+        data = response.get("data")
+        page_info = data.get("pageInfo") if isinstance(data, dict) else None
+        items = page_info.get("data") if isinstance(page_info, dict) else None
+        if not isinstance(items, list):
+            items = []
+        return [entry for entry in (RankEntry.from_dict(item) for item in items if item) if entry is not None]
+
+    async def async_get_game_leaderboard_entries_by_name(self, game_name: str, period: str = "all", page: int = 0,
+                                                         size: int = 10, language: str = "en_US") -> list[RankEntry]:
+        response = await self.async_get_game_leaderboard_by_name(game_name, period, page, size, language)
+        data = response.get("data")
+        page_info = data.get("pageInfo") if isinstance(data, dict) else None
+        items = page_info.get("data") if isinstance(page_info, dict) else None
+        if not isinstance(items, list):
+            items = []
+        return [entry for entry in (RankEntry.from_dict(item) for item in items if item) if entry is not None]

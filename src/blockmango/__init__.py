@@ -30,7 +30,7 @@ from .submodules import (
 )
 from .time_sync import TimeSyncer, sync_time
 
-__version__ = "3.29.3.1"
+__version__ = "3.31.1.0"
 
 __all__ = [
     "BmgAccount", "BmgClient", "Config",

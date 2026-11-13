@@ -1,10 +1,14 @@
 # API overview
 
 For the generated method/endpoint index, see [api-reference.md](api-reference.md).
+The [3.31.1 DEX scan](api-candidates-3.31.1.csv) is a path-string candidate
+list only; it does not prove that a route is called, reachable, or read-only.
 
-The wrapper targets the Android client HTTP API at
-`https://gw.sandboxol.com` and mirrors the v3.29.3 request headers and signing
-rules. All responses use the same envelope:
+The wrapper talks to the Android client API at `https://gw.sandboxol.com`.
+Default app-version headers now match 3.31.1 (`appVersion 5771`), but the last
+live request checks used 3.29.3. The `md5` app fingerprint is still the last
+value we observed; `BMG_APP_MD5` lets you override it after checking a 3.31.1
+install. All responses use the same envelope:
 
 ```json
 { "code": 1, "message": "OK", "data": {}, "other": null }
@@ -40,6 +44,15 @@ account.async_request("POST", "/some/path", body={"key": "value"})
 | `account.remote_config` | `/config/files` and `/config/ml/files` resources |
 | `account.notice` | Server notices |
 | `account.extended` | Additional 3.29.x activity/pay/user/game endpoints |
+
+For player lookups, `account.user.lookup(uid)` resolves a player by numeric
+ID; `account.user.search_by_name(nickname)` returns nickname-search candidates.
+Clan details are available by ID with `account.clan.get_info(clan_id)` and by
+name with `account.clan.search(name)`. Game rankings accept a game ID such as
+`g1019` (Alien Attack) or `g1046` (Bed Wars):
+`account.ranking.get_game_leaderboard_entries(game_id, period, page, size)`.
+You can also pass a title to `get_game_leaderboard_entries_by_name`; if the
+catalogue has multiple IDs with that title, it asks you to choose an ID.
 
 ## Important new endpoints
 

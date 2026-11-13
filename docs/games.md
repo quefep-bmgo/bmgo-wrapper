@@ -13,6 +13,7 @@ some IDs share a leaderboard.
 | Game | ID |
 | --- | --- |
 | Bed Wars | `g1046` / `g1008` |
+| Alien Attack | `g1019` |
 | Murder Mystery | `g1009` |
 | TNT Run | `g1010` |
 | Zombie Infecting | `g1013` |
@@ -33,6 +34,20 @@ Use the API to confirm a title instead of trusting a hard-coded table:
 details = account.game.get_game_details("g1055")
 print(details["data"]["gameTitle"])
 ```
+
+For leaderboard lookups by title, the wrapper resolves a unique match from the
+current game catalogue:
+
+```python
+rows = account.ranking.get_game_leaderboard_entries_by_name(
+    "Alien Attack", period="week", page=0, size=10
+)
+```
+
+If a title maps to more than one game ID (Bed Wars is one example), the helper
+raises a `ValueError` listing the matching IDs. Pass the ID directly to choose
+the version you mean. The `bg-games` archive is useful for checking which game
+IDs and engine versions exist; it is a resource archive, not an API contract.
 
 You can also inspect the current game list:
 

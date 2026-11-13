@@ -66,13 +66,23 @@ class Config:
     @classmethod
     def from_env(cls) -> Config:
         _load_dotenv()
+        app_headers = dict(DEFAULT_APP_HEADERS)
+        for variable, header in (
+            ("BMG_APP_VERSION", "appversion"),
+            ("BMG_APP_VERSION_NAME", "appversionname"),
+            ("BMG_ANDROID_VERSION", "androidversion"),
+            ("BMG_APP_MD5", "md5"),
+        ):
+            value = os.getenv(variable)
+            if value:
+                app_headers[header] = value
         return cls(
             api_base=os.getenv("BMG_API_BASE", API_BASE),
             time_api=os.getenv("BMG_TIME_API", TIME_API),
             device_pool_url=os.getenv("BMG_DEVICE_POOL_URL", DEVICE_POOL_URL),
             key_pairs=_parse_key_pairs(os.getenv("BMG_KEY_PAIRS_JSON", "")),
             rsa_key=os.getenv("BMG_RSA_KEY", "").encode() or RSA_KEY,
-            app_headers=dict(DEFAULT_APP_HEADERS),
+            app_headers=app_headers,
             device_headers=_parse_device_headers(os.getenv("BMG_DEVICE_HEADERS_JSON", "")),
             region=os.getenv("BMG_REGION", "sandbox"),
             device_id=os.getenv("BMG_DEVICE_ID", ""),
