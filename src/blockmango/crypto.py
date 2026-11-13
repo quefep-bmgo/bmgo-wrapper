@@ -107,8 +107,8 @@ def _build_signed_headers(
         "x-sign": sign,
         "x-urlpath": path,
         "userdeviceid": device_id,
-        "md5": APP_MD5,
     })
+    headers.setdefault("md5", APP_MD5)
     if region:
         headers["region"] = region
     if uid_register_ts is not None:

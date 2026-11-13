@@ -54,6 +54,13 @@ class GameLookupTests(unittest.TestCase):
         self.assertEqual(api.resolve_game_id("alien attack"), "g1019")
         self.assertEqual(api.resolve_game_id("murder"), "g1009")
 
+    def test_catalogue_uses_live_default_sort_and_page_size(self):
+        account = FakeAccount()
+        account.game.get_game_list()
+        _, _, kwargs = account.calls[-1]
+        self.assertEqual(kwargs["params"]["sortType"], "complex")
+        self.assertEqual(kwargs["params"]["pageSize"], 20)
+
     def test_ambiguous_title_requires_a_game_id(self):
         with self.assertRaisesRegex(ValueError, "g1008.*g1046"):
             FakeAccount().game.resolve_game_id("Bed Wars")

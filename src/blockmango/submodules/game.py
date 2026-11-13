@@ -20,7 +20,7 @@ class GameAPI:
         self._account = account
 
     def get_game_list(self, page: int = 0, size: int = 20, filter_type_id: int = 0,
-                      filter_tag_id: int = 0, is_filter: int = 0, sort_type: str = "",
+                      filter_tag_id: int = 0, is_filter: int = 0, sort_type: str = "complex",
                       ram: int = 0, language: str = "en_US") -> dict[str, Any]:
         """Return the current game catalogue using the v2 condition endpoint."""
         params: dict[str, Any] = {
@@ -40,7 +40,7 @@ class GameAPI:
         )
 
     async def async_get_game_list(self, page: int = 0, size: int = 20, filter_type_id: int = 0,
-                                  filter_tag_id: int = 0, is_filter: int = 0, sort_type: str = "",
+                                  filter_tag_id: int = 0, is_filter: int = 0, sort_type: str = "complex",
                                   ram: int = 0, language: str = "en_US") -> dict[str, Any]:
         params: dict[str, Any] = {
             "isFilter": is_filter,
@@ -108,7 +108,7 @@ class GameAPI:
             raise ValueError(f"Game name {query!r} is ambiguous. Matches: {choices}")
         raise LookupError(f"No game matched {query!r}; pass a game ID such as g1019")
 
-    def resolve_game_id(self, query: str, page: int = 0, size: int = 100) -> str:
+    def resolve_game_id(self, query: str, page: int = 0, size: int = 20) -> str:
         """Resolve a game ID directly or by a title in the current catalogue."""
         value = str(query).strip()
         if re.fullmatch(r"g\d+", value, re.IGNORECASE):
@@ -118,7 +118,7 @@ class GameAPI:
         response = self.get_game_list(page=page, size=size)
         return self._resolve_catalogue_name(value, response)
 
-    async def async_resolve_game_id(self, query: str, page: int = 0, size: int = 100) -> str:
+    async def async_resolve_game_id(self, query: str, page: int = 0, size: int = 20) -> str:
         """Async version of :meth:`resolve_game_id`."""
         value = str(query).strip()
         if re.fullmatch(r"g\d+", value, re.IGNORECASE):

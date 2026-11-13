@@ -6,7 +6,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.get_device_values import find_bm_ddh_id_bytes, find_device_value_in_waydroid, write_env_values
+from tools.get_device_values import (
+    find_bm_ddh_id_bytes,
+    find_device_value_in_waydroid,
+    find_mmkv_string_bytes,
+    write_env_values,
+)
 
 
 def encode_varint(value: int) -> bytes:
@@ -37,12 +42,21 @@ class DeviceValueTests(unittest.TestCase):
         data = b"prefix" + make_mmkv_string(b"bm_ddh_id", b"device-sign-example")
         self.assertEqual(find_bm_ddh_id_bytes(data), "device-sign-example")
 
+    def test_extracts_app_scoped_android_id_from_mmkv(self):
+        data = make_mmkv_string(b"android.id", b"app-scoped-id")
+        self.assertEqual(find_mmkv_string_bytes(data, "android.id"), "app-scoped-id")
+
     def test_reads_waydroid_tar_without_writing_mmkv_to_disk(self):
-        payload = b"prefix" + make_mmkv_string(b"bm_ddh_id", b"device-sign-example")
+        payload = (
+            b"prefix"
+            + make_mmkv_string(b"android.id", b"app-scoped-id")
+            + make_mmkv_string(b"bm_ddh_id", b"device-sign-example")
+        )
         archive = make_tar("mutilProcessData", payload)
         with patch("tools.get_device_values.waydroid_root_command", return_value=archive):
-            mmkv_dir, ddh = find_device_value_in_waydroid("app.example")
+            mmkv_dir, android_id, ddh = find_device_value_in_waydroid("app.example")
         self.assertEqual(mmkv_dir, "/data/user/0/app.example/files/mmkv")
+        self.assertEqual(android_id, "app-scoped-id")
         self.assertEqual(ddh, "device-sign-example")
 
     def test_output_env_preserves_other_settings_and_is_private(self):

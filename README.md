@@ -42,7 +42,7 @@ The API needs two values from the app installation:
 
 | Variable | What it is |
 | --- | --- |
-| `BMG_DEVICE_ID` | Android `Settings.Secure.ANDROID_ID` |
+| `BMG_DEVICE_ID` | the app-scoped `android.id` used by Blockman GO (or `Settings.System.android_id` if set) |
 | `BMG_BMDDH_ID` | the `bm_ddh_id` string stored by Blockman GO |
 
 Open Blockman GO once, then run:
@@ -53,7 +53,9 @@ python tools/get_device_values.py --waydroid --output-env .env
 
 For a conventional rooted emulator, omit `--waydroid`. The Waydroid option
 reads the MMKV store through `sudo waydroid shell` because Waydroid does not
-support `adb root`. The default package name is the official 3.31.1 app; use
+support `adb root`. On 3.31.1 the app stores its signing ID as `android.id` in
+MMKV; Android's shell-scoped `Settings.Secure.ANDROID_ID` is not interchangeable.
+The default package name is the official 3.31.1 app; use
 `--package` or `BMG_PACKAGE_NAME` for another variant. `--output-env` writes
 only the two device values with file permissions set to `0600`; it does not
 print tokens or passwords.

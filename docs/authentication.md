@@ -7,7 +7,9 @@ read-only: it does not create accounts or device values.
 
 The API expects values from the same app installation:
 
-- `BMG_DEVICE_ID`: Android `Settings.Secure.ANDROID_ID`.
+- `BMG_DEVICE_ID`: the app-scoped `android.id` Blockman GO uses for request
+  signing. On 3.31.1 it is stored in MMKV; it may differ from the shell's
+  `Settings.Secure.ANDROID_ID`.
 - `BMG_BMDDH_ID`: the exact `bm_ddh_id` string stored by Blockman GO.
 
 `BMG_DEVICE_SIGN` is only needed when a separate device-pool signature is used.
@@ -17,7 +19,8 @@ Some accounts are device-bound. If login returns `code 100008` with
 `access denied`, use the device values that belong to that account/install.
 Do not reuse a device pair from a different account if the server rejects it.
 
-The bundled extractor can save both values to a local env file. For Waydroid:
+The bundled extractor reads `android.id` and `bm_ddh_id` from the app's MMKV
+store, and can save both values to a local env file. For Waydroid:
 
 ```bash
 python tools/get_device_values.py --waydroid --output-env .env
@@ -31,14 +34,14 @@ the host's `sudo waydroid shell`, since `adb root` is not available there.
 For a manual fallback, the MMKV directory is:
 
 ```bash
-adb shell settings get secure android_id
 adb root
 adb pull /data/user/0/com.sandboxol.blockymods.channel.official/files/mmkv ./mmkv
 ```
 
-Open the app once before pulling. The value may be in any file under the
-directory, not just `mutilProcessData`. The parser in
-`tools/get_device_values.py` shows the MMKV string format.
+Open the app once before pulling. The app-scoped `android.id` may be in any MMKV
+file, not just `mutilProcessData`; the shell's `Settings.Secure.ANDROID_ID` is
+not a substitute. The parser in `tools/get_device_values.py` shows the MMKV
+string format.
 
 ## 2. Login
 

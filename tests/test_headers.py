@@ -9,10 +9,11 @@ DEVICE = "0123456789abcdef"
 DEVICE_SIGN = "test-device-sign"
 
 
-def build(path, body=""):
+def build(path, body="", app_headers=None):
     return _build_signed_headers(
         path, [], body, AK, SK, DEVICE, DEVICE_SIGN, 0,
-        uid=123, token="raw-token", app_headers={"appversion": APP_VERSION},
+        uid=123, token="raw-token",
+        app_headers={"appversion": APP_VERSION, **(app_headers or {})},
         region="LATAM", uid_register_ts="1", device_register_ts="2",
         device_headers={"manufacturer": "Test"},
     )
@@ -37,6 +38,9 @@ class HeaderTests(unittest.TestCase):
         self.assertEqual(headers["userdeviceid"], DEVICE)
         self.assertEqual(headers["md5"], APP_MD5)
 
+    def test_live_client_md5_override_is_respected(self):
+        headers = build("/game/api/v1/games/g1055/rank", app_headers={"md5": "live-fingerprint"})
+        self.assertEqual(headers["md5"], "live-fingerprint")
 
 if __name__ == "__main__":
     unittest.main()
