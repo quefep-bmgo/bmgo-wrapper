@@ -1,11 +1,13 @@
 """Extract Blockman GO device values from a rooted Android device.
 
 Usage:
-    python tools/get_device_values.py [--serial SERIAL]
+    python tools/get_device_values.py [--serial SERIAL] [--package PACKAGE]
+    python tools/get_device_values.py --waydroid [--serial SERIAL]
 
-The script uses adb, restarts adbd as root, reads
-``Settings.Secure.ANDROID_ID``, pulls the app's MMKV directory into a temporary
-folder, and prints:
+By default the script uses a rooted ADB device. Waydroid does not support
+``adb root``, so pass ``--waydroid`` to read MMKV through ``sudo waydroid
+shell`` instead. It reads ``Settings.Secure.ANDROID_ID`` and the app's MMKV
+store, then prints:
 
     BMG_DEVICE_ID=...
     BMG_BMDDH_ID=...
@@ -16,15 +18,18 @@ It deliberately does not print access tokens or account credentials.
 from __future__ import annotations
 
 import argparse
+import io
 import os
+import re
+import shlex
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 from pathlib import Path
 
-PACKAGE = "com.sandboxol.blockymods"
-MMKV_DIR = f"/data/data/{PACKAGE}/files/mmkv"
+PACKAGE = os.environ.get("BMG_PACKAGE_NAME", "com.sandboxol.blockymods.channel.official")
 ADB_CANDIDATES = (
     os.environ.get("ADB", ""),
     shutil.which("adb") or "",
@@ -89,9 +94,8 @@ def read_varint(data: bytes, position: int) -> tuple[int, int]:
     raise ValueError("truncated MMKV varint")
 
 
-def find_bm_ddh_id(path: Path) -> str | None:
+def find_bm_ddh_id_bytes(data: bytes) -> str | None:
     key = b"bm_ddh_id"
-    data = path.read_bytes()
     start = 0
     while True:
         offset = data.find(key, start)
@@ -110,55 +114,129 @@ def find_bm_ddh_id(path: Path) -> str | None:
             continue
 
 
+def find_bm_ddh_id(path: Path) -> str | None:
+    return find_bm_ddh_id_bytes(path.read_bytes())
+
+
+def waydroid_root_command(args: list[str]) -> bytes:
+    """Run one root command inside Waydroid without writing its output to disk."""
+    prefix = shlex.split(os.environ.get("BMG_WAYDROID_ROOT_PREFIX", "sudo waydroid"))
+    proc = subprocess.run(
+        prefix + ["shell", "--", *args],
+        capture_output=True,
+        timeout=60,
+    )
+    if proc.returncode:
+        detail = (proc.stderr or proc.stdout).decode("utf-8", "replace").strip()
+        raise SystemExit(f"Waydroid root command failed: {detail or 'unknown error'}")
+    return proc.stdout
+
+
+def find_device_value_in_waydroid(package: str) -> tuple[str, str]:
+    """Read only the device ID and bm_ddh_id from the Waydroid app store."""
+    mmkv_dir = f"/data/user/0/{package}/files/mmkv"
+    # One root-shell call avoids repeated sudo prompts and keeps the MMKV
+    # archive in memory; only the device signature is retained by the caller.
+    archive_bytes = waydroid_root_command([
+        "sh", "-c", f"tar -C {shlex.quote(mmkv_dir)} -cf - .",
+    ])
+    ddh = None
+    try:
+        with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:") as archive:
+            for member in archive:
+                if not member.isfile() or member.name.endswith(".crc"):
+                    continue
+                stream = archive.extractfile(member)
+                if stream is None:
+                    continue
+                ddh = find_bm_ddh_id_bytes(stream.read())
+                if ddh:
+                    break
+    except tarfile.TarError as error:
+        raise SystemExit(f"Could not read Waydroid MMKV data: {error}") from error
+    if not ddh:
+        raise SystemExit(f"bm_ddh_id was not found under {mmkv_dir}")
+    return mmkv_dir, ddh
+
+
+def write_env_values(path: Path, android_id: str, ddh: str) -> None:
+    """Update only the two device entries, preserving other local .env values."""
+    keys = {"BMG_DEVICE_ID", "BMG_BMDDH_ID"}
+    lines = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    lines = [line for line in lines if line.partition("=")[0] not in keys]
+    lines.extend((f"BMG_DEVICE_ID={android_id}", f"BMG_BMDDH_ID={ddh}"))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_name(path.name + ".tmp")
+    temp.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    temp.chmod(0o600)
+    temp.replace(path)
+    path.chmod(0o600)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--serial", help="adb serial (otherwise auto-detect)")
+    parser.add_argument("--package", default=PACKAGE, help="installed Blockman GO package name")
+    parser.add_argument("--waydroid", action="store_true",
+                        help="read MMKV with the Waydroid root shell (ADB root is unsupported there)")
+    parser.add_argument("--output-env", type=Path,
+                        help="save device values into an ignored local env file instead of printing them")
     args = parser.parse_args()
+
+    if not re.fullmatch(r"[A-Za-z0-9._]+", args.package):
+        raise SystemExit("Invalid Android package name")
 
     adb = find_adb()
     serial = choose_serial(adb, args.serial)
     print(f"# adb: {adb}", file=sys.stderr)
     print(f"# device: {serial}", file=sys.stderr)
 
-    root_output = run(adb, ["root"], serial)
-    if root_output:
-        print(f"# adb root: {root_output}", file=sys.stderr)
-    run(adb, ["wait-for-device"], serial)
-
     android_id = run(adb, ["shell", "settings", "get", "secure", "android_id"], serial)
     if not android_id or android_id == "null":
-        raise SystemExit("Could not read Settings.Secure.ANDROID_ID; is the device rooted?")
+        raise SystemExit("Could not read Settings.Secure.ANDROID_ID from the selected device")
 
-    with tempfile.TemporaryDirectory(prefix="bmgo-device-") as temp:
-        destination = Path(temp) / "mmkv"
-        pull = subprocess.run(
-            [adb, "-s", serial, "pull", MMKV_DIR, str(destination)],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-        )
-        if not destination.exists():
-            raise SystemExit(
-                f"Could not pull {MMKV_DIR}.\n"
-                "Make sure the app has been opened at least once and adb is running as root.\n"
-                f"{pull.stderr or pull.stdout}"
+    if args.waydroid:
+        mmkv_dir, ddh = find_device_value_in_waydroid(args.package)
+    else:
+        root_output = run(adb, ["root"], serial)
+        if root_output:
+            print(f"# adb root: {root_output}", file=sys.stderr)
+        run(adb, ["wait-for-device"], serial)
+        mmkv_dir = f"/data/user/0/{args.package}/files/mmkv"
+        with tempfile.TemporaryDirectory(prefix="bmgo-device-") as temp:
+            destination = Path(temp) / "mmkv"
+            pull = subprocess.run(
+                [adb, "-s", serial, "pull", mmkv_dir, str(destination)],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
             )
+            if not destination.exists():
+                raise SystemExit(
+                    f"Could not pull {mmkv_dir}.\n"
+                    "Make sure the app has been opened and ADB root is available.\n"
+                    f"{pull.stderr or pull.stdout}"
+                )
 
-        ddh = None
-        for path in sorted(destination.rglob("*")):
-            if not path.is_file() or path.name.endswith(".crc"):
-                continue
-            ddh = find_bm_ddh_id(path)
-            if ddh:
-                print(f"# bm_ddh_id found in {path.name}", file=sys.stderr)
-                break
+            ddh = None
+            for path in sorted(destination.rglob("*")):
+                if not path.is_file() or path.name.endswith(".crc"):
+                    continue
+                ddh = find_bm_ddh_id(path)
+                if ddh:
+                    print(f"# bm_ddh_id found in {path.name}", file=sys.stderr)
+                    break
 
     if not ddh:
         raise SystemExit(
-            "bm_ddh_id was not found. Inspect every file under "
-            f"{MMKV_DIR} (not just mutilProcessData) and try again."
+            "bm_ddh_id was not found. Open Blockman GO once and check the app package name."
         )
+
+    if args.output_env:
+        write_env_values(args.output_env, android_id, ddh)
+        print(f"Saved device values to {args.output_env} (permissions 0600)", file=sys.stderr)
+        return
 
     print(f"BMG_DEVICE_ID={android_id}")
     print(f"BMG_BMDDH_ID={ddh}")

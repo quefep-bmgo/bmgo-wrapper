@@ -17,18 +17,23 @@ Some accounts are device-bound. If login returns `code 100008` with
 `access denied`, use the device values that belong to that account/install.
 Do not reuse a device pair from a different account if the server rejects it.
 
-The bundled extractor prints both values:
+The bundled extractor can save both values to a local env file. For Waydroid:
 
 ```bash
-python tools/get_device_values.py
+python tools/get_device_values.py --waydroid --output-env .env
 ```
 
-For a manual fallback, read the Android ID and pull the app's MMKV directory:
+For a conventional rooted emulator, run it without `--waydroid`. The 3.31.1
+official APK uses package `com.sandboxol.blockymods.channel.official`; pass
+`--package` if you installed another app variant. On Waydroid the script uses
+the host's `sudo waydroid shell`, since `adb root` is not available there.
+
+For a manual fallback, the MMKV directory is:
 
 ```bash
 adb shell settings get secure android_id
 adb root
-adb pull /data/data/com.sandboxol.blockymods/files/mmkv ./mmkv
+adb pull /data/user/0/com.sandboxol.blockymods.channel.official/files/mmkv ./mmkv
 ```
 
 Open the app once before pulling. The value may be in any file under the

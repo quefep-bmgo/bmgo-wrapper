@@ -45,14 +45,18 @@ The API needs two values from the app installation:
 | `BMG_DEVICE_ID` | Android `Settings.Secure.ANDROID_ID` |
 | `BMG_BMDDH_ID` | the `bm_ddh_id` string stored by Blockman GO |
 
-Start the emulator, open Blockman GO at least once, and run:
+Open Blockman GO once, then run:
 
 ```bash
-python tools/get_device_values.py
+python tools/get_device_values.py --waydroid --output-env .env
 ```
 
-The tool uses `adb`, pulls the app's MMKV data, and prints the two `.env`
-lines. It does not print tokens or passwords.
+For a conventional rooted emulator, omit `--waydroid`. The Waydroid option
+reads the MMKV store through `sudo waydroid shell` because Waydroid does not
+support `adb root`. The default package name is the official 3.31.1 app; use
+`--package` or `BMG_PACKAGE_NAME` for another variant. `--output-env` writes
+only the two device values with file permissions set to `0600`; it does not
+print tokens or passwords.
 
 Create a local config and fill in the values:
 
