@@ -1,8 +1,14 @@
+import base64
 import hashlib
 import unittest
 from unittest.mock import patch
 
-from blockmango.crypto import _is_raw_sign_path, _sign
+from blockmango.crypto import (
+    _canonical_body,
+    _encode_access_token,
+    _is_raw_sign_path,
+    _sign,
+)
 
 AK = "test-api-key"
 SK = "test-secret"
@@ -34,6 +40,43 @@ class SigningTests(unittest.TestCase):
 
     def test_account_login_is_raw_signed(self):
         self.assertTrue(_is_raw_sign_path("/user/api/v4/account/login"))
+
+
+class CanonicalBodyTests(unittest.TestCase):
+    def test_keys_are_sorted(self):
+        self.assertEqual(_canonical_body('{"b":1,"a":2}'), '{"a":2,"b":1}')
+
+    def test_whitespace_is_removed(self):
+        self.assertEqual(
+            _canonical_body('{ "a": 1, "b": [1, 2] }'),
+            '{"a":1,"b":[1,2]}',
+        )
+
+    def test_non_json_is_left_alone(self):
+        self.assertEqual(_canonical_body("not json"), "not json")
+
+
+class AccessTokenTests(unittest.TestCase):
+    def test_shape_matches_client(self):
+        token = "t" * 211
+        nonce = "n" * 36
+        value = _encode_access_token(token, nonce, SK)
+        self.assertEqual(len(value), 344)
+        self.assertEqual(len(base64.b64decode(value)), 256)
+
+    def test_same_inputs_give_same_header(self):
+        first = _encode_access_token("token", "nonce", SK)
+        second = _encode_access_token("token", "nonce", SK)
+        self.assertEqual(first, second)
+
+    def test_nonce_changes_output(self):
+        self.assertNotEqual(
+            _encode_access_token("token", "nonce-a", SK),
+            _encode_access_token("token", "nonce-b", SK),
+        )
+
+    def test_empty_token_gives_empty_header(self):
+        self.assertEqual(_encode_access_token("", "nonce", SK), "")
 
 
 if __name__ == "__main__":
