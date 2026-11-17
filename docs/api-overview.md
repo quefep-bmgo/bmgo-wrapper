@@ -3,7 +3,7 @@
 For the generated method/endpoint index, see [api-reference.md](api-reference.md).
 
 The wrapper targets the Android client HTTP API at
-`https://gw.sandboxol.com` and mirrors the v3.29.3 request headers and signing
+`https://gw.sandboxol.com` and mirrors the 3.31.1 request headers and signing
 rules. All responses use the same envelope:
 
 ```json
@@ -39,7 +39,7 @@ account.async_request("POST", "/some/path", body={"key": "value"})
 | `account.gratitude` | Contributor-recognition flow |
 | `account.remote_config` | `/config/files` and `/config/ml/files` resources |
 | `account.notice` | Server notices |
-| `account.extended` | Additional 3.29.x activity/pay/user/game endpoints |
+| `account.extended` | Additional 3.31.x activity/pay/user/game endpoints |
 
 ## Important new endpoints
 
