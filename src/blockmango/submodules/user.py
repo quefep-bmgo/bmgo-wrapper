@@ -30,6 +30,18 @@ class UserAPI:
             return UserProfile.from_dict(r.get("data"))
         return None
 
+    def get_third_party_bindings(self) -> list[dict[str, Any]]:
+        """Third-party accounts bound to the logged-in user, e.g. facebook.
+
+        The client sends the device headers on this path. Without them the
+        request comes back as a bare 400 rather than an API error envelope.
+        """
+        r = self._account.request("GET", "/user/api/v1/account/tp/list")
+        if r.get("code") != 1:
+            return []
+        data = r.get("data")
+        return data if isinstance(data, list) else []
+
     def get_stats(self, uid: int) -> UserStats | None:
         r = self._account.request("GET", "/user/api/v1/users/bg-careers", params={"userId": str(uid)})
         if r.get("code") == 1:

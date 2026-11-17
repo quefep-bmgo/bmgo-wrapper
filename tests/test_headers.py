@@ -37,6 +37,11 @@ class HeaderTests(unittest.TestCase):
         self.assertEqual(headers["userdeviceid"], DEVICE)
         self.assertEqual(headers["md5"], APP_MD5)
 
+    def test_third_party_binding_list_includes_device_auth(self):
+        headers = build("/user/api/v1/account/tp/list")
+        self.assertEqual(headers["bmg-device-id"], DEVICE)
+        self.assertEqual(headers["bmg-sign"], DEVICE_SIGN)
+
 
 if __name__ == "__main__":
     unittest.main()
