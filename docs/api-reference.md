@@ -383,7 +383,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` | Return the current game catalogue using the v2 condition endpoint. |
 | `async async_get_game_list(page: int=0, size: int=20, filter_type_id: int=0, filter_tag_id: int=0, is_filter: int=0, sort_type: str='', ram: int=0, language: str='en_US')` | `/game/api/v2/game/revision/list/by/condition` |  |
 | `list_games(page: int=1, size: int=20, order_type: str='', type_id: int=0, order: str='', is_publish: int=1)` | `/game/api/v1/games` | Legacy v1 game list; prefer :meth:get_game_list. |
-| `get_game_details(game_id: str, app_version: int=5753, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
+| `get_game_details(game_id: str, app_version: int=5771, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
 | `get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int | None=None)` | `—` |  |
 | `get_usage_ranking(game_id: str, page: int=1, size: int=10)` | `/game/api/v1/games/{game_id}/uses/rank` |  |
 | `get_hot_games()` | `/game/api/v1/game-list/homepage/hot` |  |
@@ -399,7 +399,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `get_update_tip(game_id: str, engine_version: int=10114, is_new: int=0)` | `/game/api/v1/games/update/tip/info/app/{game_id}` |  |
 | `get_update_list(user_id: int, old_engine_version: int=10114, new_engine_version: int=20084)` | `/game/api/v1/games/update/list/{user_id}` |  |
 | `get_warmup_info(game_id: str, language: str='en_US')` | `/game/api/v1/games/warmup/{game_id}/languages/{language}` |  |
-| `get_all_open_parties(app_version: int=5753)` | `/game/api/v1/games/all/open/party` |  |
+| `get_all_open_parties(app_version: int=5771)` | `/game/api/v1/games/all/open/party` |  |
 | `get_team_members(team_id: str)` | `/game/api/v1/games/team/member/{team_id}` |  |
 | `get_turntable_info(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
 | `claim_turntable(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
@@ -443,7 +443,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `get_mining_token_balance()` | `/game/api/v1/mining/token/balance` |  |
 | `game_auth_v2(game_id: str)` | `/game/api/v2/flow/game/auth` |  |
 | `async async_list_games(page: int=1, size: int=20, order_type: str='', type_id: int=0, order: str='', is_publish: int=1)` | `/game/api/v1/games` |  |
-| `async async_get_game_details(game_id: str, app_version: int=5753, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
+| `async async_get_game_details(game_id: str, app_version: int=5771, engine_version: int=0, ram: int=0)` | `/game/api/v3/games/{game_id}` |  |
 | `async async_get_game_ranking(game_id: str, period: str='all', page: int=1, size: int=10, game_version: int | None=None)` | `—` |  |
 | `async async_get_usage_ranking(game_id: str, page: int=1, size: int=10)` | `/game/api/v1/games/{game_id}/uses/rank` |  |
 | `async async_get_hot_games()` | `/game/api/v1/game-list/homepage/hot` |  |
@@ -459,7 +459,7 @@ Game catalogue, launch/auth, rooms, and leaderboards.
 | `async async_get_update_tip(game_id: str, engine_version: int=10114, is_new: int=0)` | `/game/api/v1/games/update/tip/info/app/{game_id}` |  |
 | `async async_get_update_list(user_id: int, old_engine_version: int=10114, new_engine_version: int=20084)` | `/game/api/v1/games/update/list/{user_id}` |  |
 | `async async_get_warmup_info(game_id: str, language: str='en_US')` | `/game/api/v1/games/warmup/{game_id}/languages/{language}` |  |
-| `async async_get_all_open_parties(app_version: int=5753)` | `/game/api/v1/games/all/open/party` |  |
+| `async async_get_all_open_parties(app_version: int=5771)` | `/game/api/v1/games/all/open/party` |  |
 | `async async_get_team_members(team_id: str)` | `/game/api/v1/games/team/member/{team_id}` |  |
 | `async async_get_turntable_info(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
 | `async async_claim_turntable(game_id: str)` | `/game/api/v1/game/{game_id}/turntable` |  |
@@ -819,6 +819,7 @@ Profile, settings, VIP, and feedback.
 | --- | --- | --- |
 | `get_profile(uid: int)` | `/friend/api/v1/friends/info/id/{uid}` |  |
 | `get_own_profile()` | `/user/api/v2/user/details/info` |  |
+| `get_third_party_bindings()` | `/user/api/v1/account/tp/list` | Third-party accounts bound to the logged-in user, e.g. facebook. The client sends the device headers on this path. Without them the request comes back as a bare 400 rather than an API error envelope. |
 | `get_stats(uid: int)` | `/user/api/v1/users/bg-careers` |  |
 | `get_clan_role(uid: int)` | `/bedwar/api/v1/friends/clan/by/userIds` |  |
 | `lookup(uid: int)` | `—` |  |
