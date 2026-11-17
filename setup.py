@@ -6,7 +6,7 @@ README = Path(__file__).with_name("README.md").read_text(encoding="utf-8")
 
 setup(
     name="bmgo-wrapper",
-    version="3.29.3.1",
+    version="3.31.1.0",
     description="Blockman GO v3.29.3 API wrapper with x-sign authentication",
     long_description=README,
     long_description_content_type="text/markdown",
