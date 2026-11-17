@@ -62,6 +62,7 @@ DEVICE_HEADER_PATHS = frozenset({
     "/user/api/v3/login",
     "/user/api/v2/app/login",
     "/user/api/v3/account/tourist/login",
+    "/user/api/v1/account/tp/list",
 })
 
 RAW_SIGN_PATHS = frozenset("""
