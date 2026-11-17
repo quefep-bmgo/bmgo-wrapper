@@ -3,12 +3,15 @@
 Usage:
     python tools/get_device_values.py [--serial SERIAL]
 
-The script uses adb, restarts adbd as root, reads
-``Settings.Secure.ANDROID_ID``, pulls the app's MMKV directory into a temporary
-folder, and prints:
+The script uses adb, restarts adbd as root, pulls the app's MMKV directory into
+a temporary folder, and reads two keys the client keeps there:
 
-    BMG_DEVICE_ID=...
-    BMG_BMDDH_ID=...
+    android.id   -> BMG_DEVICE_ID
+    bm_ddh_id    -> BMG_BMDDH_ID
+
+Both belong to the app installation. ``android.id`` is not the shell-scoped
+``Settings.Secure.ANDROID_ID``; it is generated and stored by the app, and the
+two values differ even on the same device.
 
 It deliberately does not print access tokens or account credentials.
 """
@@ -89,17 +92,17 @@ def read_varint(data: bytes, position: int) -> tuple[int, int]:
     raise ValueError("truncated MMKV varint")
 
 
-def find_bm_ddh_id(path: Path) -> str | None:
-    key = b"bm_ddh_id"
+def find_mmkv_string(path: Path, key: str) -> str | None:
+    key_bytes = key.encode("ascii")
     data = path.read_bytes()
     start = 0
     while True:
-        offset = data.find(key, start)
+        offset = data.find(key_bytes, start)
         if offset < 0:
             return None
         start = offset + 1
         try:
-            value_size, value_start = read_varint(data, offset + len(key))
+            value_size, value_start = read_varint(data, offset + len(key_bytes))
             text_size, text_start = read_varint(data, value_start)
             if text_size <= 0 or text_start + text_size > value_start + value_size:
                 continue
@@ -125,10 +128,6 @@ def main() -> None:
         print(f"# adb root: {root_output}", file=sys.stderr)
     run(adb, ["wait-for-device"], serial)
 
-    android_id = run(adb, ["shell", "settings", "get", "secure", "android_id"], serial)
-    if not android_id or android_id == "null":
-        raise SystemExit("Could not read Settings.Secure.ANDROID_ID; is the device rooted?")
-
     with tempfile.TemporaryDirectory(prefix="bmgo-device-") as temp:
         destination = Path(temp) / "mmkv"
         pull = subprocess.run(
@@ -145,14 +144,27 @@ def main() -> None:
                 f"{pull.stderr or pull.stdout}"
             )
 
+        android_id = None
         ddh = None
         for path in sorted(destination.rglob("*")):
             if not path.is_file() or path.name.endswith(".crc"):
                 continue
-            ddh = find_bm_ddh_id(path)
-            if ddh:
-                print(f"# bm_ddh_id found in {path.name}", file=sys.stderr)
+            if android_id is None:
+                android_id = find_mmkv_string(path, "android.id")
+                if android_id:
+                    print(f"# android.id found in {path.name}", file=sys.stderr)
+            if ddh is None:
+                ddh = find_mmkv_string(path, "bm_ddh_id")
+                if ddh:
+                    print(f"# bm_ddh_id found in {path.name}", file=sys.stderr)
+            if android_id and ddh:
                 break
+
+    if not android_id:
+        raise SystemExit(
+            "android.id was not found. Open the app once so it writes its MMKV "
+            f"state, then check {MMKV_DIR} on the device."
+        )
 
     if not ddh:
         raise SystemExit(
