@@ -70,7 +70,7 @@ class GameAPI:
         return self._account.request("GET", "/game/api/v1/games",
                                      params=params, language="en_US")
 
-    def get_game_details(self, game_id: str, app_version: int = 5753,
+    def get_game_details(self, game_id: str, app_version: int = 5771,
                          engine_version: int = 0, ram: int = 0) -> dict[str, Any]:
         params: dict[str, Any] = {}
         if app_version:
@@ -137,7 +137,7 @@ class GameAPI:
     def get_warmup_info(self, game_id: str, language: str = "en_US") -> dict[str, Any]:
         return self._account.request("GET", f"/game/api/v1/games/warmup/{game_id}/languages/{language}")
 
-    def get_all_open_parties(self, app_version: int = 5753) -> dict[str, Any]:
+    def get_all_open_parties(self, app_version: int = 5771) -> dict[str, Any]:
         return self._account.request("GET", "/game/api/v1/games/all/open/party",
                                      params={"appVersion": app_version})
 
@@ -315,7 +315,7 @@ class GameAPI:
         return await self._account.async_request("GET", "/game/api/v1/games",
                                                  params=params, language="en_US")
 
-    async def async_get_game_details(self, game_id: str, app_version: int = 5753,
+    async def async_get_game_details(self, game_id: str, app_version: int = 5771,
                                       engine_version: int = 0, ram: int = 0) -> dict[str, Any]:
         params: dict[str, Any] = {}
         if app_version:
@@ -382,7 +382,7 @@ class GameAPI:
     async def async_get_warmup_info(self, game_id: str, language: str = "en_US") -> dict[str, Any]:
         return await self._account.async_request("GET", f"/game/api/v1/games/warmup/{game_id}/languages/{language}")
 
-    async def async_get_all_open_parties(self, app_version: int = 5753) -> dict[str, Any]:
+    async def async_get_all_open_parties(self, app_version: int = 5771) -> dict[str, Any]:
         return await self._account.async_request("GET", "/game/api/v1/games/all/open/party",
                                                  params={"appVersion": app_version})
 

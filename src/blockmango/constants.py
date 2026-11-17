@@ -6,10 +6,10 @@ API_BASE = "https://gw.sandboxol.com"
 TIME_API = "https://gw.sandboxol.com/server-time"
 DEVICE_POOL_URL = "https://pastebin.com/raw/m4EZm0z5"
 
-APP_VERSION = "5753"
-APP_VERSION_NAME = "3.29.3"
+APP_VERSION = "5771"
+APP_VERSION_NAME = "3.31.1"
 ANDROID_VERSION = "32"
-APP_MD5 = "5d0de77b0f4b93b44669f146e54b49d9"
+APP_MD5 = "355f502597543d34ee8a66c124da35d7"
 
 KEY_PAIRS: tuple[tuple[str, str], ...] = (
     ("6aDtpIdzQdgGwrpP6HzuPA", "9EuDKGtoWAOWoQH1cRng-d5ihNN60hkGLaRiaZTk-6s"),

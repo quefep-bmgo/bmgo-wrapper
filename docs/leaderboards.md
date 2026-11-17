@@ -1,6 +1,6 @@
 # Game leaderboards
 
-The 3.29.x client uses two read-only game leaderboard endpoints.
+The client uses two read-only game leaderboard endpoints.
 
 ## Game IDs
 

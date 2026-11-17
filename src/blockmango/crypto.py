@@ -8,11 +8,12 @@ import uuid
 from typing import Any, Callable
 
 try:
-    from Crypto.Cipher import PKCS1_v1_5
+    from Crypto.Cipher import AES, PKCS1_v1_5
     from Crypto.PublicKey import RSA
     HAS_CRYPTO = True
 except ImportError:
     HAS_CRYPTO = False
+    AES = None
     PKCS1_v1_5 = None
     RSA = None
 
@@ -26,7 +27,11 @@ from .constants import (
 from .exceptions import CryptoError
 
 TokenEncoder = Callable[[str, str, str, str, str, str, str], str]
-"""Optional callback that returns a per-request Access-Token header value."""
+"""Optional override for the per-request Access-Token header.
+
+The 3.31.x encoding is built in; supply a callback only to pin a different
+client build.
+"""
 
 
 def _md5(data: str | bytes) -> str:
@@ -69,6 +74,47 @@ def _is_raw_sign_path(path: str) -> bool:
     return path in RAW_SIGN_PATHS or path.startswith(RAW_SIGN_PATH_PREFIXES)
 
 
+def _aes128_ecb_encrypt(key: bytes, data: bytes) -> bytes:
+    if not HAS_CRYPTO:
+        raise CryptoError("pycryptodome is required for Access-Token encoding")
+    if len(key) != 16:
+        raise CryptoError("Access-Token key must be 16 bytes")
+    if len(data) % 16:
+        raise CryptoError("Access-Token plaintext must be a multiple of 16 bytes")
+    return AES.new(key, AES.MODE_ECB).encrypt(data)
+
+
+def _encode_access_token(token: str, nonce: str, sk: str) -> str:
+    """Build the access-token header the 3.31.x client sends.
+
+    The JWT is XORed with 0x73, padded to a 16-byte boundary, encrypted with
+    AES-128-ECB under md5(secret_key)[:16], then base64 encoded. Only the token
+    and nonce are covered.
+    """
+    if not token:
+        return ""
+    key = _md5(sk)[:16].encode("ascii")
+    data = (token + nonce).encode("utf-8")
+    pad = 16 - (len(data) % 16) if len(data) % 16 else 16
+    plain = bytes(byte ^ 0x73 for byte in data) + bytes([pad]) * pad
+    return base64.b64encode(_aes128_ecb_encrypt(key, plain)).decode("ascii")
+
+
+def _canonical_body(body_str: str) -> str:
+    """Serialise a JSON body the way the client signs it.
+
+    The client signs sorted keys with compact separators and unescaped
+    non-ASCII, even when the body it puts on the wire keeps the original order.
+    """
+    if not body_str:
+        return ""
+    try:
+        return json.dumps(json.loads(body_str), sort_keys=True,
+                          separators=(",", ":"), ensure_ascii=False)
+    except (ValueError, TypeError):
+        return body_str
+
+
 def _sign(
     path: str, params: list[tuple[str, str]], body: str,
     ak: str, sk: str, device_id: str | None, t_off: int,
@@ -96,7 +142,8 @@ def _build_signed_headers(
     device_headers: dict[str, str] | None = None,
     token_encoder: TokenEncoder | None = None,
 ) -> dict[str, str]:
-    nonce, ts, sign = _sign(path, flat_params, body_str, ak, sk, device_id, t_off)
+    nonce, ts, sign = _sign(path, flat_params, _canonical_body(body_str),
+                             ak, sk, device_id, t_off)
     headers: dict[str, str] = dict(app_headers) if app_headers else {}
     if device_headers:
         headers.update(device_headers)
@@ -107,8 +154,8 @@ def _build_signed_headers(
         "x-sign": sign,
         "x-urlpath": path,
         "userdeviceid": device_id,
-        "md5": APP_MD5,
     })
+    headers.setdefault("md5", APP_MD5)
     if region:
         headers["region"] = region
     if uid_register_ts is not None:
@@ -122,15 +169,18 @@ def _build_signed_headers(
         headers.setdefault("content-length", str(len(body_str.encode("utf-8"))))
     if uid is not None and token:
         headers["userid"] = str(uid)
-        token_value = token
         if token_encoder is not None:
             try:
                 token_value = token_encoder(
                     token, path, nonce, ts,
                     _params_to_string(flat_params), body_str, region or "",
                 )
-            except Exception:
-                token_value = token
+            except Exception as error:
+                raise CryptoError(
+                    f"Access-Token encoder failed ({type(error).__name__})"
+                ) from error
+        else:
+            token_value = _encode_access_token(token, nonce, sk)
         headers["access-token"] = token_value
     if language:
         headers["language"] = language

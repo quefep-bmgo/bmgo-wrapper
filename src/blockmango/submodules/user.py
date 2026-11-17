@@ -25,7 +25,7 @@ class UserAPI:
         return None
 
     def get_own_profile(self) -> UserProfile | None:
-        r = self._account.request("GET", "/user/api/v2/user/details/info")
+        r = self._account.request("GET", "/user/api/v3/user/details/info")
         if r.get("code") == 1:
             return UserProfile.from_dict(r.get("data"))
         return None
@@ -150,7 +150,7 @@ class UserAPI:
         return None
 
     async def async_get_own_profile(self) -> UserProfile | None:
-        r = await self._account.async_request("GET", "/user/api/v2/user/details/info")
+        r = await self._account.async_request("GET", "/user/api/v3/user/details/info")
         if r.get("code") == 1:
             return UserProfile.from_dict(r.get("data"))
         return None

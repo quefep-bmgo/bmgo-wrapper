@@ -519,7 +519,7 @@ class BmgAccount:
                 profile.clan_role = clan.get("role")
             return ("ok", profile)
         if uid == self._uid:
-            r = self.request("GET", "/user/api/v2/user/details/info")
+            r = self.request("GET", "/user/api/v3/user/details/info")
         else:
             r = self.request("GET", f"/friend/api/v1/friends/info/id/{uid}")
         if r.get("code") == 1:

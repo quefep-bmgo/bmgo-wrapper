@@ -3,14 +3,15 @@
 [![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/PQhj8zcmBK)
 
 A Python client for the Blockman GO (BlockyMods) HTTP API. It handles login, the
-`x-sign` request format, session storage, and the calls this repository uses
-most: profiles, game data, and leaderboards.
+`x-sign` request format, the per-request access-token header, session storage,
+and the calls this repository uses most: profiles, game data, and leaderboards.
 
 This is an unofficial client. The API is private, version-sensitive, and can
 change without notice.
 
-> **Version status:** this repository targets Blockman GO **3.29.3**
-> (`appVersion 5753`). Support for 3.30.x is not confirmed.
+> **Version status:** this repository targets Blockman GO **3.31.1**
+> (`appVersion 5771`). The signing rules and device headers in this repository
+> were checked against that build; older and newer clients are untested.
 > See [Tested scope](#tested-scope).
 
 [Install](#install) | [Device values](#get-device-values) | [First login](#first-login) | [Leaderboards](#leaderboards) | [Documentation](#documentation) | [Troubleshooting](#troubleshooting)
@@ -41,8 +42,12 @@ The API needs two values from the app installation:
 
 | Variable | What it is |
 | --- | --- |
-| `BMG_DEVICE_ID` | Android `Settings.Secure.ANDROID_ID` |
+| `BMG_DEVICE_ID` | the app's `android.id` from its MMKV store |
 | `BMG_BMDDH_ID` | the `bm_ddh_id` string stored by Blockman GO |
+
+`android.id` is written by the app, not by Android. Do not use
+`Settings.Secure.ANDROID_ID` here; on the same device the two values differ, and
+signing with the shell value makes the install look like a different device.
 
 Start the emulator, open Blockman GO at least once, and run:
 
@@ -214,14 +219,16 @@ python tools/generate_api_docs.py
 
 ## Tested scope
 
-The live checks were read-only and intended to catch obvious endpoint drift, not
-to certify every method:
+The last full read-only smoke run was against 3.29.3, before this repository
+moved to 3.31.1. What has been checked since:
 
-- Offline tests: 9 passing.
-- Live smoke: 91 captured GET endpoints; 83 returned `code 1`, 8 returned other
-  codes. 30 module calls were also checked.
-- Write, social, purchase, and account-changing endpoints were not executed.
-- 3.30.x has not been tested. Treat untested methods as exploratory.
+- Unit tests: 19 passing, offline.
+- 3.31.1 signing values: request headers and the access-token encoding were
+  reproduced against client traffic captured from the 3.31.1 build.
+- 3.31.1 device values: read from the same installation's MMKV store.
+
+Not re-run on 3.31.1: the 91-endpoint smoke sweep and the 30 module calls. Treat
+untested methods as exploratory until they are exercised again.
 
 See [Limitations](#limitations) before using this with a real account.
 
@@ -279,10 +286,12 @@ See [Authentication](docs/authentication.md) for session and token details.
 
 ## Limitations
 
-- Targets Blockman GO 3.29.3; later clients may change headers, paths, or
+- Targets Blockman GO 3.31.1; other builds may change headers, paths, or
   response shapes.
-- Some accounts are device-bound and may require the native Access-Token
-  transform.
+- Some accounts are device-bound. `android.id` and `bm_ddh_id` must come from the
+  installation the account was registered on.
+- The access-token header is generated locally, so it does not need the app at
+  runtime, but it is still tied to the session token issued at login.
 - Write actions have no dry-run layer.
 - Live coverage is partial; a method existing in the package does not mean it
   has been verified against the current server.
