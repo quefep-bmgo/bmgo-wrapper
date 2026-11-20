@@ -1,6 +1,6 @@
 # bmgo-wrapper
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/PQhj8zcmBK)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/aW436uawfZ)
 
 A Python client for the Blockman GO (BlockyMods) HTTP API. It handles login, the
 `x-sign` request format, the per-request access-token header, session storage,
