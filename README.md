@@ -1,10 +1,11 @@
 # bmgo-wrapper
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/aW436uawfZ)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/PQhj8zcmBK)
 
 A Python client for the Blockman GO (BlockyMods) HTTP API. It handles login, the
 `x-sign` request format, the per-request access-token header, session storage,
-and the calls this repository uses most: profiles, game data, and leaderboards.
+profiles, games, leaderboards, friends, groups, and RongCloud group text
+sending.
 
 This is an unofficial client. The API is private, version-sensitive, and can
 change without notice.
@@ -34,7 +35,7 @@ python -m pip install -e .
 ```
 
 This installs the runtime dependencies, including `requests`, `httpx`,
-`pycryptodome`, and `python-dotenv`.
+`pycryptodome`, `python-dotenv`, and `websocket-client`.
 
 ## Get device values
 
@@ -85,7 +86,7 @@ account.
 from blockmango import BmgAccount
 
 account = BmgAccount.from_env()
-if not account.login():
+if not account.initialize():
     raise SystemExit("login failed")
 
 print(account.uid, account.nick, account.region)
@@ -102,6 +103,64 @@ account = BmgAccount("username", "password")
 Device values still come from the environment or config. `login()` performs a
 fresh login; session reuse is covered in
 [Authentication](docs/authentication.md#5-sessions).
+
+## Friends and groups are loaded automatically
+
+A successful `login()` collects the full friend list (up to 500) and every
+group the account belongs to, then starts a lightweight background sync. The
+default polling interval is 60 seconds and each account uses one daemon
+thread.
+
+```python
+account = BmgAccount.from_env()
+if not account.initialize():
+    raise SystemExit("login failed")
+
+print(account.social.groups)
+print(account.social.friends)
+
+def on_social_change(update):
+    print("joined/added groups:", update.groups_added)
+    print("left/removed groups:", update.groups_removed)
+    print("added friends:", update.friends_added)
+    print("removed friends:", update.friends_removed)
+
+account.social.on_change(on_social_change)
+```
+
+`account.initialize()` is `login()` plus the directory snapshot and sync. If
+you already call `login()`, that is enough: it hydrates and starts sync by
+default. Use `account.login(load_social=False, start_sync=False)` when you want
+to manage requests yourself.
+
+```python
+# Manual refresh / no background thread:
+account.login(load_social=True, start_sync=False)
+account.social.refresh()
+
+# Script-style blocking wait for the next real change:
+update = account.social.wait_for_update(timeout=30)
+if update:
+    print(update.group_ids_added, update.group_ids_removed)
+
+# Stop polling before you discard the account:
+account.social.stop()
+account.close()
+```
+
+`SocialState` searches the loaded snapshot without another request:
+
+```python
+account.social.find_friends("alex")
+account.social.find_groups("clan")
+account.social.get_group(123456)
+account.social.get_friend(654321)
+```
+
+After `restore_session()`, call `account.initialize_social()` (or
+`await account.async_initialize_social()`). See
+[Group chats and social state](docs/group-chat.md#account-social-state) for
+the async and multi-account forms.
 
 ## Leaderboards
 
@@ -126,6 +185,40 @@ print(my_rank)
 
 More detail, including response shapes and observed data:
 [Leaderboards](docs/leaderboards.md).
+
+## Group chats and large friend lists
+
+Group metadata and friend lists use the Blockman HTTP API. Both now use cached,
+deduplicated snapshots instead of fetching one object at a time:
+
+```python
+groups = account.group.search_groups("clan")
+group = account.group.find_group(name="My Clan")
+
+friends = account.friends.list_all_friends()       # up to 500
+alice = account.friends.find_friend("alice")
+```
+
+Group chat messages are carried by **RongCloud**, and sending works out of the
+box. A normal `login()` installs the built-in pure-Python RongCloud transport:
+
+```python
+groups = account.social.groups
+group_id = groups[0].group_id
+
+result = account.group.send_text(group_id, "Hello group!")
+print(result.message_uid)
+```
+
+There is no Android app, emulator, ADB, or Frida requirement. The transport
+gets a RongCloud token from the Blockman account, resolves the RongCloud
+WebSocket host, and publishes through the RongCloud RMTP protocol.
+
+If you already have a different RongCloud client, `FunctionGroupTransport`
+accepts any callable and returns a mapping or `GroupMessageResult`. Custom
+transports can implement the same two-method contract. See
+[Group chats](docs/group-chat.md) for the transport details and multi-account
+examples.
 
 ## Async
 
@@ -210,6 +303,7 @@ Set `TELEGRAM_TOKEN`. The command is `/rank [game_id] [period]`.
 | [API reference](docs/api-reference.md) | generated list of methods, signatures, and endpoints |
 | [Leaderboards](docs/leaderboards.md) | periods, response shapes, large scores, observed data |
 | [Game IDs](docs/games.md) | known IDs and how to check them |
+| [Group chats](docs/group-chat.md) | social state, built-in RongCloud sender, 500-friend caches, multi-account |
 
 Regenerate the API reference after changing public methods:
 
@@ -219,16 +313,18 @@ python tools/generate_api_docs.py
 
 ## Tested scope
 
-The last full read-only smoke run was against 3.29.3, before this repository
-moved to 3.31.1. What has been checked since:
+The main flows have been checked against Blockman GO 3.31.1:
 
-- Unit tests: 19 passing, offline.
-- 3.31.1 signing values: request headers and the access-token encoding were
-  reproduced against client traffic captured from the 3.31.1 build.
-- 3.31.1 device values: read from the same installation's MMKV store.
+- Unit tests: 56 passing, offline.
+- Signing and access-token encoding reproduced from 3.31.1 client traffic.
+- Device values read from the same 3.31.1 installation's MMKV store.
+- Live friend and group snapshots loaded through the corrected endpoints.
+- Live group text published through the pure-Python RongCloud transport, with
+  a matching RongCloud message UID and `PubAck`.
 
-Not re-run on 3.31.1: the 91-endpoint smoke sweep and the 30 module calls. Treat
-untested methods as exploratory until they are exercised again.
+The full 91-endpoint smoke sweep is still intentionally conservative; methods
+not listed above remain exploratory until exercised against the current
+server.
 
 See [Limitations](#limitations) before using this with a real account.
 
@@ -238,6 +334,9 @@ See [Limitations](#limitations) before using this with a real account.
 src/blockmango/
   account.py       login, requests, sessions, account facade
   crypto.py        signing and password encryption
+  social.py        friend/group snapshots, diffs, polling
+  rongcloud_transport.py
+                   pure-Python RongCloud group sender
   constants.py     app version, headers, endpoint rules
   submodules/      typed endpoint groups
 tools/             device extractor and API-doc generator
@@ -272,6 +371,7 @@ Live checks need valid `.env` values.
 | `bm_ddh_id` not found | open the app once, use a rooted emulator, run the extractor |
 | Empty leaderboard | try other periods; confirm the game ID with `get_game_details` |
 | Score shows `99.99Y` | use `entry.score` for the exact integer |
+| `RongCloudTransportError` | log in first; check `BMG_RONG_APP_KEY`; close extra IM sessions on the same account |
 | SSL warning | `BMG_VERIFY_SSL`; only enable verification if your certificate chain works |
 | `adb root` fails | use a rooted emulator and enable USB debugging |
 
@@ -297,6 +397,8 @@ See [Authentication](docs/authentication.md) for session and token details.
   has been verified against the current server.
 - `remote_config.get_game_resource_config()` returned `code 6`, and
   `game.get_update_tip()` returned an empty response in the last live run.
+- Group text sending is built in and uses RongCloud over WebSocket. Media
+  messages and history sync are not included yet.
 
 ## License
 

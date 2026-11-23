@@ -18,11 +18,19 @@ from .exceptions import (
     NotFoundError, RateLimitError, SessionError, SignError, ValidationError,
 )
 from .models import (
-    ClanInfo, ClanMember, ClanRole, DecorationItem, GroupInfo, GroupMember,
-    RankEntry, RongCloudToken, SignInStatus, TaskInfo, UserProfile, UserStats,
-    Wardrobe,
+    AccountFriendMatch, ClanInfo, ClanMember, ClanRole, DecorationItem,
+    GroupInfo, GroupMember, RankEntry, RongCloudToken, SignInStatus, TaskInfo,
+    UserProfile, UserStats, Wardrobe,
 )
+from .rongcloud_transport import RongCloudTransport, RongCloudTransportError
 from .session import SessionStore, load_session, save_session
+from .social import SocialSnapshot, SocialState, SocialSubscription, SocialUpdate
+from .transport import (
+    FunctionGroupTransport,
+    GroupMessageResult,
+    GroupMessageTransport,
+    GroupMessagingUnavailable,
+)
 from .submodules import (
     ActivityAPI, BackpackAPI, BedwarAPI, ClanAPI, DecorationAPI, ExtendedAPI,
     FriendsAPI, GameAPI, GratitudeAPI, GroupAPI, MailboxAPI, NoticeAPI, PayAPI,
@@ -30,7 +38,7 @@ from .submodules import (
 )
 from .time_sync import TimeSyncer, sync_time
 
-__version__ = "3.29.3.1"
+__version__ = "3.31.1.0"
 
 __all__ = [
     "BmgAccount", "BmgClient", "Config",
@@ -38,10 +46,13 @@ __all__ = [
     "DevicePool", "fetch_devices",
     "AuthError", "BlockmangoError", "CryptoError", "NetworkError",
     "NotFoundError", "RateLimitError", "SessionError", "SignError", "ValidationError",
-    "ClanInfo", "ClanMember", "ClanRole", "DecorationItem", "GroupInfo", "GroupMember",
-    "RankEntry", "RongCloudToken", "SignInStatus", "TaskInfo", "UserProfile", "UserStats",
-    "Wardrobe",
+    "AccountFriendMatch", "ClanInfo", "ClanMember", "ClanRole", "DecorationItem",
+    "GroupInfo", "GroupMember", "RankEntry", "RongCloudToken", "SignInStatus",
+    "TaskInfo", "UserProfile", "UserStats", "Wardrobe",
     "SessionStore", "load_session", "save_session",
+    "SocialState", "SocialSnapshot", "SocialSubscription", "SocialUpdate",
+    "FunctionGroupTransport", "GroupMessageResult", "GroupMessageTransport",
+    "GroupMessagingUnavailable", "RongCloudTransport", "RongCloudTransportError",
     "ActivityAPI", "BackpackAPI", "BedwarAPI", "ClanAPI", "DecorationAPI",
     "ExtendedAPI", "FriendsAPI", "GameAPI", "GratitudeAPI", "GroupAPI",
     "MailboxAPI", "NoticeAPI", "PayAPI", "RankingAPI", "RemoteConfigAPI",

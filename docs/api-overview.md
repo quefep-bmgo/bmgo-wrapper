@@ -22,13 +22,13 @@ account.async_request("POST", "/some/path", body={"key": "value"})
 | Group | Purpose |
 | --- | --- |
 | `account.user` | Profile, settings, VIP, feedback |
-| `account.friends` | Friends, requests, tags, popularity |
+| `account.friends` | Friends, requests, tags, popularity, cached 500-friend directory |
 | `account.clan` | Clan/tribe data, members, rankings |
 | `account.ranking` | Global, clan, gold/diamond, and per-game ranks |
 | `account.game` | Game catalogue, details, auth, rooms, leaderboards |
 | `account.activity` | Home page, events, ads, red packets |
 | `account.mailbox` | Mail and CD-key redemption |
-| `account.group` | Chat groups and notifications |
+| `account.group` | Chat-group discovery/membership and transport-backed messaging |
 | `account.decoration` | Decoration resources and recommendations |
 | `account.shop` | Shop data |
 | `account.backpack` | Backpack and mining balances |
@@ -40,6 +40,9 @@ account.async_request("POST", "/some/path", body={"key": "value"})
 | `account.remote_config` | `/config/files` and `/config/ml/files` resources |
 | `account.notice` | Server notices |
 | `account.extended` | Additional 3.31.x activity/pay/user/game endpoints |
+
+Group chat delivery uses RongCloud, not an HTTP publish endpoint. See
+[Group chats](group-chat.md) for the transport contract.
 
 ## Important new endpoints
 

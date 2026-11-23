@@ -309,11 +309,11 @@ Wrappers for the newer 3.29.x endpoints captured from the Android client. These 
 
 ## `FriendsAPI`
 
-Friends, requests, tags, and popularity.
+Friends, requests, tags, and popularity. Blockman accounts can have up to 500 friends. The helper methods below use one cached, deduplicated snapshot of the friend list instead of repeatedly walking the API. This keeps multi-account lookups predictable and avoids making a request per name or ID.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `list_friends(page: int=1, size: int=50)` | `/friend/api/v1/friends/status` |  |
+| `list_friends(page: int=0, size: int=50)` | `/friend/api/v1/friends` | List one page of friends. The Blockman API is zero-based. |
 | `get_info(friend_id: int)` | `/friend/api/v1/friends/info/id/{friend_id}` |  |
 | `send_request(friend_id: int, msg: str='Hello!')` | `/friend/api/v1/friends` |  |
 | `accept_request(friend_id: int)` | `/friend/api/v1/friends/{friend_id}/agreement` |  |
@@ -343,7 +343,16 @@ Friends, requests, tags, and popularity.
 | `get_popularity_props()` | `/friend/api/v1/popularity/props` |  |
 | `get_tags()` | `/friend/api/v1/tag` |  |
 | `get_tags_only()` | `/friend/api/v1/tag/only` |  |
-| `async async_list_friends(page: int=1, size: int=50)` | `/friend/api/v1/friends/status` |  |
+| `list_all_friends(max_friends: int=500, page_size: int=50, ttl: float=300.0, force_refresh: bool=False)` | `—` | Return a deduplicated friend snapshot, capped at ``max_friends``. The snapshot is cached for ``ttl`` seconds. A cached snapshot is reused when it is complete or already covers the requested cap. This is the low-resource path for accounts with 500 friends and for multi-account searches. |
+| `refresh_friends(max_friends: int=500, page_size: int=50)` | `—` | Force a network refresh and replace the friend snapshot. |
+| `invalidate_cache()` | `—` | Clear the friend snapshot after a friend-list mutation. |
+| `get_friend(friend_id: int, max_friends: int=500)` | `—` | Look up a friend by numeric ID from the cached snapshot. |
+| `find_friends(query: str | int, max_friends: int=500, force_refresh: bool=False)` | `—` | Find friends by ID, exact nickname, or case-insensitive substring. Results are returned in usefulness order: exact nickname, prefix, then substring. Numeric queries are treated as user IDs first. |
+| `find_friend(query: str | int, max_friends: int=500, force_refresh: bool=False)` | `—` | Return the best single match for :meth:`find_friends`. |
+| `async async_list_all_friends(max_friends: int=500, page_size: int=50, ttl: float=300.0, force_refresh: bool=False)` | `—` | Async equivalent of :meth:`list_all_friends`. |
+| `async async_find_friends(query: str | int, max_friends: int=500, force_refresh: bool=False)` | `—` | Async equivalent of :meth:`find_friends`. |
+| `async async_find_friend(query: str | int, max_friends: int=500, force_refresh: bool=False)` | `—` |  |
+| `async async_list_friends(page: int=0, size: int=50)` | `/friend/api/v1/friends` | List one page of friends. The Blockman API is zero-based. |
 | `async async_get_info(friend_id: int)` | `/friend/api/v1/friends/info/id/{friend_id}` |  |
 | `async async_send_request(friend_id: int, msg: str='Hello!')` | `/friend/api/v1/friends` |  |
 | `async async_accept_request(friend_id: int)` | `/friend/api/v1/friends/{friend_id}/agreement` |  |
@@ -537,13 +546,26 @@ Contributor-recognition endpoints.
 
 ## `GroupAPI`
 
-Chat groups and notifications.
+Chat-group discovery, membership, and transport-backed messaging. Blockman's HTTP API exposes group metadata and management only. Actual group messages are published by RongCloud. :class:`~blockmango.BmgAccount` installs a pure-Python RongCloud transport automatically; a standalone ``GroupAPI`` must call :meth:`set_transport` first.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
+| `set_transport(transport: GroupMessageTransport | None)` | `—` | Install the backend used by :meth:`send_text`. The transport is intentionally injected. It can be a RongCloud SDK adapter, a local sidecar, or an application-specific bridge. Passing ``None`` disables sending and restores the documented error. |
+| `transport()` | `—` |  |
+| `list_all_groups(max_groups: int=1000, page_size: int=50, ttl: float=300.0, force_refresh: bool=False)` | `—` | Return a deduplicated group snapshot, capped at ``max_groups``. Group metadata is cached because it changes far less often than chat traffic. The cap prevents accidental unbounded pagination on accounts with a large number of groups. |
+| `refresh_groups(max_groups: int=1000, page_size: int=50)` | `—` |  |
+| `invalidate_cache()` | `—` |  |
+| `find_group(group_id: int | None=None, name: str | None=None, max_groups: int=1000, force_refresh: bool=False)` | `—` | Find a group by ID or case-insensitive name substring. |
+| `search_groups(query: str, limit: int=20, max_groups: int=1000, force_refresh: bool=False)` | `—` | Search group names locally after one cached snapshot fetch. |
+| `get_members(group_id: int)` | `—` | Return the member list embedded in the group-info response. |
+| `send_text(group_id: int, text: str, *, ext_content: Mapping[str, str] | None=None, timeout: float=10.0)` | `—` | Send a text message to a group through the installed transport. This method deliberately does not fabricate an HTTP endpoint: group chats are RongCloud conversations and require a transport. |
+| `async async_send_text(group_id: int, text: str, *, ext_content: Mapping[str, str] | None=None, timeout: float=10.0)` | `—` |  |
+| `async async_list_all_groups(max_groups: int=1000, page_size: int=50, ttl: float=300.0, force_refresh: bool=False)` | `—` |  |
+| `async async_find_group(group_id: int | None=None, name: str | None=None, max_groups: int=1000, force_refresh: bool=False)` | `—` |  |
+| `async async_search_groups(query: str, limit: int=20, max_groups: int=1000, force_refresh: bool=False)` | `—` |  |
 | `create(member_ids: list[int], cost: int=0)` | `/msg/api/v2/msg/group/chat` |  |
 | `get_info(group_id: int)` | `/msg/api/v1/msg/group/chat/info` |  |
-| `list_groups(page: int=1, size: int=50)` | `/msg/api/v1/msg/group/chat/list` |  |
+| `list_groups(page: int=0, size: int=50)` | `/msg/api/v1/msg/group/chat/list` | List one page of groups. The Blockman API is zero-based. |
 | `rename(group_id: int, name: str)` | `/msg/api/v1/msg/group/chat/modify` |  |
 | `edit(group_id: int, name: str, notice: str, invite_status: int, notice_pics: list[str] | None=None)` | `/msg/api/v1/msg/group/chat/modify` |  |
 | `invite(group_id: int, member_ids: list[int])` | `/msg/api/v1/msg/group/chat/invite` |  |
@@ -568,7 +590,7 @@ Chat groups and notifications.
 | `add_member_by_email(email: str)` | `/msg/api/v1/msg/group/chat/mail/add` |  |
 | `async async_create(member_ids: list[int], cost: int=0)` | `/msg/api/v2/msg/group/chat` |  |
 | `async async_get_info(group_id: int)` | `/msg/api/v1/msg/group/chat/info` |  |
-| `async async_list_groups(page: int=1, size: int=50)` | `/msg/api/v1/msg/group/chat/list` |  |
+| `async async_list_groups(page: int=0, size: int=50)` | `/msg/api/v1/msg/group/chat/list` | List one page of groups. The Blockman API is zero-based. |
 | `async async_rename(group_id: int, name: str)` | `/msg/api/v1/msg/group/chat/modify` |  |
 | `async async_edit(group_id: int, name: str, notice: str, invite_status: int, notice_pics: list[str] | None=None)` | `/msg/api/v1/msg/group/chat/modify` |  |
 | `async async_invite(group_id: int, member_ids: list[int])` | `/msg/api/v1/msg/group/chat/invite` |  |
@@ -818,7 +840,7 @@ Profile, settings, VIP, and feedback.
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | `get_profile(uid: int)` | `/friend/api/v1/friends/info/id/{uid}` |  |
-| `get_own_profile()` | `/user/api/v2/user/details/info` |  |
+| `get_own_profile()` | `/user/api/v3/user/details/info` |  |
 | `get_third_party_bindings()` | `/user/api/v1/account/tp/list` | Third-party accounts bound to the logged-in user, e.g. facebook. The client sends the device headers on this path. Without them the request comes back as a bare 400 rather than an API error envelope. |
 | `get_stats(uid: int)` | `/user/api/v1/users/bg-careers` |  |
 | `get_clan_role(uid: int)` | `/bedwar/api/v1/friends/clan/by/userIds` |  |
@@ -843,7 +865,7 @@ Profile, settings, VIP, and feedback.
 | `get_daily_tasks(task_type: int=1)` | `/user/api/v1/users/dairy/tasks/{task_type}` |  |
 | `get_new_daily_tasks()` | `/user/api/v1/users/new/daily/tasks` |  |
 | `async async_get_profile(uid: int)` | `/friend/api/v1/friends/info/id/{uid}` |  |
-| `async async_get_own_profile()` | `/user/api/v2/user/details/info` |  |
+| `async async_get_own_profile()` | `/user/api/v3/user/details/info` |  |
 | `async async_get_stats(uid: int)` | `/user/api/v1/users/bg-careers` |  |
 | `async async_get_clan_role(uid: int)` | `/bedwar/api/v1/friends/clan/by/userIds` |  |
 | `async async_lookup(uid: int)` | `—` |  |

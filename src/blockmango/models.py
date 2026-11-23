@@ -33,9 +33,9 @@ class UserProfile:
             user_id=int(data.get("userId", 0)),
             nick_name=data.get("nickName", ""),
             pic_url=data.get("picUrl"),
-            level=int(data.get("level", 0)),
-            vip_level=int(data.get("vipLevel", 0)),
-            gender=int(data.get("gender", 0)),
+            level=int(data.get("level") or data.get("userLevel") or 0),
+            vip_level=int(data.get("vipLevel") or data.get("vipLv") or 0),
+            gender=int(data.get("gender") or data.get("sex") or 0),
             birthday=data.get("birthday"),
             details=data.get("details"),
             clan_id=int(data["clanId"]) if data.get("clanId") not in (None, "", 0, "0") else None,
@@ -48,6 +48,15 @@ class UserProfile:
             atlas_count=data.get("ownedAtlasCount"),
             atlas_total=data.get("totalAtlasCount"),
         )
+
+
+@dataclass(frozen=True, slots=True)
+class AccountFriendMatch:
+    """A friend profile returned by a specific logged-in account."""
+
+    username: str
+    account_uid: int | None
+    friend: UserProfile
 
 
 @dataclass(slots=True)
@@ -214,18 +223,23 @@ class GroupInfo:
         if not data:
             return None
         from .models import GroupMember
-        members_data = data.get("members") or data.get("memberList") or []
-        members = [GroupMember.from_dict(m) for m in members_data if m]
+        members_data = (
+            data.get("members")
+            or data.get("memberList")
+            or data.get("groupMembers")
+            or []
+        )
+        members = [m for m in (GroupMember.from_dict(item) for item in members_data if item) if m]
         return cls(
             group_id=int(data.get("groupId", 0)),
             group_name=data.get("groupName", ""),
             owner_id=int(data.get("ownerId", 0)),
-            member_count=int(data.get("memberCount", 0)),
+            member_count=int(data.get("memberCount") or len(members)),
             max_members=int(data.get("maxMembers", 0)),
             invite_status=int(data.get("inviteStatus", 0)),
             notice=data.get("groupNotice"),
             notice_pic=data.get("noticePic"),
-            members=[m for m in members if m is not None],
+            members=members,
         )
 
 
@@ -242,9 +256,9 @@ class GroupMember:
             return None
         return cls(
             user_id=int(data.get("userId", 0)),
-            nick_name=data.get("nickName", ""),
-            role=int(data.get("role", 0)),
-            pic_url=data.get("picUrl"),
+            nick_name=data.get("nickName") or data.get("userName") or "",
+            role=int(data.get("role", data.get("identity", 0)) or 0),
+            pic_url=data.get("picUrl") or data.get("pic"),
         )
 
 
