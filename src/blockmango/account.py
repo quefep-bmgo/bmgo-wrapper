@@ -16,7 +16,9 @@ from .crypto import (
 )
 from .device import DevicePool
 from .models import UserProfile, UserStats
+from .rongcloud_transport import RongCloudTransport
 from .session import SessionStore
+from .social import SocialSnapshot, SocialState
 from .submodules import (
     ActivityAPI, BackpackAPI, BedwarAPI, ClanAPI, DecorationAPI, ExtendedAPI,
     FriendsAPI, GameAPI, GroupAPI, GratitudeAPI, MailboxAPI, NoticeAPI, PayAPI,
@@ -36,7 +38,7 @@ class BmgAccount:
         "activity", "backpack", "bedwar", "clan", "config", "decoration",
         "extended", "friends", "gratitude", "game", "group", "mailbox",
         "notice", "password", "pay", "ranking", "remote_config", "rongcloud",
-        "shop", "user", "username", "video",
+        "shop", "user", "username", "video", "_social",
     )
 
     def __init__(self, username: str, password: str, config: Config | None = None,
@@ -80,6 +82,10 @@ class BmgAccount:
         self.remote_config = RemoteConfigAPI(self)
         self.notice = NoticeAPI(self)
         self.extended = ExtendedAPI(self)
+        self._social = SocialState(self)
+        # Works on any machine with a normal Blockman login: the transport
+        # obtains the RongCloud token and device identity from the account.
+        self.group.set_transport(RongCloudTransport(self))
 
     @classmethod
     def from_env(cls) -> BmgAccount:
@@ -118,6 +124,112 @@ class BmgAccount:
     @property
     def is_logged_in(self) -> bool:
         return bool(self._uid and self._token)
+
+    @property
+    def social(self) -> SocialState:
+        """Friends and groups for this account, hydrated and kept in sync."""
+        return self._social
+
+    def initialize_social(
+        self,
+        *,
+        force_refresh: bool = False,
+        start: bool = True,
+        interval: float = 60.0,
+    ) -> SocialSnapshot:
+        """Load the full friend/group snapshot and optionally start polling.
+
+        ``login()`` calls this automatically after a successful login. Use it
+        directly after :meth:`restore_session` when loading a cached session.
+        """
+        if force_refresh or not self._social.loaded:
+            self._social.refresh()
+        if start:
+            self._social.start(interval)
+        return self._social.snapshot
+
+    async def async_initialize_social(
+        self,
+        *,
+        force_refresh: bool = False,
+        start: bool = True,
+        interval: float = 60.0,
+    ) -> SocialSnapshot:
+        """Async equivalent of :meth:`initialize_social`."""
+        if force_refresh or not self._social.loaded:
+            await self._social.async_refresh()
+        if start:
+            await self._social.async_start(interval)
+        return self._social.snapshot
+
+    def initialize(
+        self,
+        *,
+        load_social: bool = True,
+        start_sync: bool = True,
+        sync_interval: float = 60.0,
+        tries: int | None = None,
+    ) -> bool:
+        """Login and prepare the account directory in one call."""
+        return self.login(
+            tries=tries,
+            load_social=load_social,
+            start_sync=start_sync,
+            sync_interval=sync_interval,
+        )
+
+    async def async_initialize(
+        self,
+        *,
+        load_social: bool = True,
+        start_sync: bool = True,
+        sync_interval: float = 60.0,
+        tries: int | None = None,
+    ) -> bool:
+        return await self.async_login(
+            tries=tries,
+            load_social=load_social,
+            start_sync=start_sync,
+            sync_interval=sync_interval,
+        )
+
+    def _after_login(
+        self,
+        *,
+        load_social: bool,
+        start_sync: bool,
+        sync_interval: float,
+    ) -> None:
+        if load_social:
+            try:
+                self._social.refresh()
+            except Exception:
+                # Login succeeded; the directory exposes last_error and the
+                # polling loop will retry.
+                pass
+        if start_sync:
+            try:
+                self._social.start(sync_interval)
+            except RuntimeError:
+                pass
+
+    async def _async_after_login(
+        self,
+        *,
+        load_social: bool,
+        start_sync: bool,
+        sync_interval: float,
+    ) -> None:
+        if load_social:
+            try:
+                await self._social.async_refresh()
+            except Exception:
+                pass
+        if start_sync:
+            try:
+                await self._social.async_start(sync_interval)
+            except RuntimeError:
+                pass
 
     def _get_session(self) -> requests.Session:
         if self._session is None:
@@ -167,7 +279,14 @@ class BmgAccount:
         headers["user-agent"] = self.config.user_agent
         return headers
 
-    def login(self, tries: int | None = None) -> bool:
+    def login(
+        self,
+        tries: int | None = None,
+        *,
+        load_social: bool = True,
+        start_sync: bool = True,
+        sync_interval: float = 60.0,
+    ) -> bool:
         max_tries = tries or self.config.login_max_tries
         self._sync_time()
         self._device_pool.ensure_loaded()
@@ -221,6 +340,11 @@ class BmgAccount:
                 self._ak = ak
                 self._sk = sk
                 self.save_session()
+                self._after_login(
+                    load_social=load_social,
+                    start_sync=start_sync,
+                    sync_interval=sync_interval,
+                )
                 return True
             if code == 100008:
                 time.sleep(1)
@@ -233,7 +357,14 @@ class BmgAccount:
                 return False
         return False
 
-    async def async_login(self, tries: int | None = None) -> bool:
+    async def async_login(
+        self,
+        tries: int | None = None,
+        *,
+        load_social: bool = True,
+        start_sync: bool = True,
+        sync_interval: float = 60.0,
+    ) -> bool:
         max_tries = tries or self.config.login_max_tries
         self._sync_time()
         self._device_pool.ensure_loaded()
@@ -284,6 +415,11 @@ class BmgAccount:
                 self._ak = ak
                 self._sk = sk
                 self.save_session()
+                await self._async_after_login(
+                    load_social=load_social,
+                    start_sync=start_sync,
+                    sync_interval=sync_interval,
+                )
                 return True
             if code == 100008:
                 import asyncio
@@ -796,16 +932,20 @@ class BmgAccount:
         return r.get("data") if r.get("code") == 1 else None
 
     def close(self) -> None:
+        self._social.stop()
         if self._session:
             self._session.close()
             self._session = None
 
     async def async_close(self) -> None:
+        await self._social.async_stop()
         if self._async_session:
             await self._async_session.aclose()
             self._async_session = None
 
     def logout(self) -> None:
+        self._social.stop()
+        self._social.clear()
         self._token = None
         self._uid = None
         self._nick = None
@@ -814,6 +954,8 @@ class BmgAccount:
         self.close()
 
     async def async_logout(self) -> None:
+        await self._social.async_stop()
+        self._social.clear()
         self._token = None
         self._uid = None
         self._nick = None

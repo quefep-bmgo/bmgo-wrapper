@@ -7,7 +7,7 @@ README = Path(__file__).with_name("README.md").read_text(encoding="utf-8")
 setup(
     name="bmgo-wrapper",
     version="3.31.1.0",
-    description="Blockman GO v3.29.3 API wrapper with x-sign authentication",
+    description="Blockman GO 3.31.1 API wrapper with x-sign authentication, social state, and RongCloud group sends",
     long_description=README,
     long_description_content_type="text/markdown",
     license="MIT",
@@ -20,5 +20,6 @@ setup(
         "httpx>=0.24",
         "pycryptodome>=3.19",
         "python-dotenv>=1.0",
+        "websocket-client>=1.6",
     ],
 )
