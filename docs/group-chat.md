@@ -203,6 +203,53 @@ Any object with `send_text(...)` and `async_send_text(...)` can be installed
 with `account.group.set_transport(...)`. Installing `None` disables sending and
 restores the `GroupMessagingUnavailable` error.
 
+## Incoming group messages
+
+The built-in RongCloud transport can keep a persistent socket open and dispatch
+incoming group messages:
+
+```python
+def on_message(message):
+    print(message.group_id, message.sender_id)
+    print(message.object_name, message.text, message.message_uid)
+
+subscription = account.group.listen(
+    on_message,
+    group_ids=[123456],   # optional filter
+)
+
+account.group.send_text(123456, "hello while listening")
+subscription.stop()
+```
+
+`message` is a `GroupMessage` with `group_id`, `sender_id`, `object_name`,
+`text`, `content`, `message_uid`, `sent_at`, `is_self`, and `raw`. Text
+messages fill `text`; other RongCloud object names keep their decoded JSON in
+`content`.
+
+While the listener is active, `send_text()` uses the listener's connection
+instead of opening a second RongCloud session. That matters because RongCloud
+allows one active session per token.
+
+The async form accepts an async callback:
+
+```python
+async def on_message(message):
+    print(message.text)
+
+subscription = await account.group.async_listen(on_message)
+```
+
+The listener reconnects on disconnect and sends heartbeats. `backlog=True`
+requests older messages during the initial sync; the default starts from the
+current time. `include_self=False` suppresses messages sent by the account
+itself.
+
+Stop the listener with `subscription.stop()`, `account.group.stop_listening()`,
+or `account.close()`. A listener owns the account's RongCloud session, so use
+one listener per account. The account's social-state polling is separate and
+continues independently.
+
 ## Friend directories for up to 500 friends
 ## Friend directories for up to 500 friends
 
@@ -247,9 +294,10 @@ Use `client.get_account("account-a")` when you need the underlying
 
 ## Scope
 
-The built-in sender covers group text publishing, including RongCloud
-authentication, navi lookup, RMTP framing, and `PubAck` handling. Media
-messages, message history sync, receipts, and typing indicators are separate
-RongCloud features and are not part of this transport yet. The HTTP discovery
-layer, account social state, friend/group caches, and multi-account helpers are
+The built-in transport covers group text publishing and incoming group-message
+listening, including RongCloud authentication, navi lookup, RMTP framing,
+`PubAck`/`PublishMessage` handling, heartbeats, and reconnect. Media messages,
+message history sync, receipts, and typing indicators are separate RongCloud
+features and are not part of this transport yet. The HTTP discovery layer,
+account social state, friend/group caches, and multi-account helpers are
 complete and usable independently.

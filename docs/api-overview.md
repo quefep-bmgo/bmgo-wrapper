@@ -41,8 +41,9 @@ account.async_request("POST", "/some/path", body={"key": "value"})
 | `account.notice` | Server notices |
 | `account.extended` | Additional 3.31.x activity/pay/user/game endpoints |
 
-Group chat delivery uses RongCloud, not an HTTP publish endpoint. See
-[Group chats](group-chat.md) for the transport contract.
+Group chat delivery uses RongCloud, not an HTTP publish endpoint. The wrapper
+installs a pure-Python transport for sending and listening; see
+[Group chats](group-chat.md) for the listener and transport contract.
 
 ## Important new endpoints
 

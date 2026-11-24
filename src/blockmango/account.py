@@ -932,18 +932,27 @@ class BmgAccount:
         return r.get("data") if r.get("code") == 1 else None
 
     def close(self) -> None:
+        close_group = getattr(self.group, "close", None)
+        if close_group is not None:
+            close_group()
         self._social.stop()
         if self._session:
             self._session.close()
             self._session = None
 
     async def async_close(self) -> None:
+        close_group = getattr(self.group, "close", None)
+        if close_group is not None:
+            close_group()
         await self._social.async_stop()
         if self._async_session:
             await self._async_session.aclose()
             self._async_session = None
 
     def logout(self) -> None:
+        close_group = getattr(self.group, "close", None)
+        if close_group is not None:
+            close_group()
         self._social.stop()
         self._social.clear()
         self._token = None
@@ -954,6 +963,9 @@ class BmgAccount:
         self.close()
 
     async def async_logout(self) -> None:
+        close_group = getattr(self.group, "close", None)
+        if close_group is not None:
+            close_group()
         await self._social.async_stop()
         self._social.clear()
         self._token = None
