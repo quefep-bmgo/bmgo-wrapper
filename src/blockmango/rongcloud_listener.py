@@ -122,6 +122,13 @@ class RongCloudListener:
         if thread is not None and thread is not threading.current_thread():
             thread.join(timeout)
 
+    def wait_connected(self, timeout: float | None = None) -> bool:
+        """Block until the socket is connected or ``timeout`` expires."""
+        return self._connected.wait(timeout)
+
+    async def async_stop(self) -> None:
+        await asyncio.to_thread(self.stop)
+
     def send_text(
         self,
         group_id: str,
@@ -411,11 +418,21 @@ class GroupMessageSubscription:
     def is_connected(self) -> bool:
         return self._listener.is_connected
 
+    @property
+    def last_error(self) -> BaseException | None:
+        return self._listener.last_error
+
+    def wait_connected(self, timeout: float | None = None) -> bool:
+        return self._listener.wait_connected(timeout)
+
     def stop(self, timeout: float | None = 5.0) -> None:
         self._listener.stop(timeout)
 
     def join(self, timeout: float | None = None) -> None:
         self._listener.join(timeout)
+
+    async def async_stop(self) -> None:
+        await self._listener.async_stop()
 
     def __enter__(self) -> "GroupMessageSubscription":
         return self

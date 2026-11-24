@@ -270,6 +270,7 @@ class GroupMessage:
         value = (
             self.content.get("imageUri")
             or self.content.get("imageUrl")
+            or self.content.get("remoteUrl")
             or self.content.get("url")
         )
         return str(value) if value else None

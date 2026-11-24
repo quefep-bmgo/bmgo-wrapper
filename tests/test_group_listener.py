@@ -3,6 +3,7 @@ import unittest
 
 from blockmango.account import BmgAccount
 from blockmango.config import Config
+from blockmango.models import GroupMessage
 from blockmango.rongcloud_listener import (
     RongCloudListener,
     _decode_downstream,
@@ -124,6 +125,15 @@ class ListenerTests(unittest.TestCase):
         listener._handle_publish(ws, _publish("42", _downstream()))
         self.assertEqual(seen, [])
         account.close()
+
+    def test_image_remote_url_fallback(self):
+        message = GroupMessage(
+            group_id="42",
+            sender_id="7",
+            object_name="RC:ImgMsg",
+            content={"remoteUrl": "https://cdn.example/remote.jpg"},
+        )
+        self.assertEqual(message.image_url, "https://cdn.example/remote.jpg")
 
     def test_notification_topic_is_ignored(self):
         seen = []
