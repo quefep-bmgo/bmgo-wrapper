@@ -55,8 +55,8 @@ class BmgAccount:
         self._uid: int | None = None
         self._token: str | None = None
         self._nick: str | None = None
-        self._device_id: str | None = None
-        self._device_sign: str | None = None
+        self._device_id: str | None = self.config.device_id or None
+        self._device_sign: str | None = self.config.bm_ddh_id or self.config.device_sign or None
         self._region: str = self.config.region
         self._uid_register_ts: str = "0"
         self._device_register_ts: str = "0"
@@ -483,7 +483,8 @@ class BmgAccount:
                         _extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
         headers = _build_signed_headers(
             path, flat, body_str, self._ak, self._sk,
-            self._device_id or "", self._device_sign or "",
+            self._device_id or self.config.device_id or "",
+            self._device_sign or self.config.bm_ddh_id or self.config.device_sign or "",
             self._t_off, self._uid, self._token, language,
             self._app_headers(), region=self._region,
             uid_register_ts=self._uid_register_ts,
@@ -537,7 +538,8 @@ class BmgAccount:
                                     _extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
         headers = _build_signed_headers(
             path, flat, body_str, self._ak, self._sk,
-            self._device_id or "", self._device_sign or "",
+            self._device_id or self.config.device_id or "",
+            self._device_sign or self.config.bm_ddh_id or self.config.device_sign or "",
             self._t_off, self._uid, self._token, language,
             self._app_headers(), region=self._region,
             uid_register_ts=self._uid_register_ts,

@@ -1,7 +1,7 @@
 import unittest
 
 from blockmango.models import RankEntry
-from blockmango.submodules.ranking import RankingAPI
+from blockmango.submodules.ranking import RankingAPI, _rank_items
 
 SAMPLE = {
     "code": 1,
@@ -64,6 +64,22 @@ class LeaderboardTests(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertEqual(rows[0].rank, 1)
         self.assertEqual(rows[1].score, 98979840858314995027410944)
+
+    def test_rank_items_supports_page_info_and_direct_lists(self):
+        self.assertEqual(len(_rank_items(SAMPLE["data"])), 2)
+        self.assertEqual(len(_rank_items(SAMPLE["data"]["pageInfo"]["data"])), 2)
+        self.assertEqual(len(_rank_items({"data": SAMPLE["data"]["pageInfo"]["data"]})), 2)
+        self.assertEqual(_rank_items(None), [])
+
+    def test_global_weekly_parses_real_page_shape(self):
+        class Account:
+            def request(self, *args, **kwargs):
+                return SAMPLE
+
+        rows = RankingAPI(Account()).get_global_weekly(page=1, size=10)
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0].rank, 1)
+        self.assertEqual(rows[0].display_value, "99.99Y")
 
     def test_my_rank_is_a_single_object(self):
         data = RankingAPI(FakeAccount()).get_game_my_rank("g1055", period="week")["data"]

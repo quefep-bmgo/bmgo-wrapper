@@ -10,6 +10,22 @@ else:
 from ..models import RankEntry
 
 
+def _rank_items(data: Any) -> list[dict[str, Any]]:
+    """Accept both page envelopes and direct lists from ranking endpoints."""
+    if isinstance(data, list):
+        return [item for item in data if isinstance(item, dict)]
+    if not isinstance(data, dict):
+        return []
+    page_info = data.get("pageInfo")
+    if isinstance(page_info, dict) and isinstance(page_info.get("data"), list):
+        return [item for item in page_info["data"] if isinstance(item, dict)]
+    for key in ("data", "list", "records"):
+        items = data.get(key)
+        if isinstance(items, list):
+            return [item for item in items if isinstance(item, dict)]
+    return []
+
+
 class RankingAPI:
     """Global, clan, gold/diamond, and per-game leaderboards."""
 
@@ -25,12 +41,7 @@ class RankingAPI:
     def get_global_weekly(self, page: int = 1, size: int = 10) -> list[RankEntry]:
         r = self._account.request("GET", "/ranking/api/v1/active/global/weekly/rank", params={"pageNo": page, "pageSize": size})
         data = r.get("data")
-        if isinstance(data, dict):
-            items = data.get("data") or []
-        elif isinstance(data, list):
-            items = data
-        else:
-            items = []
+        items = _rank_items(data)
         return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
 
     def get_game_ranking(self, game_id: str, period: str = "all", page: int = 1, size: int = 10) -> dict[str, Any]:
@@ -87,23 +98,12 @@ class RankingAPI:
     def get_gold_diamond_region_overall(self, page: int = 1, size: int = 10) -> list[RankEntry]:
         r = self._account.request("GET", "/ranking/api/v1/gold/diamond/region/overall/rank", params={"pageNo": page, "pageSize": size})
         data = r.get("data")
-        if isinstance(data, dict):
-            items = data.get("data") or []
-        elif isinstance(data, list):
-            items = data
-        else:
-            items = []
+        items = _rank_items(data)
         return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
 
     def get_gold_diamond_region_weekly(self, page: int = 1, size: int = 10) -> list[RankEntry]:
         r = self._account.request("GET", "/ranking/api/v1/gold/diamond/region/weekly/rank", params={"pageNo": page, "pageSize": size})
-        data = r.get("data")
-        if isinstance(data, dict):
-            items = data.get("data") or []
-        elif isinstance(data, list):
-            items = data
-        else:
-            items = []
+        items = _rank_items(r.get("data"))
         return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
 
     def get_region_home_page_info(self, rank_type: str = "active") -> dict[str, Any]:
@@ -116,13 +116,7 @@ class RankingAPI:
 
     async def async_get_global_weekly(self, page: int = 1, size: int = 10) -> list[RankEntry]:
         r = await self._account.async_request("GET", "/ranking/api/v1/active/global/weekly/rank", params={"pageNo": page, "pageSize": size})
-        data = r.get("data")
-        if isinstance(data, dict):
-            items = data.get("data") or []
-        elif isinstance(data, list):
-            items = data
-        else:
-            items = []
+        items = _rank_items(r.get("data"))
         return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
 
     async def async_get_game_ranking(self, game_id: str, period: str = "all", page: int = 1, size: int = 10) -> dict[str, Any]:
@@ -178,24 +172,12 @@ class RankingAPI:
 
     async def async_get_gold_diamond_region_overall(self, page: int = 1, size: int = 10) -> list[RankEntry]:
         r = await self._account.async_request("GET", "/ranking/api/v1/gold/diamond/region/overall/rank", params={"pageNo": page, "pageSize": size})
-        data = r.get("data")
-        if isinstance(data, dict):
-            items = data.get("data") or []
-        elif isinstance(data, list):
-            items = data
-        else:
-            items = []
+        items = _rank_items(r.get("data"))
         return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
 
     async def async_get_gold_diamond_region_weekly(self, page: int = 1, size: int = 10) -> list[RankEntry]:
         r = await self._account.async_request("GET", "/ranking/api/v1/gold/diamond/region/weekly/rank", params={"pageNo": page, "pageSize": size})
-        data = r.get("data")
-        if isinstance(data, dict):
-            items = data.get("data") or []
-        elif isinstance(data, list):
-            items = data
-        else:
-            items = []
+        items = _rank_items(r.get("data"))
         return [e for e in (RankEntry.from_dict(d) for d in items if d) if e is not None]
 
     async def async_get_region_home_page_info(self, rank_type: str = "active") -> dict[str, Any]:
@@ -238,20 +220,12 @@ class RankingAPI:
         contains the server's compact display string (for example `99.99Y`).
         """
         r = self.get_game_leaderboard(game_id, period, page, size, game_version, language)
-        data = r.get("data")
-        page_info = data.get("pageInfo") if isinstance(data, dict) else None
-        items = page_info.get("data") if isinstance(page_info, dict) else None
-        if not isinstance(items, list):
-            items = []
+        items = _rank_items(r.get("data"))
         return [e for e in (RankEntry.from_dict(item) for item in items if item) if e is not None]
 
     async def async_get_game_leaderboard_entries(self, game_id: str, period: str = "all", page: int = 0,
                                                  size: int = 10, game_version: int | None = None,
                                                  language: str = "en_US") -> list[RankEntry]:
         r = await self.async_get_game_leaderboard(game_id, period, page, size, game_version, language)
-        data = r.get("data")
-        page_info = data.get("pageInfo") if isinstance(data, dict) else None
-        items = page_info.get("data") if isinstance(page_info, dict) else None
-        if not isinstance(items, list):
-            items = []
+        items = _rank_items(r.get("data"))
         return [e for e in (RankEntry.from_dict(item) for item in items if item) if e is not None]
