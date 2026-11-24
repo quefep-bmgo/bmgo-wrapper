@@ -161,6 +161,7 @@ class RongCloudTransport:
         group_ids: int | str | Iterable[int | str] | None = None,
         include_self: bool = True,
         backlog: bool = False,
+        poll_interval: float = 1.0,
     ) -> Any:
         """Start receiving incoming group messages for this account.
 
@@ -179,6 +180,7 @@ class RongCloudTransport:
             include_self=include_self,
             backlog=backlog,
             timeout=self.timeout,
+            poll_interval=poll_interval,
         )
         self._listener = listener
         listener.start()

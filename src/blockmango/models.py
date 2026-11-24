@@ -262,6 +262,18 @@ class GroupMessage:
     is_self: bool = False
     raw: dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def image_url(self) -> str | None:
+        """Convenience URL for ``RC:ImgMsg`` content, when present."""
+        if not self.content:
+            return None
+        value = (
+            self.content.get("imageUri")
+            or self.content.get("imageUrl")
+            or self.content.get("url")
+        )
+        return str(value) if value else None
+
 
 @dataclass(slots=True)
 class GroupMember:

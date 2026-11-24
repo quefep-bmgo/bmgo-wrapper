@@ -224,8 +224,9 @@ subscription.stop()
 
 `message` is a `GroupMessage` with `group_id`, `sender_id`, `object_name`,
 `text`, `content`, `message_uid`, `sent_at`, `is_self`, and `raw`. Text
-messages fill `text`; other RongCloud object names keep their decoded JSON in
-`content`.
+messages fill `text`; image messages use `object_name="RC:ImgMsg"` and expose
+their URL through `image_url`. Other RongCloud object names keep their decoded
+JSON in `content`.
 
 While the listener is active, `send_text()` uses the listener's connection
 instead of opening a second RongCloud session. That matters because RongCloud
@@ -241,8 +242,8 @@ subscription = await account.group.async_listen(on_message)
 ```
 
 The listener reconnects on disconnect, sends heartbeats, and polls the
-RongCloud sync cursor every two seconds by default. `poll_interval` controls
-that cadence. `backlog=True` requests older messages during the initial sync;
+RongCloud sync cursor every second by default. `poll_interval` controls that
+cadence. `backlog=True` requests older messages during the initial sync;
 the default starts from the current time. `include_self=False` suppresses
 messages sent by the account itself.
 

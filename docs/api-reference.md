@@ -560,8 +560,8 @@ Chat-group discovery, membership, and transport-backed messaging. Blockman's HTT
 | `get_members(group_id: int)` | `—` | Return the member list embedded in the group-info response. |
 | `send_text(group_id: int, text: str, *, ext_content: Mapping[str, str] | None=None, timeout: float=10.0)` | `—` | Send a text message to a group through the installed transport. This method deliberately does not fabricate an HTTP endpoint: group chats are RongCloud conversations and require a transport. |
 | `async async_send_text(group_id: int, text: str, *, ext_content: Mapping[str, str] | None=None, timeout: float=10.0)` | `—` |  |
-| `listen(callback, *, group_ids=None, include_self: bool=True, backlog: bool=False)` | `—` | Start receiving incoming group messages. ``callback`` receives a :class:`~blockmango.GroupMessage` for each matching message. The listener owns the RongCloud session, so ``send_text`` uses the same connection while it is active. |
-| `async async_listen(callback, *, group_ids=None, include_self: bool=True, backlog: bool=False)` | `—` | Start a listener whose callback may be async. |
+| `listen(callback, *, group_ids=None, include_self: bool=True, backlog: bool=False, poll_interval: float=1.0)` | `—` | Start receiving incoming group messages. ``callback`` receives a :class:`~blockmango.GroupMessage` for each matching message. The listener owns the RongCloud session, so ``send_text`` uses the same connection while it is active. |
+| `async async_listen(callback, *, group_ids=None, include_self: bool=True, backlog: bool=False, poll_interval: float=1.0)` | `—` | Start a listener whose callback may be async. |
 | `stop_listening(timeout: float | None=5.0)` | `—` |  |
 | `close()` | `—` | Stop any active message listener. |
 | `async async_list_all_groups(max_groups: int=1000, page_size: int=50, ttl: float=300.0, force_refresh: bool=False)` | `—` |  |

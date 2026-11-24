@@ -52,7 +52,7 @@ class RongCloudListener:
         include_self: bool = True,
         backlog: bool = False,
         timeout: float = 15.0,
-        poll_interval: float = 2.0,
+        poll_interval: float = 1.0,
     ):
         if not callable(callback):
             raise TypeError("callback must be callable")
@@ -431,6 +431,7 @@ def async_listen(
     group_ids: int | str | Iterable[int | str] | None = None,
     include_self: bool = True,
     backlog: bool = False,
+    poll_interval: float = 1.0,
 ) -> GroupMessageSubscription:
     """Start a listener and route messages to an async callback.
 
@@ -451,6 +452,7 @@ def async_listen(
         group_ids=group_ids,
         include_self=include_self,
         backlog=backlog,
+        poll_interval=poll_interval,
     )
 
 

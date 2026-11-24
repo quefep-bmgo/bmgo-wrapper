@@ -243,7 +243,9 @@ subscription.stop()
 
 `account.group.async_listen(...)` accepts an async callback. The listener owns
 the account's RongCloud session, so use one listener per account and stop it
-when you are done. Social-state polling is separate and still works normally.
+when you are done. Image messages arrive with `object_name="RC:ImgMsg"` and
+their URL is available as `message.image_url`. Social-state polling is separate
+and still works normally.
 
 ## Async
 
@@ -340,7 +342,7 @@ python tools/generate_api_docs.py
 
 The main flows have been checked against Blockman GO 3.31.1:
 
-- Unit tests: 64 passing, offline.
+- Unit tests: 68 passing, offline.
 - Signing and access-token encoding reproduced from 3.31.1 client traffic.
 - Device values read from the same 3.31.1 installation's MMKV store.
 - Live friend and group snapshots loaded through the corrected endpoints.

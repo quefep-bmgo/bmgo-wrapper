@@ -204,6 +204,7 @@ class GroupAPI:
         group_ids=None,
         include_self: bool = True,
         backlog: bool = False,
+        poll_interval: float = 1.0,
     ) -> GroupMessageSubscription:
         """Start receiving incoming group messages.
 
@@ -221,6 +222,7 @@ class GroupAPI:
             group_ids=group_ids,
             include_self=include_self,
             backlog=backlog,
+            poll_interval=poll_interval,
         )
 
     async def async_listen(
@@ -230,6 +232,7 @@ class GroupAPI:
         group_ids=None,
         include_self: bool = True,
         backlog: bool = False,
+        poll_interval: float = 1.0,
     ) -> GroupMessageSubscription:
         """Start a listener whose callback may be async."""
         return start_async_listener(
@@ -238,6 +241,7 @@ class GroupAPI:
             group_ids=group_ids,
             include_self=include_self,
             backlog=backlog,
+            poll_interval=poll_interval,
         )
 
     def stop_listening(self, timeout: float | None = 5.0) -> None:

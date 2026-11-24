@@ -8,6 +8,7 @@ from blockmango.rongcloud_listener import (
     _decode_downstream,
     _parse_publish,
     _pb_fields,
+    _to_group_message,
 )
 from blockmango.rongcloud_transport import RongCloudTransport
 
@@ -155,6 +156,52 @@ class ListenerTests(unittest.TestCase):
         self.assertTrue(ws.sent)
         self.assertEqual(ws.sent[0][0], 0x70)
         account.close()
+
+    def test_callback_errors_are_isolated(self):
+        def broken(message):
+            raise RuntimeError("callback failed")
+
+        account, listener = self._listener(broken)
+        ws = FakeWebSocket()
+        listener._handle_publish(ws, _publish("42", _downstream()))
+        self.assertIsInstance(listener.last_error, RuntimeError)
+        account.close()
+
+    def test_send_without_connection_is_a_clear_error(self):
+        account, listener = self._listener(lambda message: None)
+        with self.assertRaises(Exception) as context:
+            listener.send_text("42", "hello", timeout=1)
+        self.assertIn("not connected", str(context.exception).lower())
+        account.close()
+
+    def test_malformed_publish_does_not_crash_listener(self):
+        account, listener = self._listener(lambda message: None)
+        ws = FakeWebSocket()
+        listener._handle_publish(ws, _publish("42", b"\x0a"))
+        self.assertIsNotNone(listener.last_error)
+        account.close()
+
+    def test_image_message_exposes_image_url(self):
+        content = json.dumps({"imageUri": "https://cdn.example/image.jpg"}).encode()
+        message = _to_group_message(
+            {
+                "from_user_id": "7",
+                "group_id": "42",
+                "classname": "RC:ImgMsg",
+                "content": content,
+                "data_time": 1795460000000,
+                "msg_id": "D-IMAGE",
+            },
+            "pgMsgP",
+            "42",
+            1795460000,
+            "7547551998",
+        )
+        self.assertIsNotNone(message)
+        self.assertEqual(message.object_name, "RC:ImgMsg")
+        self.assertIsNone(message.text)
+        self.assertEqual(message.image_url, "https://cdn.example/image.jpg")
+        self.assertEqual(message.message_uid, "D-IMAGE")
 
     def test_publish_protobuf_shape(self):
         parsed = _parse_publish(_publish("42", _downstream()))
