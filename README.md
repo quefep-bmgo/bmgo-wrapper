@@ -232,6 +232,7 @@ def on_message(message):
 subscription = account.group.listen(
     on_message,
     group_ids=[123456],
+    poll_interval=2.0,
 )
 
 # send while listening; this reuses the listener connection
@@ -339,7 +340,7 @@ python tools/generate_api_docs.py
 
 The main flows have been checked against Blockman GO 3.31.1:
 
-- Unit tests: 61 passing, offline.
+- Unit tests: 64 passing, offline.
 - Signing and access-token encoding reproduced from 3.31.1 client traffic.
 - Device values read from the same 3.31.1 installation's MMKV store.
 - Live friend and group snapshots loaded through the corrected endpoints.

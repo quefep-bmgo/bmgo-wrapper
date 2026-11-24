@@ -38,7 +38,8 @@ class RongCloudListener:
 
     __slots__ = (
         "_transport", "_callback", "_group_ids", "_include_self", "_backlog",
-        "_timeout", "_stop", "_thread", "_ws", "_ws_lock", "_send_lock",
+        "_timeout", "_poll_interval", "_sync_time", "_min_sent_at", "_query_id",
+        "_seen", "_stop", "_thread", "_ws", "_ws_lock", "_send_lock",
         "_connected", "_pending", "_pending_lock", "_last_error", "_last_ping",
     )
 
@@ -51,6 +52,7 @@ class RongCloudListener:
         include_self: bool = True,
         backlog: bool = False,
         timeout: float = 15.0,
+        poll_interval: float = 2.0,
     ):
         if not callable(callback):
             raise TypeError("callback must be callable")
@@ -60,6 +62,11 @@ class RongCloudListener:
         self._include_self = bool(include_self)
         self._backlog = bool(backlog)
         self._timeout = max(1.0, float(timeout))
+        self._poll_interval = max(0.5, float(poll_interval))
+        self._sync_time = 0
+        self._min_sent_at = 0 if self._backlog else int(time.time() * 1000)
+        self._query_id = 1
+        self._seen: set[str] = set()
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._ws: Any = None
@@ -218,12 +225,16 @@ class RongCloudListener:
                 self._last_error = None
             self._connected.set()
             self._last_ping = time.monotonic()
-            self._send_initial_query(ws, uid)
+            self._send_query(ws, uid)
+            last_poll = time.monotonic()
             while not self._stop.is_set():
                 now = time.monotonic()
                 if now - self._last_ping >= 30.0:
                     self._safe_send(ws, b"\xC0")
                     self._last_ping = now
+                if now - last_poll >= self._poll_interval:
+                    self._send_query(ws, uid)
+                    last_poll = now
                 try:
                     raw = ws.recv()
                 except Exception as exc:
@@ -245,10 +256,11 @@ class RongCloudListener:
             except Exception:
                 pass
 
-    def _send_initial_query(self, ws: Any, uid: str) -> None:
-        sync_time = 0 if self._backlog else int(time.time() * 1000) - 1000
+    def _send_query(self, ws: Any, uid: str) -> None:
+        query_id = self._query_id
+        self._query_id = 1 if query_id >= 65535 else query_id + 1
         payload = (
-            _field_int(1, sync_time)
+            _field_int(1, self._sync_time)
             + _field_int(2, 0)
             + _field_int(3, 1)
             + _field_int(4, 1)
@@ -257,7 +269,7 @@ class RongCloudListener:
             bytes([0x52])
             + _utf("pullMsg")
             + _utf(uid)
-            + struct.pack(">H", 1)
+            + struct.pack(">H", query_id)
             + payload
         )
         self._safe_send(ws, frame)
@@ -282,6 +294,9 @@ class RongCloudListener:
                 self._last_error = exc
             return
         self._safe_send(ws, bytes([0x40]) + struct.pack(">H", message_id))
+        # ``s_ntf`` and other delivery topics are not group messages.
+        if topic not in ("pgMsgP",):
+            return
         try:
             if payload[:1] == b"\x0a":
                 proto = _decode_downstream(payload)

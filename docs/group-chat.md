@@ -240,10 +240,11 @@ async def on_message(message):
 subscription = await account.group.async_listen(on_message)
 ```
 
-The listener reconnects on disconnect and sends heartbeats. `backlog=True`
-requests older messages during the initial sync; the default starts from the
-current time. `include_self=False` suppresses messages sent by the account
-itself.
+The listener reconnects on disconnect, sends heartbeats, and polls the
+RongCloud sync cursor every two seconds by default. `poll_interval` controls
+that cadence. `backlog=True` requests older messages during the initial sync;
+the default starts from the current time. `include_self=False` suppresses
+messages sent by the account itself.
 
 Stop the listener with `subscription.stop()`, `account.group.stop_listening()`,
 or `account.close()`. A listener owns the account's RongCloud session, so use

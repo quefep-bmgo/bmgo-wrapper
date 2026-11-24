@@ -63,15 +63,22 @@ def _downstream(
     )
 
 
-def _publish(group_id: str, proto: bytes, message_id: int = 1) -> bytes:
+def _publish(group_id: str, proto: bytes, message_id: int = 1, topic: str = "pgMsgP") -> bytes:
     return (
         bytes([0x33])
         + (1795460000).to_bytes(4, "big")
-        + _utf("pgMsgP")
+        + _utf(topic)
         + _utf(group_id)
         + message_id.to_bytes(2, "big")
         + proto
     )
+
+
+def _query_ack(messages: list[bytes], message_id: int = 1) -> bytes:
+    payload = b"".join(
+        _field(1, 2, _varint(len(message)) + message) for message in messages
+    )
+    return bytes([0x63]) + message_id.to_bytes(2, "big") + b"\x00" * 6 + payload
 
 
 class FakeWebSocket:
@@ -115,6 +122,38 @@ class ListenerTests(unittest.TestCase):
         ws = FakeWebSocket()
         listener._handle_publish(ws, _publish("42", _downstream()))
         self.assertEqual(seen, [])
+        account.close()
+
+    def test_notification_topic_is_ignored(self):
+        seen = []
+        account, listener = self._listener(seen.append)
+        ws = FakeWebSocket()
+        listener._handle_publish(
+            ws,
+            _publish("45890736", _downstream(sender="45890736"), topic="s_ntf"),
+        )
+        self.assertEqual(seen, [])
+        self.assertEqual(ws.sent, [b"\x40\x00\x01"])
+        account.close()
+
+    def test_query_ids_increment(self):
+        account, listener = self._listener(lambda message: None)
+        ws = FakeWebSocket()
+        listener._send_query(ws, "7")
+        listener._send_query(ws, "7")
+        first_id = ws.sent[0][13:15]
+        second_id = ws.sent[1][13:15]
+        self.assertNotEqual(first_id, second_id)
+        account.close()
+
+    def test_query_ack_dispatches_messages(self):
+        seen = []
+        account, listener = self._listener(seen.append)
+        ws = FakeWebSocket()
+        listener._handle_query_ack(ws, _query_ack([_downstream(), _downstream(text="second")]))
+        self.assertEqual([message.text for message in seen], ["hello", "second"])
+        self.assertTrue(ws.sent)
+        self.assertEqual(ws.sent[0][0], 0x70)
         account.close()
 
     def test_publish_protobuf_shape(self):
