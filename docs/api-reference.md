@@ -1,4 +1,4 @@
-# API reference
+# Blockman GO API reference
 
 Generated from `src/blockmango/submodules/` by
 `python tools/generate_api_docs.py`. The hand-written guides are:

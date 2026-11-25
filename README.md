@@ -1,21 +1,38 @@
-# bmgo-wrapper
+# Blockman GO API wrapper for Python (bmgo-wrapper)
 
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://discord.gg/PQhj8zcmBK)
 
-A Python client for the Blockman GO (BlockyMods) HTTP API. It handles login, the
-`x-sign` request format, the per-request access-token header, session storage,
-profiles, games, leaderboards, friends, groups, and RongCloud group text
-sending and listening.
+`bmgo-wrapper` is an unofficial Python client for the Blockman GO API (also
+written Blockmango). It handles login, `x-sign` request signing, device-bound
+sessions, profiles, leaderboards, friends, groups, and RongCloud group chat.
+The package is imported as `blockmango`.
 
-This is an unofficial client. The API is private, version-sensitive, and can
-change without notice.
+This is an independent project. It is not affiliated with Sandbox Network or
+GVERSE, and the private API can change without notice.
 
 > **Version status:** this repository targets Blockman GO **3.31.1**
-> (`appVersion 5771`). The signing rules and device headers in this repository
-> were checked against that build; older and newer clients are untested.
-> See [Tested scope](#tested-scope).
+> (`appVersion 5771`). The signing rules and device headers were checked
+> against that build. Older and newer clients are untested. See
+> [Tested version](#tested-blockman-go-version).
 
-[Install](#install) | [Device values](#get-device-values) | [First login](#first-login) | [Leaderboards](#leaderboards) | [Documentation](#documentation) | [Troubleshooting](#troubleshooting)
+[What it covers](#what-it-covers) | [Install](#install) | [Device values](#get-your-blockman-go-device-values) | [Log in](#log-in-to-blockman-go) | [Leaderboards](#blockman-go-leaderboards-and-profiles) | [Group chat](#blockman-go-group-chat-and-friend-lists) | [FAQ](#blockman-go-api-faq) | [Documentation](#documentation-and-guides) | [Troubleshooting](#blockman-go-api-troubleshooting)
+
+## What it covers
+
+Blockman GO's Android client uses a private HTTPS API at `gw.sandboxol.com`.
+Requests need an `x-sign` signature, an access token, and a device ID from the
+app installation. Group messages use RongCloud over WebSocket instead. This
+package wraps that flow in Python without needing the Android app at runtime.
+
+- Login, request signing, device identity, and session restore.
+- Profiles, stats, games, and account lookups.
+- Global, game, gold, diamond, clan, and regional leaderboards.
+  Large integer scores stay exact.
+- Cached friend and group snapshots, membership searches, and join requests.
+- Group text sending and receiving over RongCloud.
+- Sync and async methods, plus Discord and Telegram examples.
 
 ## Before you start
 
@@ -37,7 +54,7 @@ python -m pip install -e .
 This installs the runtime dependencies, including `requests`, `httpx`,
 `pycryptodome`, `python-dotenv`, and `websocket-client`.
 
-## Get device values
+## Get your Blockman GO device values
 
 The API needs two values from the app installation:
 
@@ -80,7 +97,7 @@ If the extractor cannot find the value, see
 A `code 100008` login error usually means the device values do not match the
 account.
 
-## First login
+## Log in to Blockman GO
 
 ```python
 from blockmango import BmgAccount
@@ -104,7 +121,7 @@ Device values still come from the environment or config. `login()` performs a
 fresh login; session reuse is covered in
 [Authentication](docs/authentication.md#5-sessions).
 
-## Friends and groups are loaded automatically
+## Blockman GO friends and groups
 
 A successful `login()` collects the full friend list (up to 500) and every
 group the account belongs to, then starts a lightweight background sync. The
@@ -162,7 +179,7 @@ After `restore_session()`, call `account.initialize_social()` (or
 [Group chats and social state](docs/group-chat.md#account-social-state) for
 the async and multi-account forms.
 
-## Leaderboards
+## Blockman GO leaderboards and profiles
 
 ```python
 game_id = "g1055"
@@ -186,7 +203,7 @@ print(my_rank)
 More detail, including response shapes and observed data:
 [Leaderboards](docs/leaderboards.md).
 
-## Group chats and large friend lists
+## Blockman GO group chat and friend lists
 
 Group metadata and friend lists use the Blockman HTTP API. Both now use cached,
 deduplicated snapshots instead of fetching one object at a time:
@@ -220,7 +237,7 @@ transports can implement the same two-method contract. See
 [Group chats](docs/group-chat.md) for the transport details and multi-account
 examples.
 
-### Incoming group messages
+### Receive Blockman GO group messages
 
 The RongCloud transport can also keep a listener open and deliver incoming
 group messages:
@@ -250,7 +267,7 @@ arrive with `object_name="RC:ImgMsg"` and their URL is available as
 callback. Social-state polling is separate and still works normally. See
 `examples/group_chat_listener.py` for a runnable example.
 
-## Async
+## Async Blockman GO API
 
 Most module methods have an `async_` counterpart.
 
@@ -281,7 +298,7 @@ if __name__ == "__main__":
 `account.extended` is synchronous; use `account.async_request()` for those
 endpoints in async code. See [API overview](docs/api-overview.md#async).
 
-## Common calls
+## Common Blockman GO API calls
 
 | Task | Call |
 | --- | --- |
@@ -295,7 +312,7 @@ endpoints in async code. See [API overview](docs/api-overview.md#async).
 Use `account.request()` for a new endpoint before adding a typed method. The
 generated method index is in [API reference](docs/api-reference.md).
 
-## Examples
+## Blockman GO bot examples
 
 Set up `.env` first.
 
@@ -324,16 +341,59 @@ python examples/telegram_leaderboard_bot.py
 
 Set `TELEGRAM_TOKEN`. The command is `/rank [game_id] [period]`.
 
-## Documentation
+## Blockman GO API FAQ
+
+### Is this an official Blockman GO API?
+
+No. It is an independent Python client that talks to the same private API the
+Android app uses. The project is not endorsed by Sandbox Network or GVERSE.
+
+### Can I use it to build a Blockman GO Discord bot?
+
+Yes. `account.group.listen()` is the usual entry point for commands. The
+[Blockman GO bot examples](#blockman-go-bot-examples) include a Discord
+leaderboard bot and a group-chat listener.
+
+### Does it support Blockman GO group chat?
+
+Yes. Group text messages can be sent and received through RongCloud. The
+listener supports text and image messages, group filters, async callbacks, and
+automatic reconnects. See
+[Blockman GO group chat](#blockman-go-group-chat-and-friend-lists).
+
+### Do I need the Blockman GO app or an emulator?
+
+Not while the bot is running. You do need `BMG_DEVICE_ID` and `BMG_BMDDH_ID`
+from the app installation once, because some accounts are device-bound. The
+bundled extractor can read those values from a rooted emulator.
+
+### Does it work with the latest Blockman GO version?
+
+The current release targets **3.31.1** (`appVersion 5771`). The private API can
+change at any time, so check [Tested version](#tested-blockman-go-version) before
+assuming a newer client will work.
+
+### Is there an async API?
+
+Yes. Most modules expose `async_` methods, and `account.group.async_listen()`
+accepts an async callback. The sync API is still useful for small scripts and
+worker threads.
+
+### Why is the import called `blockmango` if the package is `bmgo-wrapper`?
+
+`bmgo-wrapper` is the short repository and distribution name. The Python package
+is imported as `blockmango`, which matches the game's package naming.
+
+## Documentation and guides
 
 | Guide | Use it for |
 | --- | --- |
-| [Authentication](docs/authentication.md) | device values, login, signing, tokens, sessions |
-| [API overview](docs/api-overview.md) | module map, important endpoints, raw requests, errors |
-| [API reference](docs/api-reference.md) | generated list of methods, signatures, and endpoints |
-| [Leaderboards](docs/leaderboards.md) | periods, response shapes, large scores, observed data |
-| [Game IDs](docs/games.md) | known IDs and how to check them |
-| [Group chats](docs/group-chat.md) | social state, built-in RongCloud sender, 500-friend caches, multi-account |
+| [Blockman GO authentication](docs/authentication.md) | device values, login, signing, tokens, sessions |
+| [Blockman GO API overview](docs/api-overview.md) | module map, important endpoints, raw requests, errors |
+| [Blockman GO API reference](docs/api-reference.md) | generated list of methods, signatures, and endpoints |
+| [Blockman GO leaderboards](docs/leaderboards.md) | periods, response shapes, large scores, observed data |
+| [Blockman GO game IDs](docs/games.md) | known IDs and how to check them |
+| [Blockman GO group chats](docs/group-chat.md) | social state, built-in RongCloud sender, 500-friend caches, multi-account |
 
 Regenerate the API reference after changing public methods:
 
@@ -341,7 +401,7 @@ Regenerate the API reference after changing public methods:
 python tools/generate_api_docs.py
 ```
 
-## Tested scope
+## Tested Blockman GO version
 
 The main flows have been checked against Blockman GO 3.31.1:
 
@@ -377,7 +437,7 @@ docs/              hand-written guides and generated API reference
 tests/             offline unit tests
 ```
 
-## Testing
+## Testing bmgo-wrapper
 
 ```bash
 python -m pip install -e .
@@ -392,7 +452,7 @@ python examples/leaderboards.py
 
 Live checks need valid `.env` values.
 
-## Troubleshooting
+## Blockman GO API troubleshooting
 
 | Problem | What to check |
 | --- | --- |
@@ -407,7 +467,7 @@ Live checks need valid `.env` values.
 | SSL warning | `BMG_VERIFY_SSL`; only enable verification if your certificate chain works |
 | `adb root` fails | use a rooted emulator and enable USB debugging |
 
-## Security
+## Security and account safety
 
 - Never commit `.env`, `.sessions.json`, or captured HTTP logs. They can contain
   live credentials, tokens, and device values.

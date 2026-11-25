@@ -1,4 +1,4 @@
-# Known game IDs
+# Blockman GO game IDs
 
 Game IDs are the values used in endpoints such as:
 
