@@ -3,11 +3,13 @@ from __future__ import annotations
 import asyncio
 import inspect
 import json
+import queue
 import random
 import ssl
 import struct
 import threading
 import time
+from collections import deque
 from collections.abc import Callable, Iterable
 from typing import Any
 
@@ -39,7 +41,8 @@ class RongCloudListener:
     __slots__ = (
         "_transport", "_callback", "_group_ids", "_include_self", "_backlog",
         "_timeout", "_poll_interval", "_sync_time", "_min_sent_at", "_query_id",
-        "_seen", "_stop", "_thread", "_ws", "_ws_lock", "_send_lock",
+        "_seen", "_seen_order", "_callback_queue", "_dispatch_thread",
+        "_dispatch_stop", "_stop", "_thread", "_ws", "_ws_lock", "_send_lock",
         "_connected", "_pending", "_pending_lock", "_last_error", "_last_ping",
     )
 
@@ -56,6 +59,10 @@ class RongCloudListener:
     ):
         if not callable(callback):
             raise TypeError("callback must be callable")
+        if inspect.iscoroutinefunction(callback):
+            raise TypeError(
+                "async callbacks must be registered with account.group.async_listen"
+            )
         self._transport = transport
         self._callback = callback
         self._group_ids = _normalize_group_ids(group_ids)
@@ -63,10 +70,15 @@ class RongCloudListener:
         self._backlog = bool(backlog)
         self._timeout = max(1.0, float(timeout))
         self._poll_interval = max(0.5, float(poll_interval))
-        self._sync_time = 0
-        self._min_sent_at = 0 if self._backlog else int(time.time() * 1000)
+        now_ms = int(time.time() * 1000)
+        self._sync_time = 0 if self._backlog else now_ms - 1000
+        self._min_sent_at = 0 if self._backlog else now_ms - 60_000
         self._query_id = 1
         self._seen: set[str] = set()
+        self._seen_order: deque[str] = deque()
+        self._callback_queue: queue.Queue[GroupMessage | None] = queue.Queue()
+        self._dispatch_thread: threading.Thread | None = None
+        self._dispatch_stop = threading.Event()
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._ws: Any = None
@@ -95,6 +107,8 @@ class RongCloudListener:
         if self.is_running:
             return
         self._stop.clear()
+        self._callback_queue = queue.Queue()
+        self._start_dispatcher()
         self._thread = threading.Thread(
             target=self._run,
             name=f"bmg-rong-listener-{getattr(self._transport, '_uid', 'account')}",
@@ -102,8 +116,37 @@ class RongCloudListener:
         )
         self._thread.start()
 
+    def _start_dispatcher(self) -> None:
+        thread = self._dispatch_thread
+        if thread is not None and thread.is_alive():
+            return
+        self._dispatch_stop.clear()
+        self._dispatch_thread = threading.Thread(
+            target=self._dispatch_loop,
+            name=f"bmg-rong-callback-{getattr(self._transport, '_uid', 'account')}",
+            daemon=True,
+        )
+        self._dispatch_thread.start()
+
+    def _dispatch_loop(self) -> None:
+        while not self._dispatch_stop.is_set():
+            try:
+                message = self._callback_queue.get(timeout=0.25)
+            except queue.Empty:
+                continue
+            try:
+                if message is None or self._dispatch_stop.is_set():
+                    return
+                try:
+                    self._callback(message)
+                except Exception as exc:
+                    self._set_error(exc)
+            finally:
+                self._callback_queue.task_done()
+
     def stop(self, timeout: float | None = 5.0) -> None:
         self._stop.set()
+        self._dispatch_stop.set()
         with self._ws_lock:
             ws = self._ws
         if ws is not None:
@@ -115,6 +158,13 @@ class RongCloudListener:
         thread = self._thread
         if thread is not None and thread is not threading.current_thread():
             thread.join(timeout)
+        dispatch = self._dispatch_thread
+        if dispatch is not None and dispatch is not threading.current_thread():
+            try:
+                self._callback_queue.put_nowait(None)
+            except queue.Full:
+                pass
+            dispatch.join(timeout)
         self._connected.clear()
 
     def join(self, timeout: float | None = None) -> None:
@@ -128,6 +178,47 @@ class RongCloudListener:
 
     async def async_stop(self) -> None:
         await asyncio.to_thread(self.stop)
+
+    def _set_error(self, exc: BaseException) -> None:
+        with self._ws_lock:
+            self._last_error = exc
+
+    def _deliver(self, message: GroupMessage) -> None:
+        if not self._accept(message):
+            return
+        self._callback_queue.put(message)
+
+    def _accept(self, message: GroupMessage) -> bool:
+        if self._group_ids is not None and message.group_id not in self._group_ids:
+            return False
+        if not self._include_self and message.is_self:
+            return False
+
+        sent_at = int(message.sent_at or 0)
+        if (
+            not self._backlog
+            and self._min_sent_at
+            and sent_at >= 1_000_000_000_000
+            and sent_at < self._min_sent_at
+        ):
+            return False
+
+        key = message.message_uid
+        if not key:
+            key = (
+                f"{message.group_id}|{message.sender_id}|{sent_at}|"
+                f"{message.object_name}|{json.dumps(message.content, sort_keys=True, default=str)}"
+            )
+        if key in self._seen:
+            return False
+        self._seen.add(key)
+        self._seen_order.append(key)
+        while len(self._seen_order) > 4096:
+            self._seen.discard(self._seen_order.popleft())
+
+        if sent_at:
+            self._sync_time = max(self._sync_time, sent_at)
+        return True
 
     def send_text(
         self,
@@ -316,15 +407,7 @@ class RongCloudListener:
         message = _to_group_message(proto, topic, target, date, self._transport._uid)
         if message is None:
             return
-        if self._group_ids is not None and message.group_id not in self._group_ids:
-            return
-        if not self._include_self and message.is_self:
-            return
-        try:
-            self._callback(message)
-        except Exception as exc:
-            with self._ws_lock:
-                self._last_error = exc
+        self._deliver(message)
 
     def _handle_puback(self, data: bytes) -> None:
         message_id, status, timestamp, message_uid = _parse_puback(data)
@@ -368,15 +451,7 @@ class RongCloudListener:
             )
             if message is None:
                 continue
-            if self._group_ids is not None and message.group_id not in self._group_ids:
-                continue
-            if not self._include_self and message.is_self:
-                continue
-            try:
-                self._callback(message)
-            except Exception as exc:
-                with self._ws_lock:
-                    self._last_error = exc
+            self._deliver(message)
 
     def _write(self, data: bytes) -> None:
         with self._ws_lock:
@@ -453,7 +528,8 @@ def async_listen(
     """Start a listener and route messages to an async callback.
 
     The listener runs in its own daemon thread. Coroutine callbacks are
-    scheduled on the current event loop; regular callbacks are invoked inline.
+    scheduled on the current event loop; regular callbacks run on the
+    listener's callback worker thread.
     """
     loop = asyncio.get_running_loop()
     is_coroutine = inspect.iscoroutinefunction(callback)
@@ -602,6 +678,10 @@ def _to_group_message(
     sender_id = str(proto.get("from_user_id") or uid or "")
     text = content.get("content") if classname == "RC:TxtMsg" and content else None
     sent_at = proto.get("data_time") or (date * 1000 if date else None)
+    if sent_at:
+        sent_at = int(sent_at)
+        if 0 < sent_at < 1_000_000_000_000:
+            sent_at *= 1000
     return GroupMessage(
         group_id=group_id,
         sender_id=sender_id,
@@ -609,7 +689,7 @@ def _to_group_message(
         text=str(text) if text is not None else None,
         content=content,
         message_uid=proto.get("msg_id") or None,
-        sent_at=int(sent_at) if sent_at else None,
+        sent_at=sent_at or None,
         is_self=bool(sender_id and sender_id == str(uid)),
         raw={
             "topic": topic,

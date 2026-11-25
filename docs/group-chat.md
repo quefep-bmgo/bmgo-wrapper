@@ -210,8 +210,8 @@ incoming group messages:
 
 ```python
 def on_message(message):
-    print(message.group_id, message.sender_id)
-    print(message.object_name, message.text, message.message_uid)
+    if message.text == "!ping":
+        account.group.send_text(message.group_id, "pong")
 
 subscription = account.group.listen(
     on_message,
@@ -228,6 +228,13 @@ messages fill `text`; image messages use `object_name="RC:ImgMsg"` and expose
 their URL through `image_url`. Other RongCloud object names keep their decoded
 JSON in `content`.
 
+Synchronous callbacks run on a dedicated worker thread, one at a time. The
+socket keeps reading while a callback runs, so a slow handler does not stop
+message delivery and it is safe to call `send_text()` from inside the callback.
+Slow handlers only delay later callbacks. Duplicate sync messages are ignored
+by `message_uid`, and the listener advances its RongCloud sync cursor as
+messages arrive.
+
 While the listener is active, `send_text()` uses the listener's connection
 instead of opening a second RongCloud session. That matters because RongCloud
 allows one active session per token.
@@ -243,16 +250,18 @@ subscription = await account.group.async_listen(on_message)
 
 The listener reconnects on disconnect, sends heartbeats, and polls the
 RongCloud sync cursor every second by default. `poll_interval` controls that
-cadence. `backlog=True` requests older messages during the initial sync;
-the default starts from the current time. `include_self=False` suppresses
-messages sent by the account itself.
+cadence. The default starts near the current time and ignores older messages;
+`backlog=True` asks RongCloud for recent history instead. `include_self=False`
+suppresses messages sent by the account itself.
 
 Stop the listener with `subscription.stop()`, `account.group.stop_listening()`,
 or `account.close()`. A listener owns the account's RongCloud session, so use
 one listener per account. The account's social-state polling is separate and
 continues independently.
 
-## Friend directories for up to 500 friends
+`examples/group_chat_listener.py` is a runnable version of this pattern,
+including a reply from inside the callback.
+
 ## Friend directories for up to 500 friends
 
 `account.friends` now keeps a deduplicated friend snapshot:

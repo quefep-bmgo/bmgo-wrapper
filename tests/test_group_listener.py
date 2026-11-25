@@ -1,4 +1,7 @@
+import asyncio
 import json
+import threading
+import time
 import unittest
 
 from blockmango.account import BmgAccount
@@ -6,6 +9,7 @@ from blockmango.config import Config
 from blockmango.models import GroupMessage
 from blockmango.rongcloud_listener import (
     RongCloudListener,
+    async_listen,
     _decode_downstream,
     _parse_publish,
     _pb_fields,
@@ -50,8 +54,10 @@ def _downstream(
     group_id: str = "42",
     text: str = "hello",
     message_uid: str = "D-TEST",
-    sent_at: int = 1795460000000,
+    sent_at: int | None = None,
 ) -> bytes:
+    if sent_at is None:
+        sent_at = int(time.time() * 1000)
     content = json.dumps({"content": text}).encode()
     return (
         _string(1, sender)
@@ -97,13 +103,20 @@ class ListenerTests(unittest.TestCase):
         account._uid = 7
         transport = RongCloudTransport(account)
         listener = RongCloudListener(transport, callback, **kwargs)
+        listener._start_dispatcher()
+        self.addCleanup(listener.stop)
         return account, listener
+
+    @staticmethod
+    def _drain(listener):
+        listener._callback_queue.join()
 
     def test_publish_parses_and_acknowledges(self):
         seen = []
         account, listener = self._listener(seen.append)
         ws = FakeWebSocket()
         listener._handle_publish(ws, _publish("42", _downstream()))
+        self._drain(listener)
         self.assertEqual(len(seen), 1)
         message = seen[0]
         self.assertEqual(message.group_id, "42")
@@ -123,6 +136,7 @@ class ListenerTests(unittest.TestCase):
         )
         ws = FakeWebSocket()
         listener._handle_publish(ws, _publish("42", _downstream()))
+        self._drain(listener)
         self.assertEqual(seen, [])
         account.close()
 
@@ -143,6 +157,7 @@ class ListenerTests(unittest.TestCase):
             ws,
             _publish("45890736", _downstream(sender="45890736"), topic="s_ntf"),
         )
+        self._drain(listener)
         self.assertEqual(seen, [])
         self.assertEqual(ws.sent, [b"\x40\x00\x01"])
         account.close()
@@ -161,7 +176,14 @@ class ListenerTests(unittest.TestCase):
         seen = []
         account, listener = self._listener(seen.append)
         ws = FakeWebSocket()
-        listener._handle_query_ack(ws, _query_ack([_downstream(), _downstream(text="second")]))
+        listener._handle_query_ack(
+            ws,
+            _query_ack([
+                _downstream(),
+                _downstream(text="second", message_uid="D-TEST-2"),
+            ]),
+        )
+        self._drain(listener)
         self.assertEqual([message.text for message in seen], ["hello", "second"])
         self.assertTrue(ws.sent)
         self.assertEqual(ws.sent[0][0], 0x70)
@@ -174,7 +196,78 @@ class ListenerTests(unittest.TestCase):
         account, listener = self._listener(broken)
         ws = FakeWebSocket()
         listener._handle_publish(ws, _publish("42", _downstream()))
+        self._drain(listener)
         self.assertIsInstance(listener.last_error, RuntimeError)
+        account.close()
+
+    def test_duplicate_message_uid_is_ignored(self):
+        seen = []
+        account, listener = self._listener(seen.append)
+        ws = FakeWebSocket()
+        message = _publish("42", _downstream(message_uid="D-DUP"))
+        listener._handle_publish(ws, message)
+        listener._handle_publish(ws, message)
+        self._drain(listener)
+        self.assertEqual(len(seen), 1)
+        account.close()
+
+    def test_backlog_false_ignores_old_messages(self):
+        seen = []
+        account, listener = self._listener(seen.append)
+        ws = FakeWebSocket()
+        old = int(time.time() * 1000) - 3_600_000
+        listener._handle_publish(
+            ws,
+            _publish("42", _downstream(sent_at=old, message_uid="D-OLD")),
+        )
+        self._drain(listener)
+        self.assertEqual(seen, [])
+        account.close()
+
+    def test_backlog_true_keeps_old_messages(self):
+        seen = []
+        account, listener = self._listener(seen.append, backlog=True)
+        ws = FakeWebSocket()
+        old = 1_600_000_000_000
+        listener._handle_publish(
+            ws,
+            _publish("42", _downstream(sent_at=old, message_uid="D-BACKLOG")),
+        )
+        self._drain(listener)
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(seen[0].sent_at, old)
+        account.close()
+
+    def test_sync_cursor_advances_and_callbacks_use_worker_thread(self):
+        seen = []
+        threads = []
+
+        def callback(message):
+            seen.append(message)
+            threads.append(threading.current_thread().name)
+
+        account, listener = self._listener(callback)
+        ws = FakeWebSocket()
+        sent_at = int(time.time() * 1000)
+        listener._handle_publish(
+            ws,
+            _publish("42", _downstream(sent_at=sent_at, message_uid="D-CURSOR")),
+        )
+        self._drain(listener)
+        self.assertEqual(listener._sync_time, sent_at)
+        self.assertEqual(len(seen), 1)
+        self.assertIn("bmg-rong-callback", threads[0])
+        account.close()
+
+    def test_async_callback_requires_async_listen(self):
+        account = BmgAccount("user", "pass", Config())
+        transport = RongCloudTransport(account)
+
+        async def callback(message):
+            return None
+
+        with self.assertRaises(TypeError):
+            RongCloudListener(transport, callback)
         account.close()
 
     def test_send_without_connection_is_a_clear_error(self):
@@ -230,6 +323,29 @@ class ListenerTests(unittest.TestCase):
         fields = _pb_fields(payload)
         self.assertIn(1, fields)
         self.assertEqual(_decode_downstream(fields[1][0])["group_id"], "42")
+
+
+class AsyncListenerTests(unittest.IsolatedAsyncioTestCase):
+    async def test_async_callback_runs_on_event_loop(self):
+        seen = []
+
+        class FakeGroup:
+            def listen(self, callback, **kwargs):
+                self.callback = callback
+                return "subscription"
+
+        group = FakeGroup()
+
+        async def callback(message):
+            seen.append(message)
+
+        async_listen(group, callback)
+        group.callback(
+            GroupMessage(group_id="42", sender_id="7", object_name="RC:TxtMsg", text="hi")
+        )
+        await asyncio.sleep(0.05)
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(seen[0].text, "hi")
 
 
 class FakeTransport:

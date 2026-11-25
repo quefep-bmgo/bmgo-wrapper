@@ -227,12 +227,13 @@ group messages:
 
 ```python
 def on_message(message):
-    print(message.group_id, message.sender_id, message.text)
+    if message.text == "!ping":
+        account.group.send_text(message.group_id, "pong")
 
 subscription = account.group.listen(
     on_message,
     group_ids=[123456],
-    poll_interval=2.0,
+    poll_interval=1.0,
 )
 
 # send while listening; this reuses the listener connection
@@ -241,11 +242,13 @@ account.group.send_text(123456, "hello")
 subscription.stop()
 ```
 
-`account.group.async_listen(...)` accepts an async callback. The listener owns
-the account's RongCloud session, so use one listener per account and stop it
-when you are done. Image messages arrive with `object_name="RC:ImgMsg"` and
-their URL is available as `message.image_url`. Social-state polling is separate
-and still works normally.
+Synchronous callbacks run on a worker thread, so a slow command handler does
+not stop the socket from reading and `send_text()` is safe inside the callback.
+The listener deduplicates by `message_uid` and advances its sync cursor. Image messages
+arrive with `object_name="RC:ImgMsg"` and their URL is available as
+`message.image_url`. `account.group.async_listen(...)` accepts an async
+callback. Social-state polling is separate and still works normally. See
+`examples/group_chat_listener.py` for a runnable example.
 
 ## Async
 
@@ -342,7 +345,7 @@ python tools/generate_api_docs.py
 
 The main flows have been checked against Blockman GO 3.31.1:
 
-- Unit tests: 71 passing, offline.
+- Unit tests: 77 passing, offline.
 - Signing and access-token encoding reproduced from 3.31.1 client traffic.
 - Device values read from the same 3.31.1 installation's MMKV store.
 - Live friend and group snapshots loaded through the corrected endpoints.
