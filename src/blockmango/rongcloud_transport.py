@@ -188,9 +188,10 @@ class RongCloudTransport:
 
     def stop_listening(self, timeout: float | None = 5.0) -> None:
         listener = self._listener
-        self._listener = None
         if listener is not None:
             listener.stop(timeout)
+        if self._listener is listener:
+            self._listener = None
 
     def _resolve_token(self) -> str:
         if self.token:
