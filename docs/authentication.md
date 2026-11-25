@@ -1,4 +1,4 @@
-# Authentication and request signing
+# Blockman GO authentication and request signing
 
 This page explains how a Blockman GO session is built. It is intentionally
 read-only: it does not create accounts or device values.

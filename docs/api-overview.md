@@ -1,6 +1,7 @@
-# API overview
+# Blockman GO API overview
 
-For the generated method/endpoint index, see [api-reference.md](api-reference.md).
+This guide explains how `bmgo-wrapper` maps to the Blockman GO API. For the
+generated method and endpoint index, see [api-reference.md](api-reference.md).
 
 The wrapper targets the Android client HTTP API at
 `https://gw.sandboxol.com` and mirrors the 3.31.1 request headers and signing

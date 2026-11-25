@@ -1,4 +1,4 @@
-# Game leaderboards
+# Blockman GO game leaderboards
 
 The client uses two read-only game leaderboard endpoints.
 

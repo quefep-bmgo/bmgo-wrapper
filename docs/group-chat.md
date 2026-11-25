@@ -1,4 +1,4 @@
-# Group chats, friend directories, and multi-account lookup
+# Blockman GO group chats, friends, and multi-account lookup
 
 The wrapper separates two concerns:
 
