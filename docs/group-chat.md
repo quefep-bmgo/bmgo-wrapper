@@ -203,7 +203,65 @@ Any object with `send_text(...)` and `async_send_text(...)` can be installed
 with `account.group.set_transport(...)`. Installing `None` disables sending and
 restores the `GroupMessagingUnavailable` error.
 
-## Friend directories for up to 500 friends
+## Incoming group messages
+
+The built-in RongCloud transport can keep a persistent socket open and dispatch
+incoming group messages:
+
+```python
+def on_message(message):
+    if message.text == "!ping":
+        account.group.send_text(message.group_id, "pong")
+
+subscription = account.group.listen(
+    on_message,
+    group_ids=[123456],   # optional filter
+)
+
+account.group.send_text(123456, "hello while listening")
+subscription.stop()
+```
+
+`message` is a `GroupMessage` with `group_id`, `sender_id`, `object_name`,
+`text`, `content`, `message_uid`, `sent_at`, `is_self`, and `raw`. Text
+messages fill `text`; image messages use `object_name="RC:ImgMsg"` and expose
+their URL through `image_url`. Other RongCloud object names keep their decoded
+JSON in `content`.
+
+Synchronous callbacks run on a dedicated worker thread, one at a time. The
+socket keeps reading while a callback runs, so a slow handler does not stop
+message delivery and it is safe to call `send_text()` from inside the callback.
+Slow handlers only delay later callbacks. Duplicate sync messages are ignored
+by `message_uid`, and the listener advances its RongCloud sync cursor as
+messages arrive.
+
+While the listener is active, `send_text()` uses the listener's connection
+instead of opening a second RongCloud session. That matters because RongCloud
+allows one active session per token.
+
+The async form accepts an async callback:
+
+```python
+async def on_message(message):
+    print(message.text)
+
+subscription = await account.group.async_listen(on_message)
+```
+
+The listener reconnects on disconnect, sends heartbeats, and polls the
+RongCloud sync cursor every second by default. `poll_interval` controls that
+cadence. The default starts near the current time and ignores older messages;
+`backlog=True` asks RongCloud for recent history instead. `include_self=False`
+suppresses messages sent by the account itself.
+
+Stop the listener with `subscription.stop()`, `account.group.stop_listening()`,
+or `account.close()`. A listener owns the account's RongCloud session, so use
+one listener per account. The account's social-state polling is separate and
+continues independently.
+
+`examples/group_chat_listener.py` is a runnable version of this pattern,
+including a reply from inside the callback.
+
 ## Friend directories for up to 500 friends
 
 `account.friends` now keeps a deduplicated friend snapshot:
@@ -247,9 +305,10 @@ Use `client.get_account("account-a")` when you need the underlying
 
 ## Scope
 
-The built-in sender covers group text publishing, including RongCloud
-authentication, navi lookup, RMTP framing, and `PubAck` handling. Media
-messages, message history sync, receipts, and typing indicators are separate
-RongCloud features and are not part of this transport yet. The HTTP discovery
-layer, account social state, friend/group caches, and multi-account helpers are
+The built-in transport covers group text publishing and incoming group-message
+listening, including RongCloud authentication, navi lookup, RMTP framing,
+`PubAck`/`PublishMessage` handling, heartbeats, and reconnect. Media messages,
+message history sync, receipts, and typing indicators are separate RongCloud
+features and are not part of this transport yet. The HTTP discovery layer,
+account social state, friend/group caches, and multi-account helpers are
 complete and usable independently.

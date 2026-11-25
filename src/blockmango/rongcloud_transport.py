@@ -7,7 +7,7 @@ import random
 import ssl
 import struct
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Iterable, Mapping
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
@@ -46,7 +46,7 @@ class RongCloudTransport:
 
     __slots__ = (
         "_account", "app_key", "device_id", "token", "timeout", "verify_ssl",
-        "sdk_version", "_uid",
+        "sdk_version", "_uid", "_listener",
     )
 
     def __init__(
@@ -68,6 +68,7 @@ class RongCloudTransport:
         self.verify_ssl = bool(verify_ssl)
         self.sdk_version = sdk_version
         self._uid = str(getattr(account, "uid", "") or "")
+        self._listener: Any = None
 
     def send_text(
         self,
@@ -83,6 +84,15 @@ class RongCloudTransport:
             raise ValueError("text must not be empty")
         if len(message.encode("utf-8")) > 10_240:
             raise ValueError("text exceeds Blockman/RongCloud's 10 KiB limit")
+
+        listener = self._listener
+        if listener is not None and listener.is_running:
+            return listener.send_text(
+                target,
+                message,
+                ext_content=ext_content,
+                timeout=timeout,
+            )
 
         token = self._resolve_token()
         device_id = self._resolve_device_id()
@@ -143,6 +153,45 @@ class RongCloudTransport:
             ext_content=ext_content,
             timeout=timeout,
         )
+
+    def listen(
+        self,
+        callback: Callable[..., Any],
+        *,
+        group_ids: int | str | Iterable[int | str] | None = None,
+        include_self: bool = True,
+        backlog: bool = False,
+        poll_interval: float = 1.0,
+    ) -> Any:
+        """Start receiving incoming group messages for this account.
+
+        A listener owns the account's RongCloud session. ``send_text`` on this
+        transport uses that same connection while it is running.
+        """
+        from .rongcloud_listener import GroupMessageSubscription, RongCloudListener
+
+        listener = self._listener
+        if listener is not None and listener.is_running:
+            raise RuntimeError("a RongCloud listener is already running for this account")
+        listener = RongCloudListener(
+            self,
+            callback,
+            group_ids=group_ids,
+            include_self=include_self,
+            backlog=backlog,
+            timeout=self.timeout,
+            poll_interval=poll_interval,
+        )
+        self._listener = listener
+        listener.start()
+        return GroupMessageSubscription(listener)
+
+    def stop_listening(self, timeout: float | None = 5.0) -> None:
+        listener = self._listener
+        if listener is not None:
+            listener.stop(timeout)
+        if self._listener is listener:
+            self._listener = None
 
     def _resolve_token(self) -> str:
         if self.token:

@@ -5,7 +5,7 @@
 A Python client for the Blockman GO (BlockyMods) HTTP API. It handles login, the
 `x-sign` request format, the per-request access-token header, session storage,
 profiles, games, leaderboards, friends, groups, and RongCloud group text
-sending.
+sending and listening.
 
 This is an unofficial client. The API is private, version-sensitive, and can
 change without notice.
@@ -220,6 +220,36 @@ transports can implement the same two-method contract. See
 [Group chats](docs/group-chat.md) for the transport details and multi-account
 examples.
 
+### Incoming group messages
+
+The RongCloud transport can also keep a listener open and deliver incoming
+group messages:
+
+```python
+def on_message(message):
+    if message.text == "!ping":
+        account.group.send_text(message.group_id, "pong")
+
+subscription = account.group.listen(
+    on_message,
+    group_ids=[123456],
+    poll_interval=1.0,
+)
+
+# send while listening; this reuses the listener connection
+account.group.send_text(123456, "hello")
+
+subscription.stop()
+```
+
+Synchronous callbacks run on a worker thread, so a slow command handler does
+not stop the socket from reading and `send_text()` is safe inside the callback.
+The listener deduplicates by `message_uid` and advances its sync cursor. Image messages
+arrive with `object_name="RC:ImgMsg"` and their URL is available as
+`message.image_url`. `account.group.async_listen(...)` accepts an async
+callback. Social-state polling is separate and still works normally. See
+`examples/group_chat_listener.py` for a runnable example.
+
 ## Async
 
 Most module methods have an `async_` counterpart.
@@ -315,7 +345,7 @@ python tools/generate_api_docs.py
 
 The main flows have been checked against Blockman GO 3.31.1:
 
-- Unit tests: 56 passing, offline.
+- Unit tests: 77 passing, offline.
 - Signing and access-token encoding reproduced from 3.31.1 client traffic.
 - Device values read from the same 3.31.1 installation's MMKV store.
 - Live friend and group snapshots loaded through the corrected endpoints.
@@ -337,6 +367,8 @@ src/blockmango/
   social.py        friend/group snapshots, diffs, polling
   rongcloud_transport.py
                    pure-Python RongCloud group sender
+  rongcloud_listener.py
+                   persistent incoming group-message listener
   constants.py     app version, headers, endpoint rules
   submodules/      typed endpoint groups
 tools/             device extractor and API-doc generator
@@ -397,8 +429,9 @@ See [Authentication](docs/authentication.md) for session and token details.
   has been verified against the current server.
 - `remote_config.get_game_resource_config()` returned `code 6`, and
   `game.get_update_tip()` returned an empty response in the last live run.
-- Group text sending is built in and uses RongCloud over WebSocket. Media
-  messages and history sync are not included yet.
+- Group text sending and incoming group-message listening are built in and use
+  RongCloud over WebSocket. Media messages and history sync are not included
+  yet.
 
 ## License
 

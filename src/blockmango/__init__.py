@@ -19,9 +19,11 @@ from .exceptions import (
 )
 from .models import (
     AccountFriendMatch, ClanInfo, ClanMember, ClanRole, DecorationItem,
-    GroupInfo, GroupMember, RankEntry, RongCloudToken, SignInStatus, TaskInfo,
+    GroupInfo, GroupMember, GroupMessage, RankEntry, RongCloudToken, SignInStatus,
+    TaskInfo,
     UserProfile, UserStats, Wardrobe,
 )
+from .rongcloud_listener import GroupMessageSubscription, RongCloudListener
 from .rongcloud_transport import RongCloudTransport, RongCloudTransportError
 from .session import SessionStore, load_session, save_session
 from .social import SocialSnapshot, SocialState, SocialSubscription, SocialUpdate
@@ -47,12 +49,13 @@ __all__ = [
     "AuthError", "BlockmangoError", "CryptoError", "NetworkError",
     "NotFoundError", "RateLimitError", "SessionError", "SignError", "ValidationError",
     "AccountFriendMatch", "ClanInfo", "ClanMember", "ClanRole", "DecorationItem",
-    "GroupInfo", "GroupMember", "RankEntry", "RongCloudToken", "SignInStatus",
+    "GroupInfo", "GroupMember", "GroupMessage", "RankEntry", "RongCloudToken", "SignInStatus",
     "TaskInfo", "UserProfile", "UserStats", "Wardrobe",
     "SessionStore", "load_session", "save_session",
     "SocialState", "SocialSnapshot", "SocialSubscription", "SocialUpdate",
     "FunctionGroupTransport", "GroupMessageResult", "GroupMessageTransport",
     "GroupMessagingUnavailable", "RongCloudTransport", "RongCloudTransportError",
+    "RongCloudListener", "GroupMessageSubscription",
     "ActivityAPI", "BackpackAPI", "BedwarAPI", "ClanAPI", "DecorationAPI",
     "ExtendedAPI", "FriendsAPI", "GameAPI", "GratitudeAPI", "GroupAPI",
     "MailboxAPI", "NoticeAPI", "PayAPI", "RankingAPI", "RemoteConfigAPI",

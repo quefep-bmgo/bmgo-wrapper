@@ -244,6 +244,39 @@ class GroupInfo:
 
 
 @dataclass(slots=True)
+class GroupMessage:
+    """One incoming RongCloud group message.
+
+    ``text`` is populated for ``RC:TxtMsg``. Other object names keep their
+    decoded JSON in ``content`` and remain available through ``object_name``
+    and ``raw``.
+    """
+
+    group_id: str
+    sender_id: str
+    object_name: str
+    text: str | None = None
+    content: dict[str, Any] | None = None
+    message_uid: str | None = None
+    sent_at: int | None = None
+    is_self: bool = False
+    raw: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def image_url(self) -> str | None:
+        """Convenience URL for ``RC:ImgMsg`` content, when present."""
+        if not self.content:
+            return None
+        value = (
+            self.content.get("imageUri")
+            or self.content.get("imageUrl")
+            or self.content.get("remoteUrl")
+            or self.content.get("url")
+        )
+        return str(value) if value else None
+
+
+@dataclass(slots=True)
 class GroupMember:
     user_id: int
     nick_name: str

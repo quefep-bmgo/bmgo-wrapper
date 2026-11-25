@@ -11,6 +11,7 @@ else:
     BmgAccount = Any
 
 from ..models import GroupInfo, GroupMember
+from ..rongcloud_listener import GroupMessageSubscription, async_listen as start_async_listener
 from ..transport import (
     GroupMessageResult,
     GroupMessageTransport,
@@ -195,6 +196,62 @@ class GroupAPI:
             ext_content=ext_content,
             timeout=timeout,
         )
+
+    def listen(
+        self,
+        callback,
+        *,
+        group_ids=None,
+        include_self: bool = True,
+        backlog: bool = False,
+        poll_interval: float = 1.0,
+    ) -> GroupMessageSubscription:
+        """Start receiving incoming group messages.
+
+        ``callback`` receives a :class:`~blockmango.GroupMessage` for each
+        matching message. The listener owns the RongCloud session, so
+        ``send_text`` uses the same connection while it is active.
+        """
+        transport = self._transport
+        if transport is None or not hasattr(transport, "listen"):
+            raise GroupMessagingUnavailable(
+                "the installed transport does not support incoming messages"
+            )
+        return transport.listen(
+            callback,
+            group_ids=group_ids,
+            include_self=include_self,
+            backlog=backlog,
+            poll_interval=poll_interval,
+        )
+
+    async def async_listen(
+        self,
+        callback,
+        *,
+        group_ids=None,
+        include_self: bool = True,
+        backlog: bool = False,
+        poll_interval: float = 1.0,
+    ) -> GroupMessageSubscription:
+        """Start a listener whose callback may be async."""
+        return start_async_listener(
+            self,
+            callback,
+            group_ids=group_ids,
+            include_self=include_self,
+            backlog=backlog,
+            poll_interval=poll_interval,
+        )
+
+    def stop_listening(self, timeout: float | None = 5.0) -> None:
+        transport = self._transport
+        if transport is not None and hasattr(transport, "stop_listening"):
+            transport.stop_listening(timeout)
+
+    def close(self) -> None:
+        """Stop any active message listener."""
+        self.stop_listening()
 
     def _group_cache_valid(self, max_groups: int, ttl: float, force_refresh: bool) -> bool:
         if force_refresh or self._cache is None:

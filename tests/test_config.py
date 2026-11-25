@@ -30,6 +30,8 @@ class ConfigTests(unittest.TestCase):
                     self.assertEqual(account.username, "test-user")
                     self.assertEqual(account.password, "test-pass")
                     self.assertEqual(account.config.device_id, "test-device")
+                    self.assertEqual(account._device_id, "test-device")
+                    self.assertEqual(account._device_sign, "test-sign")
             finally:
                 os.chdir(previous)
 
